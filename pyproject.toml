@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rlbot"
+dynamic = ["version"]
+requires-python = ">= 3.11"
+dependencies = [
+    "rlbot-flatbuffers==0.1.*",
+    "psutil==5.*",
+]
+
+[tool.setuptools.dynamic]
+version = {attr = "rlbot.__version__"}

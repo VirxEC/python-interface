@@ -1,0 +1,61 @@
+[rlbot]
+# rocket_league_exe_path = "epicgames/path/to/rocketleague.exe"
+# "Steam", "Epic"
+launcher = "steam"
+# Should RLBot start the bot processes automatically, or will a separate script start them
+auto_start_bots = true
+
+[match]
+# Number of bots/players which will be spawned.  We support up to max 64.
+num_participants = 0
+# What game mode the game should load.
+# Accepted values are "Soccer", "Hoops", "Dropshot", "Hockey", "Rumble", "Heatseeker", "Gridiron"
+game_mode = "Soccer"
+# Which map the game should load into
+game_map_upk = "Stadium_P"
+# Automatically skip replays after a goal. Also stops match replays from being saved.
+skip_replays = false
+# Skip the kickoff countdown
+start_without_countdown = false
+# What should we do if you click run while a match is already in progress?
+# "Restart If Different", "Restart", "Continue And Spawn"
+existing_match_behavior = "Restart"
+enable_rendering = true
+enable_state_setting = true
+auto_save_replay = false
+
+[mutators]
+# "Five_Minutes", "Ten_Minutes", "Twenty_Minutes", "Unlimited"
+match_length = "Five_Minutes"
+# "Unlimited", "One_Goal", "Three_Goals", "Five_Goals",
+max_score = "Unlimited"
+# "Unlimited", "Five_Max_First_Score", "Five_Max_Random_Team"
+overtime = "Unlimited"
+# "Default", "Slo_Mo", "Time_Warp"
+game_speed = "Default"
+# "Default", "Slow", "Fast", "Super_Fast"
+ball_max_speed = "Default"
+# "Default", "Cube", "Puck", "Basketball"
+ball_type = "Default"
+# "Default", "Light", "Heavy", "Super_Light"
+ball_weight = "Default"
+# "Default", "Small", "Large", "Gigantic"
+ball_size = "Default"
+# "Default", "Low", "High", "Super_High"
+ball_bounciness = "Default"
+# "Normal_Boost", "Unlimited", "Slow_Recharge", "Rapid_Recharge", "No_Boost"
+boost_amount = "Normal_Boost"
+# "No_Rumble", "Default", "Slow", "Civilized", "Destruction_Derby", "Spring_Loaded", "Spikes_Only", "Spike_Rush"
+rumble = "No_Rumble"
+# "One", "OneAndAHalf", "Two", "Ten"
+boost_strength = "One"
+# "Default", "Low", "High", "Super_High"
+gravity = "Default"
+# "Default", "Disabled", "Friendly_Fire", "On_Contact", "On_Contact_FF"
+demolish = "Default"
+# "Three_Seconds", "Two_Seconds", "One_Seconds", "Disable_Goal_Reset"
+respawn_time = "Three_Seconds"
+
+[[bots]]
+type = "human"
+team = 0
