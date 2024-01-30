@@ -7,7 +7,7 @@ auto_start_bots = true
 
 [match]
 # Number of bots/players which will be spawned.  We support up to max 64.
-num_participants = 0
+num_cars = 1
 # What game mode the game should load.
 # Accepted values are "Soccer", "Hoops", "Dropshot", "Hockey", "Rumble", "Heatseeker", "Gridiron"
 game_mode = "Soccer"
@@ -56,6 +56,6 @@ demolish = "Default"
 # "Three_Seconds", "Two_Seconds", "One_Seconds", "Disable_Goal_Reset"
 respawn_time = "Three_Seconds"
 
-[[bots]]
+[[cars]]
 type = "human"
 team = 0
