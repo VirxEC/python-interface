@@ -17,7 +17,7 @@ class MatchManager:
         self.main_executable_path = main_executable_path
 
         self.logger = DEFAULT_LOGGER
-        self.game_state = int(flat.GameStateType.Inactive)
+        self.game_state: int = int(flat.GameStateType.Inactive)
         self.rlbot_server_process: Optional[psutil.Process] = None
 
         self.rlbot_interface: SocketRelay = SocketRelay()

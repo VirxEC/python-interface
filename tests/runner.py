@@ -4,6 +4,12 @@ from traceback import print_exc
 
 from rlbot.managers.match import MatchManager
 from rlbot.utils.logging import get_logger
+from rlbot.utils.os_detector import CURRENT_OS, OS
+
+if CURRENT_OS == OS.WINDOWS:
+    import os
+
+    os.system("color")
 
 CURRENT_FILE = Path(__file__).parent
 
