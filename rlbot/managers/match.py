@@ -68,9 +68,7 @@ class MatchManager:
             int(flat.GameStateType.Inactive),
             int(flat.GameStateType.Ended),
         }:
-            print(self.game_state)
             sleep(0.1)
-        print(self.game_state)
 
     def start_match(self, match_config_path: Path):
         self.logger.info("Python attempting to start match.")
