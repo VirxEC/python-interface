@@ -3,9 +3,8 @@ from time import sleep
 from typing import Optional
 
 import psutil
-import rlbot_flatbuffers as flat
 
-from rlbot import version
+from rlbot import flat, version
 from rlbot.interface import SocketRelay
 from rlbot.utils import gateway
 from rlbot.utils.logging import DEFAULT_LOGGER
@@ -80,19 +79,20 @@ class MatchManager:
     def shut_down(self):
         self.logger.info("Shutting down RLBot...")
 
-        self.rlbot_interface.disconnect()
+        self.rlbot_interface.stop_match(True)
+        # self.rlbot_interface.disconnect()
 
-        if self.rlbot_server_process is None:
-            self.logger.warning(f"{MAIN_EXECUTABLE_NAME} is not running.")
-            return
+        # if self.rlbot_server_process is None:
+        #     self.logger.warning(f"{MAIN_EXECUTABLE_NAME} is not running.")
+        #     return
         
-        self.logger.info(f"Killing {MAIN_EXECUTABLE_NAME}...")
-        self.rlbot_server_process.terminate()
+        # self.logger.info(f"Killing {MAIN_EXECUTABLE_NAME}...")
+        # self.rlbot_server_process.terminate()
 
-        # often the process doesn't die on the first try
-        # so we wait a second and try again (this usually works fine)
-        # if we end up waiting more than 4 seconds, we start spitting out warnings
-        # if we have to wait more than 10 seconds, spit out a warning and start calling kill
+        # # often the process doesn't die on the first try
+        # # so we wait a second and try again (this usually works fine)
+        # # if we end up waiting more than 4 seconds, we start spitting out warnings
+        # # if we have to wait more than 10 seconds, spit out a warning and start calling kill
 
         i = 0
         while self.rlbot_server_process is not None:
@@ -102,17 +102,18 @@ class MatchManager:
             self.rlbot_server_process, _ = gateway.find_existing_process()
 
             if self.rlbot_server_process is not None:
-                if i == 1:
-                    self.rlbot_server_process.terminate()
-                elif i == 4 or i == 7:
-                    self.logger.warning(
-                        f"{MAIN_EXECUTABLE_NAME} is not responding to terminate requests."
-                    )
-                    self.rlbot_server_process.terminate()
-                elif i >= 10 and i % 3 == 1:
-                    self.logger.error(
-                        f"{MAIN_EXECUTABLE_NAME} is not responding, forcefully killing."
-                    )
-                    self.rlbot_server_process.kill()
+                self.logger.info(f"Waiting for {MAIN_EXECUTABLE_NAME} to shut down...")
+                # if i == 1:
+                #     self.rlbot_server_process.terminate()
+                # elif i == 4 or i == 7:
+                #     self.logger.warning(
+                #         f"{MAIN_EXECUTABLE_NAME} is not responding to terminate requests."
+                #     )
+                #     self.rlbot_server_process.terminate()
+                # elif i >= 10 and i % 3 == 1:
+                #     self.logger.error(
+                #         f"{MAIN_EXECUTABLE_NAME} is not responding, forcefully killing."
+                #     )
+                #     self.rlbot_server_process.kill()
 
         self.logger.info("Shut down complete!")

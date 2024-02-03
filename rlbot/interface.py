@@ -6,8 +6,7 @@ from threading import Thread
 from time import sleep
 from typing import Callable, Optional
 
-import rlbot_flatbuffers as flat
-
+from rlbot import flat
 from rlbot.utils.logging import get_logger
 
 # We can connect to RLBotServer on this port.
@@ -32,6 +31,7 @@ class SocketDataType(IntEnum):
     BALL_PREDICTION = 10
     READY_MESSAGE = 11
     MESSAGE_PACKET = 12
+    STOP_COMMAND = 13
 
 
 MAX_SIZE_2_BYTES = 2**16 - 1
@@ -112,6 +112,10 @@ class SocketRelay:
     def remove_render_group(self, group_id: int):
         flatbuffer = flat.RemoveRenderGroup(group_id).pack()
         self.send_bytes(flatbuffer, SocketDataType.REMOVE_RENDER_GROUP)
+
+    def stop_match(self, shutdown_server: bool = False):
+        flatbuffer = flat.StopCommand(shutdown_server).pack()
+        self.send_bytes(flatbuffer, SocketDataType.STOP_COMMAND)
 
     def start_match(self, match_config_path: Path):
         string_path = str(match_config_path.absolute().resolve())

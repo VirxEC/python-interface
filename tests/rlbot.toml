@@ -1,0 +1,59 @@
+[rlbot]
+launcher = "steam"
+auto_start_bots = true
+
+[match]
+num_cars = 4
+num_scripts = 0
+game_mode = "Soccer"
+game_map_upk = "Stadium_P"
+skip_replays = false
+start_without_countdown = false
+existing_match_behavior = "Restart"
+enable_rendering = true
+enable_state_setting = true
+auto_save_replay = false
+
+[mutators]
+match_length = "Twenty_Minutes"
+ball_max_speed = "Fast"
+ball_type = "Puck"
+ball_weight = "Super_Light"
+ball_size = "Large"
+ball_bounciness = "Super_High"
+boost_amount = "Unlimited"
+rumble = "Spikes_Only"
+boost_strength = "OneAndAHalf"
+respawn_time = "One_Seconds"
+
+# Only num_cars configs will be used, in the order they are defined
+[[cars]]
+# The location of the configuration file for your agent here
+# The path is always relative to the folder that this file is in
+config = "atba/atba.toml"
+# Which team the player should be on:
+# team 0 (blue) shoots on positive goal, team 1 (orange) shoots on negative goal
+team = 0
+# Accepted values are "human", "rlbot", "psyonix"
+# If no player is specified you will be spawned in as spectator!
+# human - not controlled by the framework
+# rlbot - controlled by the framework
+# psyonix - default bots
+type = "rlbot"
+
+[[cars]]
+config = "atba/atba.toml"
+team = 1
+# you don't have to specify type/skill for rlbots
+
+[[cars]]
+# you don't need to specify a config for psyonix bots and humans
+team = 0
+type = "psyonix"
+# If participant is a bot and not RLBot controlled, this value will be used to set bot skill.
+# 0.0 is Rookie, 0.5 is pro, 1.0 is all-star.  You can set values in-between as well.
+skill = 1
+
+[[cars]]
+type = "human"
+team = 1

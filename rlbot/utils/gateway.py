@@ -36,18 +36,11 @@ def find_main_executable_path(
 
 
 def launch(main_executable_path: Path):
-    port = DEFAULT_RLBOT_PORT
-    try:
-        desired_port = find_usable_port()
-        port = desired_port
-    except Exception as e:
-        print(str(e))
-
     directory, path = find_main_executable_path(main_executable_path)
 
     if path is None or not os.access(path, os.F_OK):
         raise FileNotFoundError(
-            f"Unable to find RLBot binary at {path}! Is your antivirus messing you up? Check "
+            f"Unable to find RLBotServer at {path}! Is your antivirus messing you up? Check "
             "https://github.com/RLBot/RLBot/wiki/Antivirus-Notes."
         )
 
@@ -56,13 +49,19 @@ def launch(main_executable_path: Path):
 
     if not os.access(path, os.X_OK):
         raise PermissionError(
-            "Unable to execute RLBot binary due to file permissions! Is your antivirus messing you up? "
+            "Unable to execute RLBotServer due to file permissions! Is your antivirus messing you up? "
             f"Check https://github.com/RLBot/RLBot/wiki/Antivirus-Notes. The exact path is {path}"
         )
 
+    port = DEFAULT_RLBOT_PORT
+    try:
+        port = find_usable_port()
+    except Exception as e:
+        DEFAULT_LOGGER.error(str(e))
+
     args = [str(path), str(port)]
 
-    DEFAULT_LOGGER.info(f"Launching RLBot binary with args {args}")
+    DEFAULT_LOGGER.info(f"Launching RLBotServer with args {args}")
     if CURRENT_OS != OS.WINDOWS:
         # Unix only works this way, not sure why. Windows works better with the array, guards against spaces in path.
         args = " ".join(args)
@@ -78,8 +77,8 @@ def find_existing_process() -> tuple[Optional[psutil.Process], int]:
                     port = int(proc.cmdline()[1])
                     return proc, port
                 logger.error(
-                    f"Failed to find the RLBot port being used in the process args! Guessing "
-                    f"{IDEAL_RLBOT_PORT}."
+                    "Failed to find the RLBot port being used in the process args! "
+                    + f"Guessing {IDEAL_RLBOT_PORT}."
                 )
                 return proc, IDEAL_RLBOT_PORT
         except Exception as e:

@@ -4,17 +4,12 @@ from traceback import print_exc
 
 from rlbot.managers.match import MatchManager
 from rlbot.utils.logging import get_logger
-from rlbot.utils.os_detector import CURRENT_OS, OS
-
-if CURRENT_OS == OS.WINDOWS:
-    import os
-
-    os.system("color")
 
 CURRENT_FILE = Path(__file__).parent
 
 RLBOT_SERVER_FOLDER = CURRENT_FILE / "../../core/RLBotCS/bin/Release/"
-MATCH_CONFIG_PATH = CURRENT_FILE / "default.toml"
+# MATCH_CONFIG_PATH = CURRENT_FILE / "default.toml"
+MATCH_CONFIG_PATH = CURRENT_FILE / "rlbot.toml"
 
 if __name__ == "__main__":
     logger = get_logger("runner")
@@ -26,7 +21,7 @@ if __name__ == "__main__":
         match_manager.start_match(MATCH_CONFIG_PATH)
 
         logger.info("Waiting before shutdown...")
-        sleep(3)
+        sleep(8)
         raise Exception("Test exception")
     except KeyboardInterrupt:
         logger.warning("Shutting down early due to interrupt")
