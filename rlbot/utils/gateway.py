@@ -8,7 +8,7 @@ from typing import Optional
 import psutil
 
 from rlbot.utils.logging import DEFAULT_LOGGER
-from rlbot.utils.os_detector import CURRENT_OS, MAIN_EXECUTABLE_NAME, OS
+from rlbot.utils.os_detector import CURRENT_OS, OS
 
 # Generated randomly by Kipje13, and confirmed to have no conflict with any common programs
 # https://www.adminsub.net/tcp-udp-port-finder/23233
@@ -20,6 +20,7 @@ DEFAULT_RLBOT_PORT = 50000
 
 def find_main_executable_path(
     main_executable_path: Path,
+    main_executable_name: str,
 ) -> tuple[Path, Optional[Path]]:
     main_executable_path = main_executable_path.absolute().resolve()
 
@@ -29,14 +30,16 @@ def find_main_executable_path(
 
     # search subdirectories for the main executable
     for path in main_executable_path.glob("**/*"):
-        if path.is_file() and path.name == MAIN_EXECUTABLE_NAME:
+        if path.is_file() and path.name == main_executable_name:
             return path.parent, path
 
     return main_executable_path, None
 
 
-def launch(main_executable_path: Path):
-    directory, path = find_main_executable_path(main_executable_path)
+def launch(main_executable_path: Path, main_executable_name: str):
+    directory, path = find_main_executable_path(
+        main_executable_path, main_executable_name
+    )
 
     if path is None or not os.access(path, os.F_OK):
         raise FileNotFoundError(
@@ -68,11 +71,13 @@ def launch(main_executable_path: Path):
     return subprocess.Popen(args, shell=True, cwd=directory), port
 
 
-def find_existing_process() -> tuple[Optional[psutil.Process], int]:
+def find_existing_process(
+    main_executable_name: str,
+) -> tuple[Optional[psutil.Process], int]:
     logger = DEFAULT_LOGGER
     for proc in psutil.process_iter():
         try:
-            if proc.name() == MAIN_EXECUTABLE_NAME:
+            if proc.name() == main_executable_name:
                 if len(proc.cmdline()) > 1:
                     port = int(proc.cmdline()[1])
                     return proc, port
@@ -83,7 +88,7 @@ def find_existing_process() -> tuple[Optional[psutil.Process], int]:
                 return proc, IDEAL_RLBOT_PORT
         except Exception as e:
             logger.error(
-                f"Failed to read the name of a process while hunting for {MAIN_EXECUTABLE_NAME}: {e}"
+                f"Failed to read the name of a process while hunting for {main_executable_name}: {e}"
             )
     return None, IDEAL_RLBOT_PORT
 

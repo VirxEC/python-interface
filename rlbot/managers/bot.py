@@ -11,10 +11,20 @@ class Bot:
     """
     A convenience class for building bots on top of.
     """
+    logger = DEFAULT_LOGGER
+
+    index: int = -1
+    team: int = -1
+    name: str = ""
+
+    initialized_bot = False
+    has_match_settings = False
+    has_field_info = False
+
+    match_settings = flat.MatchSettings()
+    field_info = flat.FieldInfo()
 
     def __init__(self):
-        self.logger = DEFAULT_LOGGER
-
         spawn_id = os.environ.get("BOT_SPAWN_ID")
 
         if spawn_id is None:
@@ -24,22 +34,12 @@ class Bot:
             self.spawn_id: int = int(spawn_id)
             self.logger.info(f"Spawn ID: {self.spawn_id}")
 
-        self.index: int = -1
-        self.team: int = -1
-        self.name: str = ""
-
-        self.initialized_bot = False
-        self.has_match_settings = False
-        self.has_field_info = False
-
         self.game_interface = SocketRelay(logger=self.logger)
         self.game_interface.match_settings_handlers.append(self._handle_match_settings)
         self.game_interface.field_info_handlers.append(self._handle_field_info)
         self.game_interface.packet_handlers.append(self._handle_packet)
 
         self.renderer = RenderingManager(self.game_interface)
-        self.match_settings = flat.MatchSettings()
-        self.field_info = flat.FieldInfo()
 
     def _handle_match_settings(self, match_settings: flat.MatchSettings):
         self.match_settings = match_settings

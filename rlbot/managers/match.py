@@ -12,12 +12,17 @@ from rlbot.utils.os_detector import MAIN_EXECUTABLE_NAME
 
 
 class MatchManager:
-    def __init__(self, main_executable_path: Optional[Path] = None):
-        self.main_executable_path = main_executable_path
+    logger = DEFAULT_LOGGER
+    game_state: int = int(flat.GameStateType.Inactive)
+    rlbot_server_process: Optional[psutil.Process] = None
 
-        self.logger = DEFAULT_LOGGER
-        self.game_state: int = int(flat.GameStateType.Inactive)
-        self.rlbot_server_process: Optional[psutil.Process] = None
+    def __init__(
+        self,
+        main_executable_path: Optional[Path] = None,
+        main_executable_name: str = MAIN_EXECUTABLE_NAME,
+    ):
+        self.main_executable_path = main_executable_path
+        self.main_executable_name = main_executable_name
 
         self.rlbot_interface: SocketRelay = SocketRelay()
         self.rlbot_interface.packet_handlers.append(self.packet_reporter)
@@ -30,21 +35,25 @@ class MatchManager:
         Rocket League should be passed a command line argument so that it starts with this same port.
         """
 
-        self.rlbot_server_process, port = gateway.find_existing_process()
+        self.rlbot_server_process, port = gateway.find_existing_process(
+            self.main_executable_name
+        )
         if self.rlbot_server_process is not None:
             self.logger.info(
-                f"Already have {MAIN_EXECUTABLE_NAME} running! Port is {port}"
+                f"Already have {self.main_executable_name} running! Port is {port}"
             )
             return port
 
         if self.main_executable_path is None:
             raise Exception("No main_executable_path found. Please specify it.")
 
-        rlbot_server_process, port = gateway.launch(self.main_executable_path)
+        rlbot_server_process, port = gateway.launch(
+            self.main_executable_path, self.main_executable_name
+        )
         self.rlbot_server_process = psutil.Process(rlbot_server_process.pid)
 
         self.logger.info(
-            f"Started {MAIN_EXECUTABLE_NAME} with process id {self.rlbot_server_process.pid} "
+            f"Started {self.main_executable_name} with process id {self.rlbot_server_process.pid} "
             f"and port {port}"
         )
 
@@ -83,10 +92,10 @@ class MatchManager:
         # self.rlbot_interface.disconnect()
 
         # if self.rlbot_server_process is None:
-        #     self.logger.warning(f"{MAIN_EXECUTABLE_NAME} is not running.")
+        #     self.logger.warning(f"{self.main_executable_name} is not running.")
         #     return
-        
-        # self.logger.info(f"Killing {MAIN_EXECUTABLE_NAME}...")
+
+        # self.logger.info(f"Killing {self.main_executable_name}...")
         # self.rlbot_server_process.terminate()
 
         # # often the process doesn't die on the first try
@@ -99,20 +108,24 @@ class MatchManager:
             i += 1
             sleep(1)
 
-            self.rlbot_server_process, _ = gateway.find_existing_process()
+            self.rlbot_server_process, _ = gateway.find_existing_process(
+                self.main_executable_name
+            )
 
             if self.rlbot_server_process is not None:
-                self.logger.info(f"Waiting for {MAIN_EXECUTABLE_NAME} to shut down...")
+                self.logger.info(
+                    f"Waiting for {self.main_executable_name} to shut down..."
+                )
                 # if i == 1:
                 #     self.rlbot_server_process.terminate()
                 # elif i == 4 or i == 7:
                 #     self.logger.warning(
-                #         f"{MAIN_EXECUTABLE_NAME} is not responding to terminate requests."
+                #         f"{self.main_executable_name} is not responding to terminate requests."
                 #     )
                 #     self.rlbot_server_process.terminate()
                 # elif i >= 10 and i % 3 == 1:
                 #     self.logger.error(
-                #         f"{MAIN_EXECUTABLE_NAME} is not responding, forcefully killing."
+                #         f"{self.main_executable_name} is not responding, forcefully killing."
                 #     )
                 #     self.rlbot_server_process.kill()
 

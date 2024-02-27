@@ -60,31 +60,31 @@ def read_from_socket(s: socket) -> SocketMessage:
 
 
 class SocketRelay:
+    is_connected = False
+    _should_continue = True
+
+    on_connect_handlers: list[Callable[[], None]] = []
+    packet_handlers: list[Callable[[flat.GameTickPacket], None]] = []
+    field_info_handlers: list[Callable[[flat.FieldInfo], None]] = []
+    match_settings_handlers: list[Callable[[flat.MatchSettings], None]] = []
+    # quick_chat_handlers: list[Callable[[flat.QuickChat], None]] = []
+    ball_prediction_handlers: list[Callable[[flat.BallPrediction], None]] = []
+    player_input_change_handlers: list[
+        Callable[[flat.PlayerInputChange, float, int], None]
+    ] = []
+    player_stat_handlers: list[Callable[[flat.PlayerStatEvent, float, int], None]] = []
+    player_spectate_handlers: list[
+        Callable[[flat.PlayerSpectate, float, int], None]
+    ] = []
+    raw_handlers: list[Callable[[SocketMessage], None]] = []
+
     def __init__(
         self, connection_timeout: float = 120, logger: Optional[logging.Logger] = None
     ):
         self.connection_timeout = connection_timeout
         self.logger = get_logger("interface") if logger is None else logger
-        self.socket = socket()
-        self.is_connected = False
-        self._should_continue = True
 
-        self.on_connect_handlers: list[Callable[[], None]] = []
-        self.packet_handlers: list[Callable[[flat.GameTickPacket], None]] = []
-        self.field_info_handlers: list[Callable[[flat.FieldInfo], None]] = []
-        self.match_settings_handlers: list[Callable[[flat.MatchSettings], None]] = []
-        # self.quick_chat_handlers: list[Callable[[flat.QuickChat], None]] = []
-        self.ball_prediction_handlers: list[Callable[[flat.BallPrediction], None]] = []
-        self.player_input_change_handlers: list[
-            Callable[[flat.PlayerInputChange, float, int], None]
-        ] = []
-        self.player_stat_handlers: list[
-            Callable[[flat.PlayerStatEvent, float, int], None]
-        ] = []
-        self.player_spectate_handlers: list[
-            Callable[[flat.PlayerSpectate, float, int], None]
-        ] = []
-        self.raw_handlers: list[Callable[[SocketMessage], None]] = []
+        self.socket = socket()
 
     def __del__(self):
         self.socket.close()

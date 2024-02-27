@@ -24,21 +24,20 @@ class RenderingManager:
     purple = flat.Color(128, 0, 128, 255)
     teal = flat.Color(0, 128, 128, 255)
 
+    logger = get_logger("renderer")
+
+    used_group_ids: set[int] = set()
+    group_id: Optional[int] = None
+    current_renders: list[flat.RenderMessage] = []
+
     def __init__(self, game_interface: SocketRelay):
-        self.logger = get_logger("renderer")
+        self._render_group: Callable[[flat.RenderGroup], None] = (
+            game_interface.send_render_group
+        )
 
-        self.used_group_ids: set[int] = set()
-        self.group_id: Optional[int] = None
-
-        self.current_renders: list[flat.RenderMessage] = []
-
-        self._render_group: Callable[
-            [flat.RenderGroup], None
-        ] = game_interface.send_render_group
-
-        self._remove_render_group: Callable[
-            [int], None
-        ] = game_interface.remove_render_group
+        self._remove_render_group: Callable[[int], None] = (
+            game_interface.remove_render_group
+        )
 
     @staticmethod
     def create_color(red: int, green: int, blue: int, alpha: int = 255):
