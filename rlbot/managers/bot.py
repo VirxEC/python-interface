@@ -60,6 +60,7 @@ class Bot:
     def _handle_field_info(self, field_info: flat.FieldInfo):
         self.field_info = field_info
         self.has_field_info = True
+
         if not self.initialized_bot and self.has_match_settings:
             self.initialize_agent()
             self.initialized_bot = True

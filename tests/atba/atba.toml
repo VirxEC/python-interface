@@ -1,6 +1,6 @@
 [settings]
 # The name that will be displayed in game
-name = "AlwaysTowardsBallAgent"
+name = "ATBA_v5"
 # Path to loadout config from runner
 looks_config = "necto.toml"
 # What you want the working directory set to
