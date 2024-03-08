@@ -1,7 +1,7 @@
 import math
 
 from rlbot import flat
-from rlbot.managers.bot import Bot
+from rlbot.managers import Bot
 
 
 class Vector2:

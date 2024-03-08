@@ -4,7 +4,7 @@ from rlbot.managers.rendering import RenderingManager
 from rlbot.utils.logging import get_logger
 
 
-class ScriptManager:
+class Script:
     """
     A convenience class for building scripts on top of.
     """

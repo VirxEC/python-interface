@@ -42,6 +42,9 @@ team = 0
 type = "rlbot"
 
 [[cars]]
+config = "necto/bot.toml"
+
+[[cars]]
 config = "atba/atba.toml"
 team = 1
 # you don't have to specify type/skill for rlbots

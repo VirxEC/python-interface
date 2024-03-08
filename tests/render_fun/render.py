@@ -1,9 +1,9 @@
 from render_mesh import *
 
-from rlbot.managers.script import ScriptManager
+from rlbot.managers import Script
 
 
-class RenderFun(ScriptManager):
+class RenderFun(Script):
     def __init__(self):
         self.zero_two = unzip_and_build_obj()
 
