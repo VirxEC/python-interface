@@ -202,9 +202,9 @@ class Necto(Bot):
         self.controls.pitch = action[2]
         self.controls.yaw = action[3]
         self.controls.roll = action[4]
-        self.controls.jump = action[5] > 0
-        self.controls.boost = action[6] > 0
-        self.controls.handbrake = action[7] > 0
+        self.controls.jump = bool(action[5] > 0)
+        self.controls.boost = bool(action[6] > 0)
+        self.controls.handbrake = bool(action[7] > 0)
 
 
 if __name__ == "__main__":

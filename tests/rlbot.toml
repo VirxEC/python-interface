@@ -43,6 +43,7 @@ type = "rlbot"
 
 [[cars]]
 config = "necto/bot.toml"
+team = 0
 
 [[cars]]
 config = "atba/atba.toml"
