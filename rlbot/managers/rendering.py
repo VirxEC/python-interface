@@ -24,11 +24,11 @@ class RenderingManager:
     purple = flat.Color(128, 0, 128, 255)
     teal = flat.Color(0, 128, 128, 255)
 
-    logger = get_logger("renderer")
+    _logger = get_logger("renderer")
 
-    used_group_ids: set[int] = set()
-    group_id: Optional[int] = None
-    current_renders: list[flat.RenderMessage] = []
+    _used_group_ids: set[int] = set()
+    _group_id: Optional[int] = None
+    _current_renders: list[flat.RenderMessage] = []
 
     def __init__(self, game_interface: SocketRelay):
         self._render_group: Callable[[flat.RenderGroup], None] = (
@@ -51,58 +51,58 @@ class RenderingManager:
         """
         Begins a new render group. All renders added after this call will be part of this group.
         """
-        if self.group_id is not None:
-            self.logger.error("begin_rendering was called twice without end_rendering.")
+        if self._group_id is not None:
+            self._logger.error("begin_rendering was called twice without end_rendering.")
             return
 
-        self.group_id = RenderingManager._get_group_id(group_id)
-        self.used_group_ids.add(self.group_id)
+        self._group_id = RenderingManager._get_group_id(group_id)
+        self._used_group_ids.add(self._group_id)
 
     def end_rendering(self):
-        if self.group_id is None:
-            self.logger.error("end_rendering was called without begin_rendering first.")
+        if self._group_id is None:
+            self._logger.error("end_rendering was called without begin_rendering first.")
             return
 
-        self._render_group(flat.RenderGroup(self.current_renders, self.group_id))
-        self.current_renders.clear()
-        self.group_id = None
+        self._render_group(flat.RenderGroup(self._current_renders, self._group_id))
+        self._current_renders.clear()
+        self._group_id = None
 
     def clear_render_group(self, group_id: str = DEFAULT_GROUP_ID):
         group_id_hash = RenderingManager._get_group_id(group_id)
         self._remove_render_group(group_id_hash)
-        self.used_group_ids.discard(group_id_hash)
+        self._used_group_ids.discard(group_id_hash)
 
     def clear_all_render_groups(self):
         """
         Clears all render groups which have been drawn to using `begin_rendering(group_id)`.
         Note: This does not clear render groups created by other bots.
         """
-        for group_id in self.used_group_ids:
+        for group_id in self._used_group_ids:
             self._remove_render_group(group_id)
-        self.used_group_ids.clear()
+        self._used_group_ids.clear()
 
     def is_rendering(self):
         """
         Returns True if `begin_rendering` has been called without a corresponding `end_rendering`.
         """
-        return self.group_id is not None
+        return self._group_id is not None
 
     def draw_string_2d(self, render: flat.String2D):
-        self.current_renders.append(
+        self._current_renders.append(
             flat.RenderMessage(flat.RenderType(string_2_d=render))
         )
 
     def draw_string_3d(self, render: flat.String3D):
-        self.current_renders.append(
+        self._current_renders.append(
             flat.RenderMessage(flat.RenderType(string_3_d=render))
         )
 
     def draw_line_3d(self, render: flat.Line3D):
-        self.current_renders.append(
+        self._current_renders.append(
             flat.RenderMessage(flat.RenderType(line_3_d=render))
         )
 
     def draw_polyline_3d(self, render: flat.PolyLine3D):
-        self.current_renders.append(
+        self._current_renders.append(
             flat.RenderMessage(flat.RenderType(poly_line_3_d=render))
         )

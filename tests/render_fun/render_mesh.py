@@ -105,6 +105,7 @@ class ColoredWireframe:
                                 group.color,
                             )
                         )
+
                         self.polygons_rendered += 1
                     else:
                         self.polygons_rendered = 0

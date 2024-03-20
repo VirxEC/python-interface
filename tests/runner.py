@@ -33,7 +33,7 @@ if __name__ == "__main__":
         match_manager.start_match(MATCH_CONFIG_PATH)
 
         logger.info("Waiting before shutdown...")
-        sleep(8)
+        sleep(30)
         raise Exception("Test exception")
     except KeyboardInterrupt:
         logger.warning("Shutting down early due to interrupt")

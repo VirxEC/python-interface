@@ -17,12 +17,12 @@ class Bot:
     team: int = -1
     name: str = ""
 
-    initialized_bot = False
-    has_match_settings = False
-    has_field_info = False
-
     match_settings = flat.MatchSettings()
     field_info = flat.FieldInfo()
+
+    _initialized_bot = False
+    _has_match_settings = False
+    _has_field_info = False
 
     def __init__(self):
         spawn_id = os.environ.get("BOT_SPAWN_ID")
@@ -43,7 +43,7 @@ class Bot:
 
     def _handle_match_settings(self, match_settings: flat.MatchSettings):
         self.match_settings = match_settings
-        self.has_match_settings = True
+        self._has_match_settings = True
 
         # search match settings for our spawn id
         for player in self.match_settings.player_configurations:
@@ -53,20 +53,20 @@ class Bot:
                 self.logger = get_logger(self.name)
                 break
 
-        if not self.initialized_bot and self.has_field_info:
+        if not self._initialized_bot and self._has_field_info:
             self.initialize_agent()
-            self.initialized_bot = True
+            self._initialized_bot = True
 
     def _handle_field_info(self, field_info: flat.FieldInfo):
         self.field_info = field_info
-        self.has_field_info = True
+        self._has_field_info = True
 
-        if not self.initialized_bot and self.has_match_settings:
+        if not self._initialized_bot and self._has_match_settings:
             self.initialize_agent()
-            self.initialized_bot = True
+            self._initialized_bot = True
 
     def _handle_packet(self, packet: flat.GameTickPacket):
-        if not self.initialized_bot:
+        if not self._initialized_bot:
             return
 
         if self.index == -1:

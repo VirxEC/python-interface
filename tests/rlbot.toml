@@ -42,13 +42,13 @@ team = 0
 type = "rlbot"
 
 [[cars]]
-config = "necto/bot.toml"
-team = 0
-
-[[cars]]
 config = "atba/atba.toml"
 team = 1
 # you don't have to specify type/skill for rlbots
+
+[[cars]]
+config = "necto/bot.toml"
+team = 0
 
 [[cars]]
 # you don't need to specify a config for psyonix bots and humans
