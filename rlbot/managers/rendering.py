@@ -52,7 +52,9 @@ class RenderingManager:
         Begins a new render group. All renders added after this call will be part of this group.
         """
         if self._group_id is not None:
-            self._logger.error("begin_rendering was called twice without end_rendering.")
+            self._logger.error(
+                "begin_rendering was called twice without end_rendering."
+            )
             return
 
         self._group_id = RenderingManager._get_group_id(group_id)
@@ -60,7 +62,9 @@ class RenderingManager:
 
     def end_rendering(self):
         if self._group_id is None:
-            self._logger.error("end_rendering was called without begin_rendering first.")
+            self._logger.error(
+                "end_rendering was called without begin_rendering first."
+            )
             return
 
         self._render_group(flat.RenderGroup(self._current_renders, self._group_id))
@@ -88,21 +92,13 @@ class RenderingManager:
         return self._group_id is not None
 
     def draw_string_2d(self, render: flat.String2D):
-        self._current_renders.append(
-            flat.RenderMessage(flat.RenderType(string_2_d=render))
-        )
+        self._current_renders.append(flat.RenderMessage(flat.RenderType(render)))
 
     def draw_string_3d(self, render: flat.String3D):
-        self._current_renders.append(
-            flat.RenderMessage(flat.RenderType(string_3_d=render))
-        )
+        self._current_renders.append(flat.RenderMessage(flat.RenderType(render)))
 
     def draw_line_3d(self, render: flat.Line3D):
-        self._current_renders.append(
-            flat.RenderMessage(flat.RenderType(line_3_d=render))
-        )
+        self._current_renders.append(flat.RenderMessage(flat.RenderType(render)))
 
     def draw_polyline_3d(self, render: flat.PolyLine3D):
-        self._current_renders.append(
-            flat.RenderMessage(flat.RenderType(poly_line_3_d=render))
-        )
+        self._current_renders.append(flat.RenderMessage(flat.RenderType(render)))
