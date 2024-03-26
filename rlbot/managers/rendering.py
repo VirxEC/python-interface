@@ -91,14 +91,7 @@ class RenderingManager:
         """
         return self._group_id is not None
 
-    def draw_string_2d(self, render: flat.String2D):
-        self._current_renders.append(flat.RenderMessage(flat.RenderType(render)))
-
-    def draw_string_3d(self, render: flat.String3D):
-        self._current_renders.append(flat.RenderMessage(flat.RenderType(render)))
-
-    def draw_line_3d(self, render: flat.Line3D):
-        self._current_renders.append(flat.RenderMessage(flat.RenderType(render)))
-
-    def draw_polyline_3d(self, render: flat.PolyLine3D):
+    def draw(
+        self, render: flat.String2D | flat.String3D | flat.Line3D | flat.PolyLine3D
+    ):
         self._current_renders.append(flat.RenderMessage(flat.RenderType(render)))

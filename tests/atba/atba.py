@@ -56,7 +56,7 @@ class Atba(Bot):
         num_boost_pads = len(self.get_field_info().boost_pads)
         self.logger.info(f"There are {num_boost_pads} boost pads on the field.")
         self.renderer.begin_rendering("custom one-time rendering group")
-        self.renderer.draw_polyline_3d(
+        self.renderer.draw(
             flat.PolyLine3D(
                 [
                     flat.Vector3(1000, 1000, 100),
@@ -99,7 +99,7 @@ class Atba(Bot):
         game_state = flat.DesiredGameState(
             flat.DesiredBallState(
                 flat.DesiredPhysics(
-                    velocity=flat.Vector3Partial(z=flat.Float(ball_velocity.z + 10))
+                    velocity=flat.Vector3Partial(z=ball_velocity.z + 10)
                 )
             )
         )
@@ -108,7 +108,7 @@ class Atba(Bot):
     def test_rendering(self, packet: flat.GameTickPacket):
         self.renderer.begin_rendering()
         text = "Hello world!\nI hope I'm centered!"
-        self.renderer.draw_string_3d(
+        self.renderer.draw(
             flat.String3D(
                 text,
                 packet.players[self.index].physics.location,

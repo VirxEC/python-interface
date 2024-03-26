@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import zipfile
 from dataclasses import dataclass
 
@@ -6,10 +8,10 @@ from rlbot.managers.rendering import RenderingManager
 
 
 class Vector3(flat.Vector3):
-    def __mul__(self, other: "Vector3"):
+    def __mul__(self, other: Vector3):
         return Vector3(self.x * other.x, self.y * other.y, self.z * other.z)
 
-    def __add__(self, other: "Vector3"):
+    def __add__(self, other: Vector3):
         return Vector3(self.x + other.x, self.y + other.y, self.z + other.z)
 
 
@@ -99,7 +101,7 @@ class ColoredWireframe:
 
                 for _ in range(50):
                     if self.polygons_rendered < len(group.polygons):
-                        renderer.draw_polyline_3d(
+                        renderer.draw(
                             flat.PolyLine3D(
                                 group.polygons[self.polygons_rendered].vertices,
                                 group.color,
