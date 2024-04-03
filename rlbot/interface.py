@@ -263,51 +263,33 @@ class SocketRelay:
         skip_spectate: bool,
         skip_stat: bool,
     ):
-        if msg.item_type == flat.GameMessageType.PlayerInputChange:
+        if msg.item is flat.PlayerInputChange:
             if skip_input_change:
-                return
-
-            if msg.player_input_change is None:
-                self.logger.error(
-                    "Conflicting information in MessagePacket! item_type is PlayerInputChange but player_input_change is None!"
-                )
                 return
 
             for handler in self.player_input_change_handlers:
                 handler(
-                    msg.player_input_change,
+                    msg.item,
                     game_seconds,
                     frame_num,
                 )
-        elif msg.item_type == flat.GameMessageType.PlayerSpectate:
+        elif msg.item is flat.PlayerSpectate:
             if skip_spectate:
-                return
-
-            if msg.player_spectate is None:
-                self.logger.error(
-                    "Conflicting information in MessagePacket! item_type is PlayerSpectate but player_spectate is None!"
-                )
                 return
 
             for handler in self.player_spectate_handlers:
                 handler(
-                    msg.player_spectate,
+                    msg.item,
                     game_seconds,
                     frame_num,
                 )
-        elif msg.item_type == flat.GameMessageType.PlayerStatEvent:
+        elif msg.item is flat.PlayerStatEvent:
             if skip_stat:
-                return
-
-            if msg.player_stat_event is None:
-                self.logger.error(
-                    "Conflicting information in MessagePacket! item_type is PlayerStatEvent but player_stat_event is None!"
-                )
                 return
 
             for handler in self.player_stat_handlers:
                 handler(
-                    msg.player_stat_event,
+                    msg.item,
                     game_seconds,
                     frame_num,
                 )
