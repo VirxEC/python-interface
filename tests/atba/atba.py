@@ -89,8 +89,8 @@ class Atba(Bot):
             self.test_state_setting(packet.ball.physics.velocity)
 
         if self.match_comms:
-            # Only send a message once a second to prevent spam
-            if packet.game_info.frame_num - self.last_send >= 120:
+            # Limit packet spam
+            if packet.game_info.frame_num - self.last_send >= 360:
                 self.send_match_comm(b"", "Hello world!")
                 self.last_send = packet.game_info.frame_num
 
