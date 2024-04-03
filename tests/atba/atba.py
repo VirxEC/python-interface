@@ -49,12 +49,16 @@ def get_car_facing_vector(car):
 class Atba(Bot):
     state_setting = False
     rendering = False
+    match_comms = False
 
     def initialize_agent(self):
         self.logger.info("Initializing agent!")
+
+        self.last_send = 0
         self.controller = flat.ControllerState()
         num_boost_pads = len(self.get_field_info().boost_pads)
         self.logger.info(f"There are {num_boost_pads} boost pads on the field.")
+
         self.renderer.begin_rendering("custom one-time rendering group")
         self.renderer.draw(
             flat.PolyLine3D(
@@ -68,6 +72,9 @@ class Atba(Bot):
         )
         self.renderer.end_rendering()
 
+    def handle_match_communication(self, match_comm: flat.MatchComm):
+        self.logger.info(f"Received match communication from index {match_comm.index}! {match_comm.display}")
+
     def get_output(self, packet: flat.GameTickPacket) -> flat.ControllerState:
         if self.rendering:
             self.test_rendering(packet)
@@ -80,6 +87,12 @@ class Atba(Bot):
 
         if self.state_setting:
             self.test_state_setting(packet.ball.physics.velocity)
+
+        if self.match_comms:
+            # Only send a message once a second to prevent spam
+            if packet.game_info.frame_num - self.last_send >= 120:
+                self.send_match_comm(b"", "Hello world!")
+                self.last_send = packet.game_info.frame_num
 
         ball_location = Vector2.from_vector3t(packet.ball.physics.location)
 

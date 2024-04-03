@@ -1,5 +1,6 @@
 import os
 from traceback import print_exc
+from typing import Optional
 
 from rlbot import flat
 from rlbot.interface import SocketRelay
@@ -11,6 +12,7 @@ class Bot:
     """
     A convenience class for building bots on top of.
     """
+
     logger = DEFAULT_LOGGER
 
     index: int = -1
@@ -19,6 +21,7 @@ class Bot:
 
     match_settings = flat.MatchSettings()
     field_info = flat.FieldInfo()
+    ball_prediction = flat.BallPrediction()
 
     _initialized_bot = False
     _has_match_settings = False
@@ -37,6 +40,12 @@ class Bot:
         self.game_interface = SocketRelay(logger=self.logger)
         self.game_interface.match_settings_handlers.append(self._handle_match_settings)
         self.game_interface.field_info_handlers.append(self._handle_field_info)
+        self.game_interface.match_communication_handlers.append(
+            self.handle_match_communication
+        )
+        self.game_interface.ball_prediction_handlers.append(
+            self._handle_ball_prediction
+        )
         self.game_interface.packet_handlers.append(self._handle_packet)
 
         self.renderer = RenderingManager(self.game_interface)
@@ -65,6 +74,9 @@ class Bot:
             self.initialize_agent()
             self._initialized_bot = True
 
+    def _handle_ball_prediction(self, ball_prediction: flat.BallPrediction):
+        self.ball_prediction = ball_prediction
+
     def _handle_packet(self, packet: flat.GameTickPacket):
         if not self._initialized_bot:
             return
@@ -89,7 +101,7 @@ class Bot:
         self.game_interface.send_player_input(player_input)
 
     def run(self):
-        self.game_interface.connect_and_run(True, True, True)
+        self.game_interface.connect_and_run(True, False, True)
         self.retire()
         del self.game_interface
 
@@ -104,6 +116,35 @@ class Bot:
         Contains info about the map, such as the locations of boost pads and goals.
         """
         return self.field_info
+
+    def get_ball_prediction(self) -> flat.BallPrediction:
+        """
+        A simulated prediction of the ball's path with only the field geometry.
+        """
+        return self.ball_prediction
+
+    def handle_match_communication(self, match_comm: flat.MatchComm):
+        pass
+
+    def send_match_comm(
+        self, content: bytes, display: Optional[str] = None, team_only: bool = False
+    ):
+        """
+        Emits a match communication
+
+        - `content`: The other content of the communication containing arbirtrary data.
+        - `display`: The message to be displayed in the game, or None to skip displaying a message.
+        - `team_only`: If True, only your team will receive the communication.
+        """
+        self.game_interface.send_match_comm(
+            flat.MatchComm(
+                self.index,
+                self.team,
+                team_only,
+                display,
+                content,
+            )
+        )
 
     def set_game_state(self, game_state: flat.DesiredGameState):
         """

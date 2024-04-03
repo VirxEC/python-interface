@@ -27,7 +27,7 @@ class SocketDataType(IntEnum):
     DESIRED_GAME_STATE = 6
     RENDER_GROUP = 7
     REMOVE_RENDER_GROUP = 8
-    QUICK_CHAT = 9
+    MATCH_COMMUNICATION = 9
     BALL_PREDICTION = 10
     READY_MESSAGE = 11
     MESSAGE_PACKET = 12
@@ -67,7 +67,7 @@ class SocketRelay:
     packet_handlers: list[Callable[[flat.GameTickPacket], None]] = []
     field_info_handlers: list[Callable[[flat.FieldInfo], None]] = []
     match_settings_handlers: list[Callable[[flat.MatchSettings], None]] = []
-    # quick_chat_handlers: list[Callable[[flat.QuickChat], None]] = []
+    match_communication_handlers: list[Callable[[flat.MatchComm], None]] = []
     ball_prediction_handlers: list[Callable[[flat.BallPrediction], None]] = []
     player_input_change_handlers: list[
         Callable[[flat.PlayerInputChange, float, int], None]
@@ -99,6 +99,9 @@ class SocketRelay:
 
         message = int_to_bytes(data_type) + int_to_bytes(size) + data
         self.socket.sendall(message)
+
+    def send_match_comm(self, match_comm: flat.MatchComm):
+        self.send_bytes(match_comm.pack(), SocketDataType.MATCH_COMMUNICATION)
 
     def send_player_input(self, player_input: flat.PlayerInput):
         self.send_bytes(player_input.pack(), SocketDataType.PLAYER_INPUT)
@@ -133,7 +136,7 @@ class SocketRelay:
             self.on_connect_handlers.append(handler)
             try:
                 self.connect_and_run(
-                    wants_quick_chat=False,
+                    wants_match_communcations=False,
                     wants_ball_predictions=False,
                     wants_game_messages=False,
                     only_wait_for_ready=True,
@@ -143,7 +146,7 @@ class SocketRelay:
 
     def connect_and_run(
         self,
-        wants_quick_chat: bool,
+        wants_match_communcations: bool,
         wants_game_messages: bool,
         wants_ball_predictions: bool,
         only_wait_for_ready: bool = False,
@@ -173,7 +176,7 @@ class SocketRelay:
             handler()
 
         flatbuffer = flat.ReadyMessage(
-            wants_ball_predictions, wants_quick_chat, wants_game_messages
+            wants_ball_predictions, wants_match_communcations, wants_game_messages
         ).pack()
         self.send_bytes(flatbuffer, SocketDataType.READY_MESSAGE)
 
@@ -220,11 +223,13 @@ class SocketRelay:
             match_settings = flat.MatchSettings.unpack(incoming_message.data)
             for handler in self.match_settings_handlers:
                 handler(match_settings)
-        # elif (
-        #     incoming_message.type == SocketDataType.QUICK_CHAT
-        #     and len(self.quick_chat_handlers) > 0
-        # ):
-        #     # todo
+        elif (
+            incoming_message.type == SocketDataType.MATCH_COMMUNICATION
+            and len(self.match_communication_handlers) > 0
+        ):
+            match_comm = flat.MatchComm.unpack(incoming_message.data)
+            for handler in self.match_communication_handlers:
+                handler(match_comm)
         elif (
             incoming_message.type == SocketDataType.BALL_PREDICTION
             and len(self.ball_prediction_handlers) > 0
