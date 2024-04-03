@@ -19,7 +19,7 @@ class Script:
         self._game_interface.match_settings_handlers.append(self.handle_match_settings)
         self._game_interface.field_info_handlers.append(self.handle_field_info)
         self._game_interface.match_communication_handlers.append(
-            self.handle_match_communication
+            self._handle_match_communication
         )
         self._game_interface.ball_prediction_handlers.append(
             self.handle_ball_prediction
@@ -28,11 +28,17 @@ class Script:
 
         self.renderer = RenderingManager(self._game_interface)
 
+    def _handle_match_communication(self, match_comm: flat.MatchComm):
+        if match_comm.team_only and match_comm.team != 2:
+            return
+
+        self.handle_match_communication(match_comm)
+
     def send_match_comm(
         self, content: bytes, display: Optional[str] = None, scripts_only: bool = False
     ):
         """
-        Emits a match communication
+        Emits a match communication; WARNING: as a script, you will recieve your own communication after you send it.
 
         - `content`: The other content of the communication containing arbirtrary data.
         - `display`: The message to be displayed in the game, or None to skip displaying a message.
@@ -55,7 +61,7 @@ class Script:
         self._game_interface.connect_and_run(True, False, True)
         del self._game_interface
 
-    def handle_match_communication(self, match_Comm: flat.MatchComm):
+    def handle_match_communication(self, match_comm: flat.MatchComm):
         pass
 
     def handle_ball_prediction(self, ball_prediction: flat.BallPrediction):

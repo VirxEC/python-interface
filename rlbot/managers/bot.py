@@ -41,7 +41,7 @@ class Bot:
         self.game_interface.match_settings_handlers.append(self._handle_match_settings)
         self.game_interface.field_info_handlers.append(self._handle_field_info)
         self.game_interface.match_communication_handlers.append(
-            self.handle_match_communication
+            self._handle_match_communication
         )
         self.game_interface.ball_prediction_handlers.append(
             self._handle_ball_prediction
@@ -73,6 +73,12 @@ class Bot:
         if not self._initialized_bot and self._has_match_settings:
             self.initialize_agent()
             self._initialized_bot = True
+
+    def _handle_match_communication(self, match_comm: flat.MatchComm):
+        if self.index == match_comm.index or (match_comm.team_only and self.team != match_comm.team):
+            return
+
+        self.handle_match_communication(match_comm)
 
     def _handle_ball_prediction(self, ball_prediction: flat.BallPrediction):
         self.ball_prediction = ball_prediction
