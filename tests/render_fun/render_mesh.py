@@ -70,7 +70,7 @@ class ColoredWireframe:
 
                 self.groups.append(
                     ColoredPolygonGroup(
-                        name=group_name[0], polygons=list(), color=flat.Color(r, g, b)
+                        name=group_name[0], polygons=list(), color=flat.Color(255, r, g, b)
                     )
                 )
 
