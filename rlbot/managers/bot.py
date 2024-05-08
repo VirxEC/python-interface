@@ -107,7 +107,7 @@ class Bot:
         self.game_interface.send_player_input(player_input)
 
     def run(self):
-        self.game_interface.connect_and_run(True, False, True)
+        self.game_interface.connect_and_run(True, False, True, close_after_match=True)
         self.retire()
         del self.game_interface
 

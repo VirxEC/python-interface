@@ -135,12 +135,7 @@ class SocketRelay:
         else:
             self.on_connect_handlers.append(handler)
             try:
-                self.connect_and_run(
-                    wants_match_communcations=False,
-                    wants_ball_predictions=False,
-                    wants_game_messages=False,
-                    only_wait_for_ready=True,
-                )
+                self.connect_and_run(False, False, False, True)
             except timeout:
                 raise TimeoutError("Took too long to connect to the RLBot executable!")
 
@@ -150,6 +145,7 @@ class SocketRelay:
         wants_game_messages: bool,
         wants_ball_predictions: bool,
         only_wait_for_ready: bool = False,
+        close_after_match: bool = False,
     ):
         """
         Connects to the socket and begins a loop that reads messages and calls any handlers
@@ -176,7 +172,10 @@ class SocketRelay:
             handler()
 
         flatbuffer = flat.ReadyMessage(
-            wants_ball_predictions, wants_match_communcations, wants_game_messages
+            wants_ball_predictions,
+            wants_match_communcations,
+            wants_game_messages,
+            close_after_match,
         ).pack()
         self.send_bytes(flatbuffer, SocketDataType.READY_MESSAGE)
 

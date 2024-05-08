@@ -58,7 +58,7 @@ class Script:
         self._game_interface.send_game_state(game_state)
 
     def run(self):
-        self._game_interface.connect_and_run(True, False, True)
+        self._game_interface.connect_and_run(True, False, True, close_after_match=True)
         del self._game_interface
 
     def handle_match_communication(self, match_comm: flat.MatchComm):
