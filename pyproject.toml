@@ -4,12 +4,17 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "rlbot"
+description = "A high performance Python interface for communicating with RLBot v5."
 dynamic = ["version"]
 requires-python = ">= 3.11"
 dependencies = [
-    "rlbot_flatbuffers~=0.3.1",
+    "rlbot_flatbuffers~=0.3.5",
     "psutil==5.*",
 ]
+readme = "README.md"
+
+[project.urls]
+Repository = "https://github.com/VirxEC/python-interface"
 
 [tool.setuptools.dynamic]
 version = {attr = "rlbot.version.__version__"}

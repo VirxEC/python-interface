@@ -13,7 +13,7 @@ from rlbot.utils.os_detector import MAIN_EXECUTABLE_NAME
 
 class MatchManager:
     logger = DEFAULT_LOGGER
-    game_state: int = int(flat.GameStateType.Inactive)
+    game_state = flat.GameStateType.Inactive
     rlbot_server_process: Optional[psutil.Process] = None
 
     def __init__(
@@ -69,12 +69,12 @@ class MatchManager:
         self.logger.info(f"Connecting to game on port {port}...")
 
     def packet_reporter(self, packet: flat.GameTickPacket):
-        self.game_state = int(packet.game_info.game_state_type)
+        self.game_state = packet.game_info.game_state_type
 
     def wait_for_valid_packet(self):
         while self.game_state in {
-            int(flat.GameStateType.Inactive),
-            int(flat.GameStateType.Ended),
+            flat.GameStateType.Inactive,
+            flat.GameStateType.Ended,
         }:
             sleep(0.1)
 

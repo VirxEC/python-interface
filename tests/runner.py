@@ -11,7 +11,7 @@ CURRENT_FILE = Path(__file__).parent
 # MATCH_CONFIG_PATH = CURRENT_FILE / "default.toml"
 MATCH_CONFIG_PATH = CURRENT_FILE / "rlbot.toml"
 
-SIMULATION = True
+SIMULATION = False
 
 if SIMULATION:
     RLBOT_SERVER_FOLDER = None

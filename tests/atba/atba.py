@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import math
 
 from rlbot import flat
@@ -5,21 +7,21 @@ from rlbot.managers import Bot
 
 
 class Vector2:
-    def __init__(self, x=0.0, y=0.0):
-        self.x = float(x)
-        self.y = float(y)
+    def __init__(self, x: float = 0, y: float = 0):
+        self.x = x
+        self.y = y
 
     @staticmethod
-    def from_vector3t(vec3: flat.Vector3):
+    def from_vector3t(vec3: flat.Vector3) -> Vector2:
         return Vector2(vec3.x, vec3.y)
 
-    def __add__(self, val):
+    def __add__(self, val) -> Vector2:
         return Vector2(self.x + val.x, self.y + val.y)
 
-    def __sub__(self, val):
+    def __sub__(self, val) -> Vector2:
         return Vector2(self.x - val.x, self.y - val.y)
 
-    def correction_to(self, ideal):
+    def correction_to(self, ideal: Vector2) -> float:
         # The in-game axes are left handed, so use -x
         current_in_radians = math.atan2(self.y, -self.x)
         ideal_in_radians = math.atan2(ideal.y, -ideal.x)
@@ -36,7 +38,7 @@ class Vector2:
         return correction
 
 
-def get_car_facing_vector(car):
+def get_car_facing_vector(car: flat.PlayerInfo) -> Vector2:
     pitch = float(car.physics.rotation.pitch)
     yaw = float(car.physics.rotation.yaw)
 
@@ -73,15 +75,17 @@ class Atba(Bot):
         self.renderer.end_rendering()
 
     def handle_match_communication(self, match_comm: flat.MatchComm):
-        self.logger.info(f"Received match communication from index {match_comm.index}! {match_comm.display}")
+        self.logger.info(
+            f"Received match communication from index {match_comm.index}! {match_comm.display}"
+        )
 
     def get_output(self, packet: flat.GameTickPacket) -> flat.ControllerState:
         if self.rendering:
             self.test_rendering(packet)
 
-        if int(packet.game_info.game_state_type) not in {
-            int(flat.GameStateType.Active),
-            int(flat.GameStateType.Kickoff),
+        if packet.game_info.game_state_type not in {
+            flat.GameStateType.Active,
+            flat.GameStateType.Kickoff,
         }:
             return self.controller
 
