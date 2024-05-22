@@ -85,7 +85,7 @@ class MatchManager:
         self.wait_for_valid_packet()
         self.logger.info("Match has started.")
 
-    def shut_down(self):
+    def shut_down(self, ensure_shutdown=True):
         self.logger.info("Shutting down RLBot...")
 
         self.rlbot_interface.stop_match(shutdown_server=True)
@@ -108,17 +108,18 @@ class MatchManager:
                     f"Waiting for {self.main_executable_name} to shut down..."
                 )
 
-                if i == 1:
-                    self.rlbot_server_process.terminate()
-                elif i == 4 or i == 7:
-                    self.logger.warning(
-                        f"{self.main_executable_name} is not responding to terminate requests."
-                    )
-                    self.rlbot_server_process.terminate()
-                elif i >= 10 and i % 3 == 1:
-                    self.logger.error(
-                        f"{self.main_executable_name} is not responding, forcefully killing."
-                    )
-                    self.rlbot_server_process.kill()
+                if ensure_shutdown:
+                    if i == 1:
+                        self.rlbot_server_process.terminate()
+                    elif i == 4 or i == 7:
+                        self.logger.warning(
+                            f"{self.main_executable_name} is not responding to terminate requests."
+                        )
+                        self.rlbot_server_process.terminate()
+                    elif i >= 10 and i % 3 == 1:
+                        self.logger.error(
+                            f"{self.main_executable_name} is not responding, forcefully killing."
+                        )
+                        self.rlbot_server_process.kill()
 
         self.logger.info("Shut down complete!")
