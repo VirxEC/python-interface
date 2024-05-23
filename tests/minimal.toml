@@ -1,0 +1,6 @@
+[rlbot]
+launcher = "steam"
+
+[match]
+game_mode = "Soccer"
+game_map_upk = "Stadium_P"
