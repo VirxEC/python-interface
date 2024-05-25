@@ -27,7 +27,7 @@ class MatchManager:
         self.rlbot_interface: SocketRelay = SocketRelay()
         self.rlbot_interface.packet_handlers.append(self.packet_reporter)
 
-    def ensure_server_started(self) -> int:
+    def ensure_server_started(self):
         """
         Ensures that RLBotServer is running.
 
@@ -35,29 +35,23 @@ class MatchManager:
         Rocket League should be passed a command line argument so that it starts with this same port.
         """
 
-        self.rlbot_server_process, port = gateway.find_existing_process(
+        self.rlbot_server_process = gateway.find_existing_process(
             self.main_executable_name
         )
         if self.rlbot_server_process is not None:
-            self.logger.info(
-                f"Already have {self.main_executable_name} running! Port is {port}"
-            )
-            return port
+            self.logger.info(f"Already have {self.main_executable_name} running!")
 
         if self.main_executable_path is None:
             raise Exception("No main_executable_path found. Please specify it.")
 
-        rlbot_server_process, port = gateway.launch(
+        rlbot_server_process = gateway.launch(
             self.main_executable_path, self.main_executable_name
         )
         self.rlbot_server_process = psutil.Process(rlbot_server_process.pid)
 
         self.logger.info(
-            f"Started {self.main_executable_name} with process id {self.rlbot_server_process.pid} "
-            f"and port {port}"
+            f"Started {self.main_executable_name} with process id {self.rlbot_server_process.pid}"
         )
-
-        return port
 
     def connect_to_game(self):
         """
@@ -99,7 +93,7 @@ class MatchManager:
             i += 1
             sleep(1)
 
-            self.rlbot_server_process, _ = gateway.find_existing_process(
+            self.rlbot_server_process = gateway.find_existing_process(
                 self.main_executable_name
             )
 
