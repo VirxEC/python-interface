@@ -40,6 +40,7 @@ class MatchManager:
         )
         if self.rlbot_server_process is not None:
             self.logger.info(f"Already have {self.main_executable_name} running!")
+            return
 
         if self.main_executable_path is None:
             raise Exception("No main_executable_path found. Please specify it.")
