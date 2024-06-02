@@ -3,7 +3,7 @@ launcher = "steam"
 auto_start_bots = true
 
 [match]
-num_cars = 4
+num_cars = 5
 num_scripts = 0
 game_mode = "Soccer"
 game_map_upk = "Stadium_P"
@@ -55,7 +55,7 @@ team = 0
 team = 0
 type = "psyonix"
 # If participant is a bot and not RLBot controlled, this value will be used to set bot skill.
-# 0.0 is Rookie, 0.5 is pro, 1.0 is all-star.  You can set values in-between as well.
+# -1.0 is Beginner, 0.0 is Rookie, 0.5 is pro, 1.0 is all-star.  You can set values in-between as well.
 skill = 1
 
 [[cars]]

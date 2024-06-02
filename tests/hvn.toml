@@ -1,0 +1,28 @@
+[rlbot]
+launcher = "steam"
+auto_start_bots = true
+
+[match]
+num_cars = 4
+game_mode = "Soccer"
+game_map_upk = "Stadium_P"
+
+[mutators]
+match_length = "Twenty_Minutes"
+rumble = "No_Rumble"
+
+[[cars]]
+config = "necto/bot.toml"
+team = 0
+
+[[cars]]
+config = "necto/bot.toml"
+team = 0
+
+[[cars]]
+type = "human"
+team = 1
+
+[[cars]]
+config = "necto/bot.toml"
+team = 1

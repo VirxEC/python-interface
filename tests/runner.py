@@ -8,7 +8,7 @@ from rlbot.utils.os_detector import OS, CURRENT_OS, MAIN_EXECUTABLE_NAME
 
 CURRENT_FILE = Path(__file__).parent
 
-MATCH_CONFIG_PATH = CURRENT_FILE / "minimal.toml"
+MATCH_CONFIG_PATH = CURRENT_FILE / "rlbot.toml"
 
 SIMULATION = False
 
@@ -32,7 +32,7 @@ if __name__ == "__main__":
         match_manager.start_match(MATCH_CONFIG_PATH)
 
         logger.info("Waiting before shutdown...")
-        sleep(2)
+        sleep(360)
         raise Exception("Test exception")
     except KeyboardInterrupt:
         logger.warning("Shutting down early due to interrupt")
