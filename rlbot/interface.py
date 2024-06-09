@@ -135,7 +135,7 @@ class SocketRelay:
         else:
             self.on_connect_handlers.append(handler)
             try:
-                self.connect_and_run(False, False, False, True)
+                self.connect_and_run(False, False, False, False, True)
             except timeout:
                 raise TimeoutError("Took too long to connect to the RLBot executable!")
 
@@ -144,8 +144,8 @@ class SocketRelay:
         wants_match_communcations: bool,
         wants_game_messages: bool,
         wants_ball_predictions: bool,
+        close_after_match: bool = True,
         only_wait_for_ready: bool = False,
-        close_after_match: bool = False,
     ):
         """
         Connects to the socket and begins a loop that reads messages and calls any handlers

@@ -10,7 +10,7 @@ class RenderFun(Script):
         self.zero_two = unzip_and_build_obj()
 
     def run(self):
-        self._game_interface.connect_and_run(False, False, False, close_after_match=True)
+        self._game_interface.connect_and_run(False, False, False)
         del self._game_interface
 
     def handle_packet(self, _):

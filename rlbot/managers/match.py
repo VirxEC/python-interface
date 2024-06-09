@@ -25,7 +25,7 @@ class MatchManager:
         self.main_executable_name = main_executable_name
 
         self.rlbot_interface: SocketRelay = SocketRelay()
-        self.rlbot_interface.packet_handlers.append(self.packet_reporter)
+        self.rlbot_interface.packet_handlers.append(self._packet_reporter)
 
     def ensure_server_started(self):
         """
@@ -56,14 +56,13 @@ class MatchManager:
 
     def connect_to_game(self):
         """
-        Connects to the game by initializing self.game_interface.
+        Connects to the game by ensuring RLBotServer has been started.
         """
         version.print_current_release_notes()
 
-        port = self.ensure_server_started()
-        self.logger.info(f"Connecting to game on port {port}...")
+        self.ensure_server_started()
 
-    def packet_reporter(self, packet: flat.GameTickPacket):
+    def _packet_reporter(self, packet: flat.GameTickPacket):
         self.game_state = packet.game_info.game_state_type
 
     def wait_for_valid_packet(self):
@@ -83,6 +82,7 @@ class MatchManager:
     def shut_down(self, ensure_shutdown=True):
         self.logger.info("Shutting down RLBot...")
 
+        # in theory this is all we need for the server to cleanly shut itself down
         self.rlbot_interface.stop_match(shutdown_server=True)
 
         # Wait for the server to shut down

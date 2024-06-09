@@ -3,25 +3,16 @@ launcher = "steam"
 auto_start_bots = true
 
 [match]
-num_cars = 4
+num_cars = 2
 game_mode = "Soccer"
 game_map_upk = "Stadium_P"
 
 [mutators]
-match_length = "Twenty_Minutes"
-rumble = "No_Rumble"
-
-[[cars]]
-config = "necto/bot.toml"
-team = 0
-
-[[cars]]
-config = "necto/bot.toml"
-team = 0
+match_length = "Unlimited"
 
 [[cars]]
 type = "human"
-team = 1
+team = 0
 
 [[cars]]
 config = "necto/bot.toml"

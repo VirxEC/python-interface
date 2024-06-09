@@ -19,8 +19,8 @@ def find_main_executable_path(
         return main_executable_path.parent, main_executable_path
 
     # search subdirectories for the main executable
-    for path in main_executable_path.glob("**/*"):
-        if path.is_file() and path.name == main_executable_name:
+    for path in main_executable_path.glob(f"**/{main_executable_name}"):
+        if path.is_file():
             return path.parent, path
 
     return main_executable_path, None
