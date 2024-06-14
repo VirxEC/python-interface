@@ -57,9 +57,20 @@ class Script:
     def set_game_state(self, game_state: flat.DesiredGameState):
         self._game_interface.send_game_state(game_state)
 
-    def run(self):
-        self._game_interface.connect_and_run(True, False, True)
-        del self._game_interface
+    def run(
+        self,
+        wants_match_communcations: bool = True,
+        wants_game_messages: bool = False,
+        wants_ball_predictions: bool = True,
+    ):
+        try:
+            self._game_interface.connect_and_run(
+                wants_match_communcations,
+                wants_game_messages,
+                wants_ball_predictions,
+            )
+        finally:
+            del self._game_interface
 
     def handle_match_communication(self, match_comm: flat.MatchComm):
         pass

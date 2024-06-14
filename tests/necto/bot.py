@@ -94,7 +94,7 @@ class Necto(Bot):
                 255, round(255 * (1 - weight)), round(255), round(255 * (1 - weight))
             )
 
-            self.renderer.draw_string_3d(
+            self.renderer.draw(
                 flat.String3D(
                     str(c),
                     flat.Vector3(*dest),
@@ -105,7 +105,7 @@ class Necto(Bot):
 
             c += 1
 
-            self.renderer.draw_line_3d(
+            self.renderer.draw(
                 flat.Line3D(flat.Vector3(*loc), flat.Vector3(*dest), color)
             )
         self.renderer.end_rendering()
@@ -208,4 +208,4 @@ class Necto(Bot):
 
 
 if __name__ == "__main__":
-    Necto().run()
+    Necto().run(False, False, False)

@@ -37,18 +37,18 @@ class Bot:
             self.spawn_id: int = int(spawn_id)
             self.logger.info(f"Spawn ID: {self.spawn_id}")
 
-        self.game_interface = SocketRelay(logger=self.logger)
-        self.game_interface.match_settings_handlers.append(self._handle_match_settings)
-        self.game_interface.field_info_handlers.append(self._handle_field_info)
-        self.game_interface.match_communication_handlers.append(
+        self._game_interface = SocketRelay(logger=self.logger)
+        self._game_interface.match_settings_handlers.append(self._handle_match_settings)
+        self._game_interface.field_info_handlers.append(self._handle_field_info)
+        self._game_interface.match_communication_handlers.append(
             self._handle_match_communication
         )
-        self.game_interface.ball_prediction_handlers.append(
+        self._game_interface.ball_prediction_handlers.append(
             self._handle_ball_prediction
         )
-        self.game_interface.packet_handlers.append(self._handle_packet)
+        self._game_interface.packet_handlers.append(self._handle_packet)
 
-        self.renderer = RenderingManager(self.game_interface)
+        self.renderer = RenderingManager(self._game_interface)
 
     def _handle_match_settings(self, match_settings: flat.MatchSettings):
         self.match_settings = match_settings
@@ -75,7 +75,9 @@ class Bot:
             self._initialized_bot = True
 
     def _handle_match_communication(self, match_comm: flat.MatchComm):
-        if self.index == match_comm.index or (match_comm.team_only and self.team != match_comm.team):
+        if self.index == match_comm.index or (
+            match_comm.team_only and self.team != match_comm.team
+        ):
             return
 
         self.handle_match_communication(match_comm)
@@ -104,12 +106,23 @@ class Bot:
             return
 
         player_input = flat.PlayerInput(self.index, controller)
-        self.game_interface.send_player_input(player_input)
+        self._game_interface.send_player_input(player_input)
 
-    def run(self):
-        self.game_interface.connect_and_run(True, False, True)
-        self.retire()
-        del self.game_interface
+    def run(
+        self,
+        wants_match_communcations: bool = True,
+        wants_game_messages: bool = False,
+        wants_ball_predictions: bool = True,
+    ):
+        try:
+            self._game_interface.connect_and_run(
+                wants_match_communcations,
+                wants_game_messages,
+                wants_ball_predictions,
+            )
+        finally:
+            self.retire()
+            del self._game_interface
 
     def get_match_settings(self) -> flat.MatchSettings:
         """
@@ -142,7 +155,7 @@ class Bot:
         - `display`: The message to be displayed in the game, or None to skip displaying a message.
         - `team_only`: If True, only your team will receive the communication.
         """
-        self.game_interface.send_match_comm(
+        self._game_interface.send_match_comm(
             flat.MatchComm(
                 self.index,
                 self.team,
@@ -156,7 +169,7 @@ class Bot:
         """
         Sets the game to the given desired state.
         """
-        self.game_interface.send_game_state(game_state)
+        self._game_interface.send_game_state(game_state)
 
     def initialize_agent(self):
         """

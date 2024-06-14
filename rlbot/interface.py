@@ -248,6 +248,9 @@ class SocketRelay:
                 skip_spectate = len(self.player_spectate_handlers) == 0
                 skip_stat = len(self.player_stat_handlers) == 0
 
+                if skip_input_change and skip_spectate and skip_stat:
+                    return
+
                 for msg in msg_packet.messages:
                     self._handle_game_message(
                         msg.message,
