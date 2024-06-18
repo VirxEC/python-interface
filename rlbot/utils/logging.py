@@ -43,15 +43,16 @@ class CustomFormatter(logging.Formatter):
 
 
 def get_logger(logger_name: str) -> logging.Logger:
-    if logger_name == DEFAULT_LOGGER_NAME and DEFAULT_LOGGER is not None:
-        from rlbot.utils.os_detector import CURRENT_OS, OS
+    if logger_name == DEFAULT_LOGGER_NAME:
+        if DEFAULT_LOGGER is not None:
+            return DEFAULT_LOGGER
+        else:
+            import platform
 
-        if CURRENT_OS == OS.WINDOWS:
-            import os
+            if platform.system() == "Windows":
+                import os
 
-            os.system("color")
-
-        return DEFAULT_LOGGER
+                os.system("color")
 
     logger = logging.getLogger(logger_name)
     if not logger.handlers:

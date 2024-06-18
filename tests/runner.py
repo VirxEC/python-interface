@@ -25,7 +25,7 @@ else:
 if __name__ == "__main__":
     logger = get_logger("runner")
 
-    match_manager = MatchManager(RLBOT_SERVER_FOLDER, f"publish/{MAIN_EXECUTABLE_NAME}")
+    match_manager = MatchManager(RLBOT_SERVER_FOLDER, MAIN_EXECUTABLE_NAME)
 
     try:
         match_manager.connect_to_game()
