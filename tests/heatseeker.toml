@@ -1,0 +1,16 @@
+[rlbot]
+launcher = "steam"
+
+[match]
+num_cars = 1
+game_mode = "Heatseeker"
+game_map_upk = "Stadium_P"
+enable_rendering = true
+
+[mutators]
+match_length = "Unlimited"
+boost_amount = "Unlimited"
+
+[[cars]]
+type = "human"
+team = 0

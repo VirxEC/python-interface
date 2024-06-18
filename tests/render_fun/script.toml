@@ -1,0 +1,3 @@
+[settings]
+run_command = "..\\..\\venv\\Scripts\\python render.py"
+run_command_linux = "../../venv/bin/python render.py"
