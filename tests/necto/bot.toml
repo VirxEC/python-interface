@@ -3,12 +3,15 @@
 name = "Necto"
 # Path to loadout config from runner
 looks_config = "looks.toml"
-# What you want the working directory set to
+# (OPTIONAL) - what you want the working directory set to
 # This is relative to the location of this file
 location = ""
-# The command RLBot will call to start your bot.
-# ex: "bot.exe" for compiled bots. "python bot.py" if you don't want to freeze your python bot
-run_command = "../../venv/bin/python bot.py"
+# The command RLBot will call to start your bot on Windows
+# ex: "bot.exe" for compiled bots, or "python bot.py" if you don't want to freeze your python bot
+run_command = "..\\..\\venv\\Scripts\\python bot.py"
+# The command RLBot will call to start your bot on linux
+# If this isn't set, RLBot may attempt to run the Windows command under Wine
+run_command_linux = "../../venv/bin/python bot.py"
 
 [details]
 description = "Necto is the official RLGym community bot, trained using PPO with workers run by people all around the world."
