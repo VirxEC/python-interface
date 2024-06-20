@@ -43,7 +43,7 @@ class Necto(Bot):
     # Beta controls randomness:
     # 1=best action, 0.5=sampling from probability, 0=random, -1=worst action, or anywhere inbetween
     beta = 1
-    render = False
+    render = True
     hardcoded_kickoffs = True
 
     prev_time = 0
@@ -59,12 +59,12 @@ class Necto(Bot):
         self.obs_builder = NectoObsBuilder(field_info)
         self.game_state = GameState(field_info)
 
-        print("Necto Ready - Index:", self.index)
-        print(
+        self.logger.info(f"Necto Ready - Index: {self.index}")
+        self.logger.warn(
             "Remember to run Necto at 120fps with vsync off! "
             "Stable 240/360 is second best if that's better for your eyes"
         )
-        print(
+        self.logger.info(
             "Also check out the RLGym Twitch stream to watch live bot training and occasional showmatches!"
         )
 
@@ -88,7 +88,6 @@ class Necto(Bot):
         c = 1
         for i in top[:3]:
             weight = mean_weights[i] / mx
-            # print(i, weight)
             dest = loc + obs[1][0, i, 5:8] * 2300 * invert
             color = self.renderer.create_color(
                 255, round(255 * (1 - weight)), round(255), round(255 * (1 - weight))
