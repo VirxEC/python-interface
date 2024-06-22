@@ -60,7 +60,7 @@ class Necto(Bot):
         self.game_state = GameState(field_info)
 
         self.logger.info(f"Necto Ready - Index: {self.index}")
-        self.logger.warn(
+        self.logger.warning(
             "Remember to run Necto at 120fps with vsync off! "
             "Stable 240/360 is second best if that's better for your eyes"
         )
