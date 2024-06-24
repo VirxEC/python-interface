@@ -191,7 +191,16 @@ class SocketRelay:
         try:
             while self._should_continue:
                 incoming_message = read_from_socket(self.socket)
-                self.handle_incoming_message(incoming_message)
+                try:
+                    self.handle_incoming_message(incoming_message)
+                except flat.InvalidFlatbuffer as e:
+                    self.logger.error(
+                        f"Error while handling message of type {incoming_message.type.name}: {e}"
+                    )
+                except Exception as e:
+                    self.logger.warning(
+                        f"Unexpected error while handling message of type {incoming_message.type.name}: {e}"
+                    )
         except:
             self.logger.error("Socket manager disconnected unexpectedly!")
 
@@ -199,67 +208,58 @@ class SocketRelay:
         for raw_handler in self.raw_handlers:
             raw_handler(incoming_message)
 
-        if incoming_message.type == SocketDataType.NONE:
-            self._should_continue = False
-        elif (
-            incoming_message.type == SocketDataType.GAME_TICK_PACKET
-            and len(self.packet_handlers) > 0
-        ):
-            packet = flat.GameTickPacket.unpack(incoming_message.data)
-            for handler in self.packet_handlers:
-                handler(packet)
-        elif (
-            incoming_message.type == SocketDataType.FIELD_INFO
-            and len(self.field_info_handlers) > 0
-        ):
-            field_info = flat.FieldInfo.unpack(incoming_message.data)
-            for handler in self.field_info_handlers:
-                handler(field_info)
-        elif (
-            incoming_message.type == SocketDataType.MATCH_SETTINGS
-            and len(self.match_settings_handlers) > 0
-        ):
-            match_settings = flat.MatchSettings.unpack(incoming_message.data)
-            for handler in self.match_settings_handlers:
-                handler(match_settings)
-        elif (
-            incoming_message.type == SocketDataType.MATCH_COMMUNICATION
-            and len(self.match_communication_handlers) > 0
-        ):
-            match_comm = flat.MatchComm.unpack(incoming_message.data)
-            for handler in self.match_communication_handlers:
-                handler(match_comm)
-        elif (
-            incoming_message.type == SocketDataType.BALL_PREDICTION
-            and len(self.ball_prediction_handlers) > 0
-        ):
-            ball_prediction = flat.BallPrediction.unpack(incoming_message.data)
-            for handler in self.ball_prediction_handlers:
-                handler(ball_prediction)
-        elif incoming_message.type == SocketDataType.MESSAGE_PACKET:
-            if (
-                len(self.player_stat_handlers) > 0
-                or len(self.player_input_change_handlers) > 0
-                or len(self.player_spectate_handlers) > 0
-            ):
-                msg_packet = flat.MessagePacket.unpack(incoming_message.data)
+        match incoming_message.type:
+            case SocketDataType.NONE:
+                self._should_continue = False
+            case SocketDataType.GAME_TICK_PACKET:
+                if len(self.packet_handlers) > 0:
+                    packet = flat.GameTickPacket.unpack(incoming_message.data)
+                    for handler in self.packet_handlers:
+                        handler(packet)
+            case SocketDataType.FIELD_INFO:
+                if len(self.field_info_handlers) > 0:
+                    field_info = flat.FieldInfo.unpack(incoming_message.data)
+                    for handler in self.field_info_handlers:
+                        handler(field_info)
+            case SocketDataType.MATCH_SETTINGS:
+                if len(self.match_settings_handlers) > 0:
+                    match_settings = flat.MatchSettings.unpack(incoming_message.data)
+                    for handler in self.match_settings_handlers:
+                        handler(match_settings)
+            case SocketDataType.MATCH_COMMUNICATION:
+                if len(self.match_communication_handlers) > 0:
+                    match_comm = flat.MatchComm.unpack(incoming_message.data)
+                    for handler in self.match_communication_handlers:
+                        handler(match_comm)
+            case SocketDataType.BALL_PREDICTION:
+                if len(self.ball_prediction_handlers) > 0:
+                    ball_prediction = flat.BallPrediction.unpack(incoming_message.data)
+                    for handler in self.ball_prediction_handlers:
+                        handler(ball_prediction)
+            case SocketDataType.MESSAGE_PACKET:
+                if (
+                    len(self.player_stat_handlers) > 0
+                    or len(self.player_input_change_handlers) > 0
+                    or len(self.player_spectate_handlers) > 0
+                ):
+                    msg_packet = flat.MessagePacket.unpack(incoming_message.data)
 
-                skip_input_change = len(self.player_input_change_handlers) == 0
-                skip_spectate = len(self.player_spectate_handlers) == 0
-                skip_stat = len(self.player_stat_handlers) == 0
+                    skip_input_change = len(self.player_input_change_handlers) == 0
+                    skip_spectate = len(self.player_spectate_handlers) == 0
+                    skip_stat = len(self.player_stat_handlers) == 0
 
-                if skip_input_change and skip_spectate and skip_stat:
-                    return
+                    if skip_input_change and skip_spectate and skip_stat:
+                        return
 
-                for msg in msg_packet.messages:
-                    self._handle_game_message(
-                        msg.message,
-                        msg_packet.game_seconds,
-                        msg_packet.frame_num,
-                        skip_input_change,
-                        skip_spectate,
-                        skip_stat,
-                    )
+                    for msg in msg_packet.messages:
+                        self._handle_game_message(
+                            msg.message,
+                            msg_packet.game_seconds,
+                            msg_packet.frame_num,
+                            skip_input_change,
+                            skip_spectate,
+                            skip_stat,
+                        )
 
     def _handle_game_message(
         self,
@@ -270,36 +270,37 @@ class SocketRelay:
         skip_spectate: bool,
         skip_stat: bool,
     ):
-        if msg.item is flat.PlayerInputChange:
-            if skip_input_change:
-                return
+        match msg.item:
+            case flat.PlayerInputChange():
+                if skip_input_change:
+                    return
 
-            for handler in self.player_input_change_handlers:
-                handler(
-                    msg.item,
-                    game_seconds,
-                    frame_num,
-                )
-        elif msg.item is flat.PlayerSpectate:
-            if skip_spectate:
-                return
+                for handler in self.player_input_change_handlers:
+                    handler(
+                        msg.item,
+                        game_seconds,
+                        frame_num,
+                    )
+            case flat.PlayerSpectate():
+                if skip_spectate:
+                    return
 
-            for handler in self.player_spectate_handlers:
-                handler(
-                    msg.item,
-                    game_seconds,
-                    frame_num,
-                )
-        elif msg.item is flat.PlayerStatEvent:
-            if skip_stat:
-                return
+                for handler in self.player_spectate_handlers:
+                    handler(
+                        msg.item,
+                        game_seconds,
+                        frame_num,
+                    )
+            case flat.PlayerStatEvent():
+                if skip_stat:
+                    return
 
-            for handler in self.player_stat_handlers:
-                handler(
-                    msg.item,
-                    game_seconds,
-                    frame_num,
-                )
+                for handler in self.player_stat_handlers:
+                    handler(
+                        msg.item,
+                        game_seconds,
+                        frame_num,
+                    )
 
     def disconnect(self):
         if not self.is_connected:

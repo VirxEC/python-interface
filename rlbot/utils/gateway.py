@@ -14,7 +14,7 @@ def find_main_executable_path(
 ) -> tuple[Path, Optional[Path]]:
     main_executable_path = main_executable_path.absolute().resolve()
 
-    # check if the path is a the main executable
+    # check if the path is directly to the main executable
     if main_executable_path.is_file():
         return main_executable_path.parent, main_executable_path
 

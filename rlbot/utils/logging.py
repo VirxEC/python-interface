@@ -47,9 +47,9 @@ def get_logger(logger_name: str) -> logging.Logger:
         if DEFAULT_LOGGER is not None:
             return DEFAULT_LOGGER
         else:
-            import platform
+            from rlbot.utils.os_detector import CURRENT_OS, OS
 
-            if platform.system() == "Windows":
+            if CURRENT_OS == OS.WINDOWS:
                 import os
 
                 os.system("color")

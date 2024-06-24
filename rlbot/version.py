@@ -1,10 +1,18 @@
 __version__ = "5.0.0"
 
-BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = range(8)
 
 RESET_SEQ = "\033[0m"
 COLOR_SEQ = "\033[32;%dm"
 BOLD_SEQ = "\033[1m"
+
+
+def _get_color(color):
+    return COLOR_SEQ % (30 + color)
+
+
+BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = (
+    _get_color(i) for i in range(8)
+)
 
 RELEASE_NOTES = {
     "5.0.0": """
@@ -31,14 +39,10 @@ def get_current_release_notes():
     return ""
 
 
-def _get_color(color):
-    return COLOR_SEQ % (30 + color)
-
-
 def get_help_text():
     return (
-        f"{_get_color(RED)}{BOLD_SEQ}Trouble?{RESET_SEQ} Ask on Discord at {_get_color(CYAN)}https://discord.gg/5cNbXgG{RESET_SEQ} "
-        f"or report an issue at {_get_color(CYAN)}https://github.com/RLBot/RLBot/issues{RESET_SEQ}"
+        f"{RED+BOLD_SEQ}Trouble?{RESET_SEQ} Ask on Discord at {CYAN}https://discord.gg/5cNbXgG{RESET_SEQ} "
+        f"or report an issue at {CYAN}https://github.com/RLBot/RLBot/issues{RESET_SEQ}"
     )
 
 

@@ -30,9 +30,6 @@ class MatchManager:
     def ensure_server_started(self):
         """
         Ensures that RLBotServer is running.
-
-        Returns the port that it will be listening on for connections from Rocket League.
-        Rocket League should be passed a command line argument so that it starts with this same port.
         """
 
         self.rlbot_server_process = gateway.find_existing_process(
@@ -54,9 +51,9 @@ class MatchManager:
             f"Started {self.main_executable_name} with process id {self.rlbot_server_process.pid}"
         )
 
-    def connect_to_game(self):
+    def start_server(self):
         """
-        Connects to the game by ensuring RLBotServer has been started.
+        Ensuring RLBotServer has been started so we can connect to it.
         """
         version.print_current_release_notes()
 
