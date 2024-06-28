@@ -271,33 +271,33 @@ class SocketRelay:
         skip_stat: bool,
     ):
         match msg.item:
-            case flat.PlayerInputChange():
+            case flat.PlayerInputChange() as item:
                 if skip_input_change:
                     return
 
                 for handler in self.player_input_change_handlers:
                     handler(
-                        msg.item,
+                        item,
                         game_seconds,
                         frame_num,
                     )
-            case flat.PlayerSpectate():
+            case flat.PlayerSpectate() as item:
                 if skip_spectate:
                     return
 
                 for handler in self.player_spectate_handlers:
                     handler(
-                        msg.item,
+                        item,
                         game_seconds,
                         frame_num,
                     )
-            case flat.PlayerStatEvent():
+            case flat.PlayerStatEvent() as item:
                 if skip_stat:
                     return
 
                 for handler in self.player_stat_handlers:
                     handler(
-                        msg.item,
+                        item,
                         game_seconds,
                         frame_num,
                     )

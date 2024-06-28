@@ -16,7 +16,7 @@ if __name__ == "__main__":
     match_manager = MatchManager(RLBOT_SERVER_FOLDER)
 
     try:
-        match_manager.start_server()
+        match_manager.ensure_server_started()
         match_manager.start_match(MATCH_CONFIG_PATH)
 
         logger.info("Waiting before shutdown...")

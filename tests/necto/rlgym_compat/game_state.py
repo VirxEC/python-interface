@@ -27,7 +27,7 @@ class GameState:
             self.boost_pads, dtype=np.float32
         )
 
-    def decode(self, packet: flat.GameTickPacket, ticks_elapsed: int=1):
+    def decode(self, packet: flat.GameTickPacket, ticks_elapsed: int = 1):
         self.blue_score = packet.teams[0].score
         self.orange_score = packet.teams[1].score
 
@@ -62,7 +62,10 @@ class GameState:
 
             if player_info.air_state == flat.AirState.Jumping:
                 self._air_time[index] = 0
-            elif player_info.air_state in {flat.AirState.DoubleJumping, flat.AirState.Dodging}:
+            elif player_info.air_state in {
+                flat.AirState.DoubleJumping,
+                flat.AirState.Dodging,
+            }:
                 self._air_time[index] = 150
             else:
                 self._air_time[index] += ticks_elapsed

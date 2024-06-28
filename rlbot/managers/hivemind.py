@@ -8,17 +8,18 @@ from rlbot.managers.rendering import Renderer
 from rlbot.utils.logging import DEFAULT_LOGGER, get_logger
 
 
-class Bot:
+class Hivemind:
     """
-    A convenience class for building bots on top of.
+    A convenience class for building a hivemind bot on top of.
     """
 
-    logger = DEFAULT_LOGGER
+    _logger = DEFAULT_LOGGER
+    loggers = {}
 
     team: int = -1
-    index: int = -1
-    name: str = ""
-    spawn_id: int = 0
+    indicies: list[int] = []
+    names: list[str] = []
+    spawn_ids: list[int] = []
 
     match_settings = flat.MatchSettings()
     field_info = flat.FieldInfo()
@@ -29,15 +30,16 @@ class Bot:
     _has_field_info = False
 
     def __init__(self):
-        spawn_id = os.environ.get("BOT_SPAWN_ID")
+        spawn_ids = os.environ.get("BOT_SPAWN_IDS")
 
-        if spawn_id is None:
-            self.logger.warning("BOT_SPAWN_ID environment variable not set")
+        if spawn_ids is None:
+            self._logger.warning("BOT_SPAWN_IDS environment variable not set")
         else:
-            self.spawn_id = int(spawn_id)
-            self.logger.info(f"Spawn ID: {self.spawn_id}")
+            spawn_ids = spawn_ids.split(",")
+            self.spawn_ids = [int(spawn_id) for spawn_id in spawn_ids]
+            self._logger.info(f"Spawn IDs: {self.spawn_ids}")
 
-        self._game_interface = SocketRelay(logger=self.logger)
+        self._game_interface = SocketRelay(logger=self._logger)
         self._game_interface.match_settings_handlers.append(self._handle_match_settings)
         self._game_interface.field_info_handlers.append(self._handle_field_info)
         self._game_interface.match_communication_handlers.append(
@@ -54,12 +56,12 @@ class Bot:
         self.match_settings = match_settings
         self._has_match_settings = True
 
-        # search match settings for our spawn id
-        for player in self.match_settings.player_configurations:
-            if player.spawn_id == self.spawn_id:
+        # search match settings for our spawn ids
+        for i, player in enumerate(self.match_settings.player_configurations):
+            if player.spawn_id in self.spawn_ids:
                 self.team = player.team
-                self.name = player.name
-                self.logger = get_logger(self.name)
+                self.names.append(player.name)
+                self.loggers[i] = get_logger(player.name)
                 break
 
         if not self._initialized_bot and self._has_field_info:
@@ -87,24 +89,27 @@ class Bot:
         if not self._initialized_bot:
             return
 
-        if self.index == -1:
+        if len(self.indicies) != len(self.spawn_ids):
             for i, player in enumerate(packet.players):
-                if player.spawn_id == self.spawn_id:
-                    self.index = i
+                if player.spawn_id in self.spawn_ids and i not in self.indicies:
+                    self.indicies.append(i)
                     break
 
-            if self.index == -1:
+            if len(self.indicies) != len(self.spawn_ids):
                 return
 
         try:
-            controller = self.get_output(packet)
+            controller = self.get_outputs(packet)
         except Exception as e:
-            self.logger.error(f"Bot {self.name} returned an error to RLBot: {e}")
+            self._logger.error(
+                f"Hivemind (with {self.names}) returned an error to RLBot: {e}"
+            )
             print_exc()
             return
 
-        player_input = flat.PlayerInput(self.index, controller)
-        self._game_interface.send_player_input(player_input)
+        for index, controller in controller.items():
+            player_input = flat.PlayerInput(index, controller)
+            self._game_interface.send_player_input(player_input)
 
     def run(
         self,
@@ -144,7 +149,11 @@ class Bot:
         pass
 
     def send_match_comm(
-        self, content: bytes, display: Optional[str] = None, team_only: bool = False
+        self,
+        index: int,
+        content: bytes,
+        display: Optional[str] = None,
+        team_only: bool = False,
     ):
         """
         Emits a match communication
@@ -155,7 +164,7 @@ class Bot:
         """
         self._game_interface.send_match_comm(
             flat.MatchComm(
-                self.index,
+                index,
                 self.team,
                 team_only,
                 display,
@@ -180,8 +189,10 @@ class Bot:
         """Called after the game ends"""
         pass
 
-    def get_output(self, game_tick_packet: flat.GameTickPacket) -> flat.ControllerState:
+    def get_outputs(
+        self, game_tick_packet: flat.GameTickPacket
+    ) -> dict[int, flat.ControllerState]:
         """
         Where all the logic of your bot gets its input and returns its output.
         """
-        return flat.ControllerState()
+        return {}

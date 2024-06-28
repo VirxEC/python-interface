@@ -1,4 +1,4 @@
-from typing import Callable, Optional
+from typing import Callable, Optional, Sequence
 
 from rlbot import flat
 from rlbot.interface import SocketRelay
@@ -8,7 +8,19 @@ MAX_INT = 2147483647 // 2
 DEFAULT_GROUP_ID = "default"
 
 
-class RenderingManager:
+def _get_anchor(
+    anchor: flat.RenderAnchor | flat.BallAnchor | flat.CarAnchor | flat.Vector3,
+):
+    match anchor:
+        case flat.BallAnchor() | flat.CarAnchor():
+            return flat.RenderAnchor(relative=anchor)
+        case flat.Vector3():
+            return flat.RenderAnchor(anchor)
+        case _:
+            return anchor
+
+
+class Renderer:
     transparent = flat.Color()
     black = flat.Color(255)
     white = flat.Color(255, 255, 255, 255)
@@ -41,7 +53,7 @@ class RenderingManager:
 
     @staticmethod
     def create_color(red: int, green: int, blue: int, alpha: int = 255):
-        return flat.Color(red, green, blue, alpha)
+        return flat.Color(alpha, red, green, blue)
 
     @staticmethod
     def _get_group_id(group_id: str) -> int:
@@ -57,7 +69,7 @@ class RenderingManager:
             )
             return
 
-        self._group_id = RenderingManager._get_group_id(group_id)
+        self._group_id = Renderer._get_group_id(group_id)
         self._used_group_ids.add(self._group_id)
 
     def end_rendering(self):
@@ -72,7 +84,7 @@ class RenderingManager:
         self._group_id = None
 
     def clear_render_group(self, group_id: str = DEFAULT_GROUP_ID):
-        group_id_hash = RenderingManager._get_group_id(group_id)
+        group_id_hash = Renderer._get_group_id(group_id)
         self._remove_render_group(group_id_hash)
         self._used_group_ids.discard(group_id_hash)
 
@@ -91,7 +103,68 @@ class RenderingManager:
         """
         return self._group_id is not None
 
-    def draw(
+    def _draw(
         self, render: flat.String2D | flat.String3D | flat.Line3D | flat.PolyLine3D
     ):
-        self._current_renders.append(flat.RenderMessage(flat.RenderType(render)))
+        self._current_renders.append(flat.RenderMessage(render))
+
+    def draw_line_3d(
+        self,
+        start: flat.RenderAnchor | flat.BallAnchor | flat.CarAnchor | flat.Vector3,
+        end: flat.RenderAnchor | flat.BallAnchor | flat.CarAnchor | flat.Vector3,
+        color: flat.Color,
+    ):
+        self._draw(flat.Line3D(_get_anchor(start), _get_anchor(end), color))
+
+    def draw_polyline_3d(
+        self,
+        points: Sequence[flat.Vector3],
+        color: flat.Color,
+    ):
+        self._draw(flat.PolyLine3D(points, color))
+
+    def draw_string_3d(
+        self,
+        text: str,
+        anchor: flat.RenderAnchor | flat.BallAnchor | flat.CarAnchor | flat.Vector3,
+        scale: float,
+        foreground: flat.Color,
+        background: flat.Color = flat.Color(),
+        h_align: flat.TextHAlign = flat.TextHAlign.Left,
+        v_align: flat.TextVAlign = flat.TextVAlign.Top,
+    ):
+        self._draw(
+            flat.String3D(
+                text,
+                _get_anchor(anchor),
+                scale,
+                foreground,
+                background,
+                h_align,
+                v_align,
+            )
+        )
+
+    def draw_string_2d(
+        self,
+        text: str,
+        x: float,
+        y: float,
+        scale: float,
+        foreground: flat.Color,
+        background: flat.Color = flat.Color(),
+        h_align: flat.TextHAlign = flat.TextHAlign.Left,
+        v_align: flat.TextVAlign = flat.TextVAlign.Top,
+    ):
+        self._draw(
+            flat.String2D(
+                text,
+                x,
+                y,
+                scale,
+                foreground,
+                background,
+                h_align,
+                v_align,
+            )
+        )

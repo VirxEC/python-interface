@@ -3,15 +3,14 @@ launcher = "steam"
 
 [match]
 num_cars = 1
-game_mode = "Heatseeker"
+num_scripts = 1
+game_mode = "Soccer"
 game_map_upk = "Stadium_P"
 enable_rendering = true
 
-[mutators]
-match_length = "Unlimited"
-boost_amount = "Unlimited"
-max_score = "Unlimited"
-
-[[cars]]
+[cars]
 type = "human"
 team = 0
+
+[scripts]
+config = "render_test/script.toml"

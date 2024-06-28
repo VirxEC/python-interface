@@ -50,8 +50,11 @@ def get_car_facing_vector(car: flat.PlayerInfo) -> Vector2:
 
 class Atba(Bot):
     state_setting = False
-    rendering = False
+    rendering = True
     match_comms = False
+
+    last_demoed = False
+    needs_render = True
 
     def initialize_agent(self):
         self.logger.info("Initializing agent!")
@@ -62,15 +65,13 @@ class Atba(Bot):
         self.logger.info(f"There are {num_boost_pads} boost pads on the field.")
 
         self.renderer.begin_rendering("custom one-time rendering group")
-        self.renderer.draw(
-            flat.PolyLine3D(
-                [
-                    flat.Vector3(1000, 1000, 100),
-                    flat.Vector3(1000, -1000, 500),
-                    flat.Vector3(-1000, -1000, 1000),
-                ],
-                self.renderer.yellow,
-            )
+        self.renderer.draw_polyline_3d(
+            [
+                flat.Vector3(1000, 1000, 100),
+                flat.Vector3(1000, -1000, 500),
+                flat.Vector3(-1000, -1000, 1000),
+            ],
+            self.renderer.yellow,
         )
         self.renderer.end_rendering()
 
@@ -123,19 +124,27 @@ class Atba(Bot):
         self.set_game_state(game_state)
 
     def test_rendering(self, packet: flat.GameTickPacket):
-        self.renderer.begin_rendering()
-        text = "Hello world!\nI hope I'm centered!"
-        self.renderer.draw(
-            flat.String3D(
-                text,
-                packet.players[self.index].physics.location,
-                1.5,
+        if not self.needs_render:
+            self.needs_render = (
+                self.last_demoed and packet.players[self.index].demolished_timeout <= 0
+            )
+        self.last_demoed = packet.players[self.index].demolished_timeout > 0
+
+        if self.needs_render:
+            self.needs_render = False
+
+            self.renderer.begin_rendering()
+
+            text = ["Hello world!", "I hope I'm centered!"]
+            self.renderer.draw_string_3d(
+                "\n".join(text),
+                flat.CarAnchor(self.index),
+                0.75,
                 self.renderer.yellow,
                 self.renderer.transparent,
                 flat.TextHAlign.Center,
             )
-        )
-        self.renderer.end_rendering()
+            self.renderer.end_rendering()
 
 
 if __name__ == "__main__":

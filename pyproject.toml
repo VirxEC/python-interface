@@ -6,9 +6,9 @@ build-backend = "setuptools.build_meta"
 name = "rlbot"
 description = "A high performance Python interface for communicating with RLBot v5."
 dynamic = ["version"]
-requires-python = ">= 3.11"
+requires-python = ">= 3.10"
 dependencies = [
-    "rlbot_flatbuffers~=0.3.5",
+    "rlbot_flatbuffers~=0.4.0",
     "psutil==5.*",
 ]
 readme = "README.md"

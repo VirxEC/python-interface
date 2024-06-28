@@ -42,17 +42,20 @@ class CustomFormatter(logging.Formatter):
         return formatter.format(record)
 
 
+def check_color():
+    from rlbot.utils.os_detector import CURRENT_OS, OS
+
+    if CURRENT_OS == OS.WINDOWS:
+        import os
+
+        os.system("color")
+
+
 def get_logger(logger_name: str) -> logging.Logger:
     if logger_name == DEFAULT_LOGGER_NAME:
         if DEFAULT_LOGGER is not None:
             return DEFAULT_LOGGER
-        else:
-            from rlbot.utils.os_detector import CURRENT_OS, OS
-
-            if CURRENT_OS == OS.WINDOWS:
-                import os
-
-                os.system("color")
+        check_color()
 
     logger = logging.getLogger(logger_name)
     if not logger.handlers:

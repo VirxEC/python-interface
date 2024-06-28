@@ -2,7 +2,7 @@ from typing import Optional
 
 from rlbot import flat
 from rlbot.interface import SocketRelay
-from rlbot.managers.rendering import RenderingManager
+from rlbot.managers.rendering import Renderer
 from rlbot.utils.logging import get_logger
 
 
@@ -26,7 +26,7 @@ class Script:
         )
         self._game_interface.packet_handlers.append(self.handle_packet)
 
-        self.renderer = RenderingManager(self._game_interface)
+        self.renderer = Renderer(self._game_interface)
 
     def _handle_match_communication(self, match_comm: flat.MatchComm):
         if match_comm.team_only and match_comm.team != 2:

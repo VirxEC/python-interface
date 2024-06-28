@@ -1,3 +1,4 @@
+rlbot==5.*
 numpy==1.*
 --find-links https://download.pytorch.org/whl/torch_stable.html
 torch==2.3.1+cpu

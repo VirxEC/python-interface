@@ -4,7 +4,7 @@ import zipfile
 from dataclasses import dataclass
 
 from rlbot import flat
-from rlbot.managers.rendering import RenderingManager
+from rlbot.managers.rendering import Renderer
 
 
 class Vector3(flat.Vector3):
@@ -89,7 +89,7 @@ class ColoredWireframe:
 
                 self.groups[-1].polygons.append(polygon)  # append the most recent group
 
-    def render(self, renderer: RenderingManager):
+    def render(self, renderer: Renderer):
         for _ in range(10):
             if self.current_color_group < len(self.groups):
                 unique_group_name = str(self.polygons_rendered) + str(
@@ -101,11 +101,9 @@ class ColoredWireframe:
 
                 for _ in range(50):
                     if self.polygons_rendered < len(group.polygons):
-                        renderer.draw(
-                            flat.PolyLine3D(
-                                group.polygons[self.polygons_rendered].vertices,
-                                group.color,
-                            )
+                        renderer.draw_polyline_3d(
+                            group.polygons[self.polygons_rendered].vertices,
+                            group.color,
                         )
 
                         self.polygons_rendered += 1

@@ -27,10 +27,12 @@ class MatchManager:
         self.rlbot_interface: SocketRelay = SocketRelay()
         self.rlbot_interface.packet_handlers.append(self._packet_reporter)
 
-    def ensure_server_started(self):
+    def ensure_server_started(self, print_version_info: bool = True):
         """
         Ensures that RLBotServer is running.
         """
+        if not print_version_info:
+            version.print_current_release_notes()
 
         self.rlbot_server_process = gateway.find_existing_process(
             self.main_executable_name
@@ -50,14 +52,6 @@ class MatchManager:
         self.logger.info(
             f"Started {self.main_executable_name} with process id {self.rlbot_server_process.pid}"
         )
-
-    def start_server(self):
-        """
-        Ensuring RLBotServer has been started so we can connect to it.
-        """
-        version.print_current_release_notes()
-
-        self.ensure_server_started()
 
     def _packet_reporter(self, packet: flat.GameTickPacket):
         self.game_state = packet.game_info.game_state_type
@@ -83,7 +77,7 @@ class MatchManager:
         self.rlbot_interface.stop_match(shutdown_server=True)
 
         # Wait for the server to shut down
-        # It usually happens pretty fast, but if it doesn't,
+        # It usually happens quickly, but if it doesn't,
         # we'll forcefully kill it after a few seconds.
 
         i = 0

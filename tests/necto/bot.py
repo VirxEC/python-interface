@@ -4,19 +4,17 @@ from agent import Agent
 from necto_obs import NectoObsBuilder
 from rlgym_compat import GameState
 
-from rlbot import flat
+from rlbot.flat import ControllerState, GameStateType, GameTickPacket, Vector3
 from rlbot.managers import Bot
 
 KICKOFF_CONTROLS = (
-    11 * 4 * [flat.ControllerState(throttle=1, boost=True)]
-    + 4 * 4 * [flat.ControllerState(throttle=1, boost=True, steer=-1)]
-    + 2 * 4 * [flat.ControllerState(throttle=1, jump=True, boost=True)]
-    + 1 * 4 * [flat.ControllerState(throttle=1, boost=True)]
-    + 1
-    * 4
-    * [flat.ControllerState(throttle=1, yaw=0.8, pitch=-0.7, jump=True, boost=True)]
-    + 13 * 4 * [flat.ControllerState(throttle=1, pitch=1, boost=True)]
-    + 10 * 4 * [flat.ControllerState(throttle=1, roll=1, pitch=0.5)]
+    11 * 4 * [ControllerState(throttle=1, boost=True)]
+    + 4 * 4 * [ControllerState(throttle=1, boost=True, steer=-1)]
+    + 2 * 4 * [ControllerState(throttle=1, jump=True, boost=True)]
+    + 1 * 4 * [ControllerState(throttle=1, boost=True)]
+    + 1 * 4 * [ControllerState(throttle=1, yaw=0.8, pitch=-0.7, jump=True, boost=True)]
+    + 13 * 4 * [ControllerState(throttle=1, pitch=1, boost=True)]
+    + 10 * 4 * [ControllerState(throttle=1, roll=1, pitch=0.5)]
 )
 
 KICKOFF_NUMPY = np.array(
@@ -43,11 +41,11 @@ class Necto(Bot):
     # Beta controls randomness:
     # 1=best action, 0.5=sampling from probability, 0=random, -1=worst action, or anywhere inbetween
     beta = 1
-    render = True
+    render = False
     hardcoded_kickoffs = True
 
     prev_time = 0
-    controls = flat.ControllerState()
+    controls = ControllerState()
     action = np.zeros(8)
     update_action = True
     kickoff_index = -1
@@ -90,26 +88,26 @@ class Necto(Bot):
             weight = mean_weights[i] / mx
             dest = loc + obs[1][0, i, 5:8] * 2300 * invert
             color = self.renderer.create_color(
-                255, round(255 * (1 - weight)), round(255), round(255 * (1 - weight))
+                round(255 * (1 - weight)), round(255), round(255 * (1 - weight))
             )
 
-            self.renderer.draw(
-                flat.String3D(
-                    str(c),
-                    flat.Vector3(*dest),
-                    2,
-                    color,
-                )
+            self.renderer.draw_string_3d(
+                str(c),
+                Vector3(*dest),
+                2,
+                color,
             )
 
             c += 1
 
-            self.renderer.draw(
-                flat.Line3D(flat.Vector3(*loc), flat.Vector3(*dest), color)
+            self.renderer.draw_line_3d(
+                Vector3(*loc),
+                Vector3(*dest),
+                color,
             )
         self.renderer.end_rendering()
 
-    def get_output(self, packet: flat.GameTickPacket) -> flat.ControllerState:
+    def get_output(self, packet: GameTickPacket) -> ControllerState:
         cur_time = packet.game_info.seconds_elapsed
         delta = cur_time - self.prev_time
         self.prev_time = cur_time
@@ -134,7 +132,7 @@ class Necto(Bot):
             obs = self.obs_builder.build_obs(player, self.game_state, self.action)
 
             beta = self.beta
-            if packet.game_info.game_state_type == flat.GameStateType.Ended:
+            if packet.game_info.game_state_type == GameStateType.Ended:
                 beta = 0  # Celebrate with random actions
             self.action, weights = self.agent.act(obs, beta)
 
@@ -151,8 +149,8 @@ class Necto(Bot):
 
         return self.controls
 
-    def maybe_do_kickoff(self, packet: flat.GameTickPacket, ticks_elapsed: int):
-        if packet.game_info.game_state_type == flat.GameStateType.Kickoff:
+    def maybe_do_kickoff(self, packet: GameTickPacket, ticks_elapsed: int):
+        if packet.game_info.game_state_type == GameStateType.Kickoff:
             if self.kickoff_index >= 0:
                 self.kickoff_index += round(ticks_elapsed)
             elif self.kickoff_index == -1:
