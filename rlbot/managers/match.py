@@ -63,9 +63,9 @@ class MatchManager:
         }:
             sleep(0.1)
 
-    def start_match(self, match_config_path: Path):
+    def start_match(self, match_config: Path | flat.MatchSettings):
         self.logger.info("Python attempting to start match.")
-        self.rlbot_interface.start_match(match_config_path)
+        self.rlbot_interface.start_match(match_config)
 
         self.wait_for_valid_packet()
         self.logger.info("Match has started.")
@@ -74,7 +74,20 @@ class MatchManager:
         self.logger.info("Shutting down RLBot...")
 
         # in theory this is all we need for the server to cleanly shut itself down
-        self.rlbot_interface.stop_match(shutdown_server=True)
+        try:
+            self.rlbot_interface.stop_match(shutdown_server=True)
+        except BrokenPipeError:
+            match gateway.find_existing_process(self.main_executable_name):
+                case psutil.Process() as proc:
+                    self.logger.warning(
+                        "Can't communicate with RLBotServer, ensuring shutdown."
+                    )
+                    proc.terminate()
+                case None:
+                    self.logger.warning(
+                        "RLBotServer appears to have already shut down."
+                    )
+                    return
 
         # Wait for the server to shut down
         # It usually happens quickly, but if it doesn't,

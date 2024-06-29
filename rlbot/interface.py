@@ -120,12 +120,18 @@ class SocketRelay:
         flatbuffer = flat.StopCommand(shutdown_server).pack()
         self.send_bytes(flatbuffer, SocketDataType.STOP_COMMAND)
 
-    def start_match(self, match_config_path: Path):
-        string_path = str(match_config_path.absolute().resolve())
-        flatbuffer = flat.StartCommand(string_path).pack()
+    def start_match(self, match_config: Path | flat.MatchSettings):
+        match match_config:
+            case Path() as path:
+                string_path = str(path.absolute().resolve())
+                flatbuffer = flat.StartCommand(string_path).pack()
+                flat_type = SocketDataType.START_COMMAND
+            case flat.MatchSettings() as settings:
+                flatbuffer = settings.pack()
+                flat_type = SocketDataType.MATCH_SETTINGS
 
         def connect_handler():
-            self.send_bytes(flatbuffer, SocketDataType.START_COMMAND)
+            self.send_bytes(flatbuffer, flat_type)
 
         self.run_after_connect(connect_handler)
 
@@ -247,9 +253,6 @@ class SocketRelay:
                     skip_input_change = len(self.player_input_change_handlers) == 0
                     skip_spectate = len(self.player_spectate_handlers) == 0
                     skip_stat = len(self.player_stat_handlers) == 0
-
-                    if skip_input_change and skip_spectate and skip_stat:
-                        return
 
                     for msg in msg_packet.messages:
                         self._handle_game_message(

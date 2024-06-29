@@ -30,14 +30,16 @@ class Hivemind:
     _has_field_info = False
 
     def __init__(self):
-        spawn_ids = os.environ.get("BOT_SPAWN_IDS")
+        spawn_id = os.environ.get("BOT_SPAWN_ID")
 
-        if spawn_ids is None:
-            self._logger.warning("BOT_SPAWN_IDS environment variable not set")
+        if spawn_id is None:
+            self._logger.warning("BOT_SPAWN_ID environment variable not set")
         else:
-            spawn_ids = spawn_ids.split(",")
-            self.spawn_ids = [int(spawn_id) for spawn_id in spawn_ids]
-            self._logger.info(f"Spawn IDs: {self.spawn_ids}")
+            self._logger.info(f"Spawn ID: {spawn_id}")
+            self.spawn_ids.append(int(spawn_id))
+
+        # todo: figure out how to get the spawn ids of the other bots we control
+        # match comms?
 
         self._game_interface = SocketRelay(logger=self._logger)
         self._game_interface.match_settings_handlers.append(self._handle_match_settings)

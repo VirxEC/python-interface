@@ -8,15 +8,17 @@ class OS(IntEnum):
     LINUX = 2
 
 
-if platform.system() == "Windows":
-    MAIN_EXECUTABLE_NAME = "RLBotServer.exe"
-    CURRENT_OS = OS.WINDOWS
-elif platform.system() == "Linux":
-    MAIN_EXECUTABLE_NAME = "RLBotServer"
-    CURRENT_OS = OS.LINUX
-else:
-    from rlbot.utils.logging import get_logger
+match platform.system():
+    case "Windows":
+        MAIN_EXECUTABLE_NAME = "RLBotServer.exe"
+        CURRENT_OS = OS.WINDOWS
+    case "Linux":
+        MAIN_EXECUTABLE_NAME = "RLBotServer"
+        CURRENT_OS = OS.LINUX
+    case _ as unknown_os:
+        from rlbot.utils.logging import get_logger
 
-    MAIN_EXECUTABLE_NAME = ""
-    CURRENT_OS = OS.UNKNOWN
-    get_logger("os_detector").warn("Unknown OS: " + platform.system())
+        MAIN_EXECUTABLE_NAME = ""
+        CURRENT_OS = OS.UNKNOWN
+
+        get_logger("os_detector").warn(f"Unknown OS: {unknown_os}")
