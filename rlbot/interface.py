@@ -30,8 +30,7 @@ class SocketDataType(IntEnum):
     MATCH_COMMUNICATION = 9
     BALL_PREDICTION = 10
     READY_MESSAGE = 11
-    MESSAGE_PACKET = 12
-    STOP_COMMAND = 13
+    STOP_COMMAND = 12
 
 
 MAX_SIZE_2_BYTES = 2**16 - 1
@@ -46,17 +45,16 @@ def int_from_bytes(bytes: bytes) -> int:
 
 
 class SocketMessage:
-    def __init__(self, type: SocketDataType, data: bytes):
-        self.type = type
+    def __init__(self, type: int, data: bytes):
+        self.type = SocketDataType(type)
         self.data = data
 
 
 def read_from_socket(s: socket) -> SocketMessage:
     type_int = int_from_bytes(s.recv(2))
-    data_type = SocketDataType(type_int)
     size = int_from_bytes(s.recv(2))
     data = s.recv(size)
-    return SocketMessage(data_type, data)
+    return SocketMessage(type_int, data)
 
 
 class SocketRelay:
@@ -69,13 +67,6 @@ class SocketRelay:
     match_settings_handlers: list[Callable[[flat.MatchSettings], None]] = []
     match_communication_handlers: list[Callable[[flat.MatchComm], None]] = []
     ball_prediction_handlers: list[Callable[[flat.BallPrediction], None]] = []
-    player_input_change_handlers: list[
-        Callable[[flat.PlayerInputChange, float, int], None]
-    ] = []
-    player_stat_handlers: list[Callable[[flat.PlayerStatEvent, float, int], None]] = []
-    player_spectate_handlers: list[
-        Callable[[flat.PlayerSpectate, float, int], None]
-    ] = []
     raw_handlers: list[Callable[[SocketMessage], None]] = []
 
     def __init__(
@@ -141,14 +132,13 @@ class SocketRelay:
         else:
             self.on_connect_handlers.append(handler)
             try:
-                self.connect_and_run(False, False, False, False, True)
+                self.connect_and_run(False, False, False, True)
             except timeout:
                 raise TimeoutError("Took too long to connect to the RLBot executable!")
 
     def connect_and_run(
         self,
         wants_match_communcations: bool,
-        wants_game_messages: bool,
         wants_ball_predictions: bool,
         close_after_match: bool = True,
         only_wait_for_ready: bool = False,
@@ -180,7 +170,6 @@ class SocketRelay:
         flatbuffer = flat.ReadyMessage(
             wants_ball_predictions,
             wants_match_communcations,
-            wants_game_messages,
             close_after_match,
         ).pack()
         self.send_bytes(flatbuffer, SocketDataType.READY_MESSAGE)
@@ -197,15 +186,18 @@ class SocketRelay:
         try:
             while self._should_continue:
                 incoming_message = read_from_socket(self.socket)
+
                 try:
                     self.handle_incoming_message(incoming_message)
                 except flat.InvalidFlatbuffer as e:
                     self.logger.error(
-                        f"Error while handling message of type {incoming_message.type.name}: {e}"
+                        f"Error while unpacking message of type {incoming_message.type.name} "
+                        f"({len(incoming_message.data)} bytes): {e}"
                     )
                 except Exception as e:
                     self.logger.warning(
-                        f"Unexpected error while handling message of type {incoming_message.type.name}: {e}"
+                        "Unexpected error while handling message of type "
+                        f"{incoming_message.type.name}: {e}"
                     )
         except:
             self.logger.error("Socket manager disconnected unexpectedly!")
@@ -242,68 +234,6 @@ class SocketRelay:
                     ball_prediction = flat.BallPrediction.unpack(incoming_message.data)
                     for handler in self.ball_prediction_handlers:
                         handler(ball_prediction)
-            case SocketDataType.MESSAGE_PACKET:
-                if (
-                    len(self.player_stat_handlers) > 0
-                    or len(self.player_input_change_handlers) > 0
-                    or len(self.player_spectate_handlers) > 0
-                ):
-                    msg_packet = flat.MessagePacket.unpack(incoming_message.data)
-
-                    skip_input_change = len(self.player_input_change_handlers) == 0
-                    skip_spectate = len(self.player_spectate_handlers) == 0
-                    skip_stat = len(self.player_stat_handlers) == 0
-
-                    for msg in msg_packet.messages:
-                        self._handle_game_message(
-                            msg.message,
-                            msg_packet.game_seconds,
-                            msg_packet.frame_num,
-                            skip_input_change,
-                            skip_spectate,
-                            skip_stat,
-                        )
-
-    def _handle_game_message(
-        self,
-        msg: flat.GameMessage,
-        game_seconds: float,
-        frame_num: int,
-        skip_input_change: bool,
-        skip_spectate: bool,
-        skip_stat: bool,
-    ):
-        match msg.item:
-            case flat.PlayerInputChange() as item:
-                if skip_input_change:
-                    return
-
-                for handler in self.player_input_change_handlers:
-                    handler(
-                        item,
-                        game_seconds,
-                        frame_num,
-                    )
-            case flat.PlayerSpectate() as item:
-                if skip_spectate:
-                    return
-
-                for handler in self.player_spectate_handlers:
-                    handler(
-                        item,
-                        game_seconds,
-                        frame_num,
-                    )
-            case flat.PlayerStatEvent() as item:
-                if skip_stat:
-                    return
-
-                for handler in self.player_stat_handlers:
-                    handler(
-                        item,
-                        game_seconds,
-                        frame_num,
-                    )
 
     def disconnect(self):
         if not self.is_connected:

@@ -105,6 +105,7 @@ class Necto(Bot):
                 Vector3(*dest),
                 color,
             )
+
         self.renderer.end_rendering()
 
     def get_output(self, packet: GameTickPacket) -> ControllerState:
@@ -114,6 +115,10 @@ class Necto(Bot):
 
         ticks_elapsed = round(delta * 120)
         self.ticks += ticks_elapsed
+
+        if len(packet.balls) == 0:
+            return self.controls
+
         self.game_state.decode(packet, ticks_elapsed)
 
         if self.update_action == 1 and len(self.game_state.players) > self.index:
@@ -156,7 +161,10 @@ class Necto(Bot):
             elif self.kickoff_index == -1:
                 is_kickoff_taker = False
                 ball_pos = np.array(
-                    [packet.ball.physics.location.x, packet.ball.physics.location.y]
+                    [
+                        packet.balls[0].physics.location.x,
+                        packet.balls[0].physics.location.y,
+                    ]
                 )
                 positions = np.array(
                     [
@@ -185,7 +193,7 @@ class Necto(Bot):
 
             if (
                 0 <= self.kickoff_index < len(KICKOFF_NUMPY)
-                and packet.ball.physics.location.y == 0
+                and packet.balls[0].physics.location.y == 0
             ):
                 action = KICKOFF_NUMPY[self.kickoff_index]
                 self.action = action
@@ -205,4 +213,4 @@ class Necto(Bot):
 
 
 if __name__ == "__main__":
-    Necto().run(False, False, False)
+    Necto().run(False, False)

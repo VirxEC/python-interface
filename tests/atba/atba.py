@@ -87,11 +87,11 @@ class Atba(Bot):
         if packet.game_info.game_state_type not in {
             flat.GameStateType.Active,
             flat.GameStateType.Kickoff,
-        }:
+        } or len(packet.balls) == 0:
             return self.controller
 
         if self.state_setting:
-            self.test_state_setting(packet.ball.physics.velocity)
+            self.test_state_setting(packet.balls[0].physics.velocity)
 
         if self.match_comms:
             # Limit packet spam
@@ -99,7 +99,7 @@ class Atba(Bot):
                 self.send_match_comm(b"", "Hello world!")
                 self.last_send = packet.game_info.frame_num
 
-        ball_location = Vector2.from_vector3t(packet.ball.physics.location)
+        ball_location = Vector2.from_vector3t(packet.balls[0].physics.location)
 
         my_car = packet.players[self.index]
         car_location = Vector2.from_vector3t(my_car.physics.location)
@@ -115,11 +115,13 @@ class Atba(Bot):
 
     def test_state_setting(self, ball_velocity: flat.Vector3):
         game_state = flat.DesiredGameState(
-            flat.DesiredBallState(
-                flat.DesiredPhysics(
-                    velocity=flat.Vector3Partial(z=ball_velocity.z + 10)
+            [
+                flat.DesiredBallState(
+                    flat.DesiredPhysics(
+                        velocity=flat.Vector3Partial(z=ball_velocity.z + 10)
+                    )
                 )
-            )
+            ]
         )
         self.set_game_state(game_state)
 

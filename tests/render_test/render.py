@@ -21,7 +21,7 @@ class RenderFun(Script):
         if self.needs_render:
             self.needs_render = False
 
-            match packet.ball.shape.item:
+            match packet.balls[0].shape.item:
                 case flat.SphereShape() | flat.CylinderShape() as shape:
                     radius = shape.diameter / 2
                 case flat.BoxShape() as shape:
@@ -33,15 +33,15 @@ class RenderFun(Script):
         self.renderer.begin_rendering()
 
         points = [
-            BallAnchor(Vector3(radius, radius, radius)),
-            BallAnchor(Vector3(radius, radius, -radius)),
-            BallAnchor(Vector3(radius, -radius, -radius)),
-            BallAnchor(Vector3(radius, -radius, radius)),
-            BallAnchor(Vector3(-radius, -radius, radius)),
-            BallAnchor(Vector3(-radius, -radius, -radius)),
-            BallAnchor(Vector3(-radius, radius, -radius)),
-            BallAnchor(Vector3(-radius, radius, radius)),
-            BallAnchor(Vector3(radius, radius, radius)),
+            BallAnchor(local=Vector3(radius, radius, radius)),
+            BallAnchor(local=Vector3(radius, radius, -radius)),
+            BallAnchor(local=Vector3(radius, -radius, -radius)),
+            BallAnchor(local=Vector3(radius, -radius, radius)),
+            BallAnchor(local=Vector3(-radius, -radius, radius)),
+            BallAnchor(local=Vector3(-radius, -radius, -radius)),
+            BallAnchor(local=Vector3(-radius, radius, -radius)),
+            BallAnchor(local=Vector3(-radius, radius, radius)),
+            BallAnchor(local=Vector3(radius, radius, radius)),
         ]
 
         for i in range(1, len(points)):
@@ -60,4 +60,4 @@ class RenderFun(Script):
 
 
 if __name__ == "__main__":
-    RenderFun().run(False, False, False)
+    RenderFun().run(False, False)

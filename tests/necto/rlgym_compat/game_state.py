@@ -9,20 +9,21 @@ from .player_data import PlayerData
 
 
 class GameState:
+    blue_score: int = 0
+    orange_score: int = 0
+    players: List[PlayerData] = []
+    ball = PhysicsObject()
+    inverted_ball = PhysicsObject()
+
+    _on_ground_ticks = np.zeros(64, dtype=np.float32)
+    _air_time = np.zeros(64, dtype=np.float32)
+
     def __init__(self, game_info: flat.FieldInfo):
-        self.blue_score = 0
-        self.orange_score = 0
-        self.players: List[PlayerData] = []
-        self._on_ground_ticks = np.zeros(64, dtype=np.float32)
-        self._air_time = np.zeros(64, dtype=np.float32)
-
-        self.ball: PhysicsObject = PhysicsObject()
-        self.inverted_ball: PhysicsObject = PhysicsObject()
-
         # List of "booleans" (1 or 0)
         self.boost_pads: np.ndarray = np.zeros(
             len(game_info.boost_pads), dtype=np.float32
         )
+
         self.inverted_boost_pads: np.ndarray = np.zeros_like(
             self.boost_pads, dtype=np.float32
         )
@@ -35,10 +36,10 @@ class GameState:
             self.boost_pads[i] = pad.is_active
         self.inverted_boost_pads[:] = self.boost_pads[::-1]
 
-        self.ball.decode_ball_data(packet.ball.physics)
+        self.ball.decode_ball_data(packet.balls[0].physics)
         self.inverted_ball.invert(self.ball)
 
-        self.players = []
+        self.players.clear()
         for i, car in enumerate(packet.players):
             player = self._decode_player(car, i, ticks_elapsed)
             self.players.append(player)

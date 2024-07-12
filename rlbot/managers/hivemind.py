@@ -116,13 +116,11 @@ class Hivemind:
     def run(
         self,
         wants_match_communcations: bool = True,
-        wants_game_messages: bool = False,
         wants_ball_predictions: bool = True,
     ):
         try:
             self._game_interface.connect_and_run(
                 wants_match_communcations,
-                wants_game_messages,
                 wants_ball_predictions,
             )
         finally:

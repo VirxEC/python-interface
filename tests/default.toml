@@ -33,6 +33,8 @@ freeplay = false
 match_length = "Five_Minutes"
 # "Default", "One_Goal", "Three_Goals", "Five_Goals", "Seven Goals", "Unlimited"
 max_score = "Default"
+# "One", "Two", "Four", "Six"
+multi_ball = "One"
 # "Unlimited", "Five_Max_First_Score", "Five_Max_Random_Team"
 overtime = "Unlimited"
 # "Default", "Slo_Mo", "Time_Warp"

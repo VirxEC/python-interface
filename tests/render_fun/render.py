@@ -14,4 +14,4 @@ class RenderFun(Script):
 
 
 if __name__ == "__main__":
-    RenderFun().run(False, False, False)
+    RenderFun().run(False, False)
