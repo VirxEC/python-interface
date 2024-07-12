@@ -88,6 +88,24 @@ class Bot:
             return
 
         if self.index == -1:
+            # spawn id should only be 0 if BOT_SPAWN_ID was not set
+            if self.spawn_id == 0:
+                # in this case, if there's only one player, we can assume it's us
+                player_index = -1
+                for i, player in enumerate(packet.players):
+                    # skip human players/psyonix bots
+                    if not player.is_bot:
+                        continue
+
+                    if player_index != -1:
+                        self.logger.error(
+                            "Multiple bots in the game, please set BOT_SPAWN_ID"
+                        )
+                        return
+
+                    player_index = i
+                self.index = player_index
+
             for i, player in enumerate(packet.players):
                 if player.spawn_id == self.spawn_id:
                     self.index = i
