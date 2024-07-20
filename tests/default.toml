@@ -7,7 +7,7 @@ auto_start_bots = true
 
 [match]
 # Number of bots/players which will be spawned.
-num_cars = 1
+num_cars = 0
 # Number of scripts which will be spawned.
 num_scripts = 0
 # What game mode the game should load.
@@ -22,7 +22,7 @@ start_without_countdown = false
 # What should we do if you click run while a match is already in progress?
 # "Restart If Different", "Restart", "Continue And Spawn"
 existing_match_behavior = "Restart"
-enable_rendering = true
+enable_rendering = false
 enable_state_setting = true
 auto_save_replay = false
 # Whether or not to use freeplay instead of an exhibition match
