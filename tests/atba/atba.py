@@ -49,9 +49,9 @@ def get_car_facing_vector(car: flat.PlayerInfo) -> Vector2:
 
 
 class Atba(Bot):
-    state_setting = False
+    state_setting = True
     rendering = True
-    match_comms = False
+    match_comms = True
 
     last_demoed = False
     needs_render = True
@@ -84,10 +84,14 @@ class Atba(Bot):
         if self.rendering:
             self.test_rendering(packet)
 
-        if packet.game_info.game_state_type not in {
-            flat.GameStateType.Active,
-            flat.GameStateType.Kickoff,
-        } or len(packet.balls) == 0:
+        if (
+            packet.game_info.game_state_type
+            not in {
+                flat.GameStateType.Active,
+                flat.GameStateType.Kickoff,
+            }
+            or len(packet.balls) == 0
+        ):
             return self.controller
 
         if self.state_setting:
