@@ -21,10 +21,10 @@ ball_type = "Puck"
 ball_weight = "Super_Light"
 ball_size = "Large"
 ball_bounciness = "Super_High"
-boost_amount = "Unlimited"
+boost_amount = "Unlimited_Boost"
 rumble = "Spikes_Only"
 boost_strength = "OneAndAHalf"
-respawn_time = "One_Seconds"
+respawn_time = "One_Second"
 
 # Only num_cars configs will be used, in the order they are defined
 [[cars]]
