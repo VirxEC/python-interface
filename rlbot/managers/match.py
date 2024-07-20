@@ -63,12 +63,16 @@ class MatchManager:
         }:
             sleep(0.1)
 
-    def start_match(self, match_config: Path | flat.MatchSettings):
+    def start_match(self, match_config: Path | flat.MatchSettings, wait_for_start: bool=True):
         self.logger.info("Python attempting to start match.")
         self.rlbot_interface.start_match(match_config)
 
-        self.wait_for_valid_packet()
-        self.logger.info("Match has started.")
+        if wait_for_start:
+            self.wait_for_valid_packet()
+            self.logger.info("Match has started.")
+
+    def disconnect(self):
+        self.rlbot_interface.disconnect()
 
     def shut_down(self, ensure_shutdown=True):
         self.logger.info("Shutting down RLBot...")
