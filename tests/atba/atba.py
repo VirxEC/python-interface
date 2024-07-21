@@ -61,7 +61,7 @@ class Atba(Bot):
 
         self.last_send = 0
         self.controller = flat.ControllerState()
-        num_boost_pads = len(self.get_field_info().boost_pads)
+        num_boost_pads = len(self.field_info.boost_pads)
         self.logger.info(f"There are {num_boost_pads} boost pads on the field.")
 
         self.renderer.begin_rendering("custom one-time rendering group")

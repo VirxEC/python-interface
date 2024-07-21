@@ -53,11 +53,9 @@ class Necto(Bot):
 
     def initialize_agent(self):
         # Initialize the rlgym GameState object now that the game is active and the info is available
-        field_info = self.get_field_info()
-        self.obs_builder = NectoObsBuilder(field_info)
-        self.game_state = GameState(field_info)
+        self.obs_builder = NectoObsBuilder(self.field_info)
+        self.game_state = GameState(self.field_info)
 
-        self.logger.info(f"Necto Ready - Index: {self.index}")
         self.logger.warning(
             "Remember to run Necto at 120fps with vsync off! "
             "Stable 240/360 is second best if that's better for your eyes"

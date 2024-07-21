@@ -87,7 +87,11 @@ class Bot:
         if not self._initialized_bot:
             return
 
-        if self.index == -1:
+        if (
+            self.index == -1
+            or len(packet.players) <= self.index
+            or packet.players[self.index].spawn_id != self.spawn_id
+        ):
             # spawn id should only be 0 if BOT_SPAWN_ID was not set
             if self.spawn_id == 0:
                 # in this case, if there's only one player, we can assume it's us
@@ -137,24 +141,6 @@ class Bot:
         finally:
             self.retire()
             del self._game_interface
-
-    def get_match_settings(self) -> flat.MatchSettings:
-        """
-        Contains info about what map you're on, mutators, etc.
-        """
-        return self.match_settings
-
-    def get_field_info(self) -> flat.FieldInfo:
-        """
-        Contains info about the map, such as the locations of boost pads and goals.
-        """
-        return self.field_info
-
-    def get_ball_prediction(self) -> flat.BallPrediction:
-        """
-        A simulated prediction of the ball's path with only the field geometry.
-        """
-        return self.ball_prediction
 
     def handle_match_communication(self, match_comm: flat.MatchComm):
         pass

@@ -63,7 +63,9 @@ class MatchManager:
         }:
             sleep(0.1)
 
-    def start_match(self, match_config: Path | flat.MatchSettings, wait_for_start: bool=True):
+    def start_match(
+        self, match_config: Path | flat.MatchSettings, wait_for_start: bool = True
+    ):
         self.logger.info("Python attempting to start match.")
         self.rlbot_interface.start_match(match_config)
 
