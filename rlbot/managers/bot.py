@@ -4,7 +4,7 @@ from typing import Optional
 
 from rlbot import flat
 from rlbot.interface import SocketRelay
-from rlbot.managers.rendering import Renderer
+from rlbot.managers import Renderer
 from rlbot.utils.logging import DEFAULT_LOGGER, get_logger
 
 

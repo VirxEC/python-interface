@@ -4,7 +4,7 @@ import zipfile
 from dataclasses import dataclass
 
 from rlbot import flat
-from rlbot.managers.rendering import Renderer
+from rlbot.managers import Renderer
 
 
 class Vector3(flat.Vector3):
