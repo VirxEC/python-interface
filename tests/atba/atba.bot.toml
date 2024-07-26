@@ -16,7 +16,7 @@ run_command_linux = "../../venv/bin/python atba.py"
 [details]
 description = "Made possible by RLBot"
 fun_fact = "This is a test bot"
-github = "https://github.com/RLBot/RLBot"
+source_link = "https://github.com/RLBot/RLBot"
 developer = "BotMaker"
 language = "Python 3"
 # ALL POSSIBLE TAGS: 1v1, teamplay, goalie, hoops, dropshot, snow-day, spike-rush, heatseaker, memebot
