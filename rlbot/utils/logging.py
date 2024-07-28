@@ -38,7 +38,7 @@ class CustomFormatter(logging.Formatter):
         for color, section in zip(colors, self.SECTIONS):
             log_fmt += color + section
 
-        formatter = logging.Formatter(log_fmt, datefmt="%Y-%m-%d %H:%M:%S")
+        formatter = logging.Formatter(log_fmt, datefmt="%H:%M:%S")
         return formatter.format(record)
 
 
