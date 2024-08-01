@@ -19,7 +19,7 @@ class CustomFormatter(logging.Formatter):
     SECTIONS = [
         "%(asctime)s " + RESET,
         "%(levelname)8s:" + RESET + GREEN + "%(name)12s" + RESET,
-        "[%(filename)20s:%(lineno)3s - %(funcName)25s() ]" + RESET + " ",
+        "[%(filename)16s:%(lineno)3s - %(funcName)25s() ]" + RESET + " ",
         "%(message)s" + RESET,
     ]
 

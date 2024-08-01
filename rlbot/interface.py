@@ -10,7 +10,7 @@ from rlbot import flat
 from rlbot.utils.logging import get_logger
 
 # We can connect to RLBotServer on this port.
-RLBOT_SOCKETS_PORT = 23234
+RLBOT_SERVER_PORT = 23234
 
 
 class SocketDataType(IntEnum):
@@ -111,7 +111,11 @@ class SocketRelay:
         flatbuffer = flat.StopCommand(shutdown_server).pack()
         self.send_bytes(flatbuffer, SocketDataType.STOP_COMMAND)
 
-    def start_match(self, match_config: Path | flat.MatchSettings):
+    def start_match(
+        self,
+        match_config: Path | flat.MatchSettings,
+        rlbot_server_port: int = RLBOT_SERVER_PORT,
+    ):
         match match_config:
             case Path() as path:
                 string_path = str(path.absolute().resolve())
@@ -124,15 +128,19 @@ class SocketRelay:
         def connect_handler():
             self.send_bytes(flatbuffer, flat_type)
 
-        self.run_after_connect(connect_handler)
+        self.run_after_connect(connect_handler, rlbot_server_port)
 
-    def run_after_connect(self, handler: Callable[[], None]):
+    def run_after_connect(
+        self,
+        handler: Callable[[], None],
+        rlbot_server_port: int = RLBOT_SERVER_PORT,
+    ):
         if self.is_connected:
             handler()
         else:
             self.on_connect_handlers.append(handler)
             try:
-                self.connect_and_run(False, False, False, True)
+                self.connect_and_run(False, False, False, True, rlbot_server_port)
             except timeout:
                 raise TimeoutError("Took too long to connect to the RLBot executable!")
 
@@ -142,6 +150,7 @@ class SocketRelay:
         wants_ball_predictions: bool,
         close_after_match: bool = True,
         only_wait_for_ready: bool = False,
+        rlbot_server_port: int = RLBOT_SERVER_PORT,
     ):
         """
         Connects to the socket and begins a loop that reads messages and calls any handlers
@@ -151,7 +160,7 @@ class SocketRelay:
         self.socket.settimeout(self.connection_timeout)
         for _ in range(int(self.connection_timeout * 10)):
             try:
-                self.socket.connect(("127.0.0.1", RLBOT_SOCKETS_PORT))
+                self.socket.connect(("127.0.0.1", rlbot_server_port))
                 break
             except ConnectionRefusedError:
                 sleep(0.1)
@@ -161,7 +170,7 @@ class SocketRelay:
         self.socket.settimeout(None)
         self.is_connected = True
         self.logger.info(
-            f"Socket manager connected to port {RLBOT_SOCKETS_PORT} from port {self.socket.getsockname()[1]}!"
+            f"Socket manager connected to port {rlbot_server_port} from port {self.socket.getsockname()[1]}!"
         )
 
         for handler in self.on_connect_handlers:

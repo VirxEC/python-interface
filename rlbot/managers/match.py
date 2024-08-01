@@ -5,7 +5,7 @@ from typing import Optional
 import psutil
 
 from rlbot import flat, version
-from rlbot.interface import SocketRelay
+from rlbot.interface import RLBOT_SERVER_PORT, SocketRelay
 from rlbot.utils import gateway
 from rlbot.utils.logging import DEFAULT_LOGGER
 from rlbot.utils.os_detector import MAIN_EXECUTABLE_NAME
@@ -15,6 +15,7 @@ class MatchManager:
     logger = DEFAULT_LOGGER
     game_state = flat.GameStateType.Inactive
     rlbot_server_process: Optional[psutil.Process] = None
+    rlbot_server_port = RLBOT_SERVER_PORT
 
     def __init__(
         self,
@@ -34,7 +35,7 @@ class MatchManager:
         if not print_version_info:
             version.print_current_release_notes()
 
-        self.rlbot_server_process = gateway.find_existing_process(
+        self.rlbot_server_process, self.rlbot_server_port = gateway.find_server_process(
             self.main_executable_name
         )
         if self.rlbot_server_process is not None:
@@ -44,8 +45,9 @@ class MatchManager:
         if self.main_executable_path is None:
             raise Exception("No main_executable_path found. Please specify it.")
 
-        rlbot_server_process = gateway.launch(
-            self.main_executable_path, self.main_executable_name
+        rlbot_server_process, self.rlbot_server_port = gateway.launch(
+            self.main_executable_path,
+            self.main_executable_name,
         )
         self.rlbot_server_process = psutil.Process(rlbot_server_process.pid)
 
@@ -67,7 +69,7 @@ class MatchManager:
         self, match_config: Path | flat.MatchSettings, wait_for_start: bool = True
     ):
         self.logger.info("Python attempting to start match.")
-        self.rlbot_interface.start_match(match_config)
+        self.rlbot_interface.start_match(match_config, self.rlbot_server_port)
 
         if wait_for_start:
             self.wait_for_valid_packet()
@@ -83,7 +85,7 @@ class MatchManager:
         try:
             self.rlbot_interface.stop_match(shutdown_server=True)
         except BrokenPipeError:
-            match gateway.find_existing_process(self.main_executable_name):
+            match gateway.find_server_process(self.main_executable_name):
                 case psutil.Process() as proc:
                     self.logger.warning(
                         "Can't communicate with RLBotServer, ensuring shutdown."
@@ -104,7 +106,7 @@ class MatchManager:
             i += 1
             sleep(1)
 
-            self.rlbot_server_process = gateway.find_existing_process(
+            self.rlbot_server_process, _ = gateway.find_server_process(
                 self.main_executable_name
             )
 

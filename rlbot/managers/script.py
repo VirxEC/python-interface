@@ -1,3 +1,4 @@
+import os
 from typing import Optional
 
 from rlbot import flat
@@ -62,10 +63,13 @@ class Script:
         wants_match_communcations: bool = True,
         wants_ball_predictions: bool = True,
     ):
+        rlbot_server_port = int(os.environ.get("RLBOT_SERVER_PORT", 23234))
+
         try:
             self._game_interface.connect_and_run(
                 wants_match_communcations,
                 wants_ball_predictions,
+                rlbot_server_port=rlbot_server_port,
             )
         finally:
             self.retire()

@@ -50,6 +50,18 @@ class Bot:
 
         self.renderer = Renderer(self._game_interface)
 
+    def _initialize_agent(self):
+        try:
+            self.initialize_agent()
+        except Exception as e:
+            self.logger.critical(
+                f"Bot {self.name} failed to initialize due the following error: {e}"
+            )
+            print_exc()
+            exit()
+
+        self._initialized_bot = True
+
     def _handle_match_settings(self, match_settings: flat.MatchSettings):
         self.match_settings = match_settings
         self._has_match_settings = True
@@ -63,16 +75,14 @@ class Bot:
                 break
 
         if not self._initialized_bot and self._has_field_info:
-            self.initialize_agent()
-            self._initialized_bot = True
+            self._initialize_agent()
 
     def _handle_field_info(self, field_info: flat.FieldInfo):
         self.field_info = field_info
         self._has_field_info = True
 
         if not self._initialized_bot and self._has_match_settings:
-            self.initialize_agent()
-            self._initialized_bot = True
+            self._initialize_agent()
 
     def _handle_match_communication(self, match_comm: flat.MatchComm):
         if match_comm.team_only and self.team != match_comm.team:
@@ -133,10 +143,13 @@ class Bot:
         wants_match_communcations: bool = True,
         wants_ball_predictions: bool = True,
     ):
+        rlbot_server_port = int(os.environ.get("RLBOT_SERVER_PORT", 23234))
+
         try:
             self._game_interface.connect_and_run(
                 wants_match_communcations,
                 wants_ball_predictions,
+                rlbot_server_port=rlbot_server_port,
             )
         finally:
             self.retire()
