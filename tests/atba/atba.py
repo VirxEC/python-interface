@@ -7,13 +7,14 @@ from rlbot.managers import Bot
 
 
 class Vector2:
-    def __init__(self, x: float = 0, y: float = 0):
-        self.x = x
-        self.y = y
-
-    @staticmethod
-    def from_vector3t(vec3: flat.Vector3) -> Vector2:
-        return Vector2(vec3.x, vec3.y)
+    def __init__(self, x: float | flat.Vector3 = 0, y: float = 0, z: float = 0):
+        match x:
+            case flat.Vector3(v_x, v_y, _):
+                self.x = v_x
+                self.y = v_y
+            case _:
+                self.x = x
+                self.y = y
 
     def __add__(self, val) -> Vector2:
         return Vector2(self.x + val.x, self.y + val.y)
@@ -56,11 +57,12 @@ class Atba(Bot):
     last_demoed = False
     needs_render = True
 
+    last_send = 0
+    controller = flat.ControllerState()
+
     def initialize_agent(self):
         self.logger.info("Initializing agent!")
 
-        self.last_send = 0
-        self.controller = flat.ControllerState()
         num_boost_pads = len(self.field_info.boost_pads)
         self.logger.info(f"There are {num_boost_pads} boost pads on the field.")
 
@@ -103,10 +105,10 @@ class Atba(Bot):
                 self.send_match_comm(b"", "Hello world!")
                 self.last_send = packet.game_info.frame_num
 
-        ball_location = Vector2.from_vector3t(packet.balls[0].physics.location)
+        ball_location = Vector2(packet.balls[0].physics.location)
 
         my_car = packet.players[self.index]
-        car_location = Vector2.from_vector3t(my_car.physics.location)
+        car_location = Vector2(my_car.physics.location)
         car_direction = get_car_facing_vector(my_car)
         car_to_ball = ball_location - car_location
 

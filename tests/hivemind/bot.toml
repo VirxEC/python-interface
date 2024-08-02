@@ -1,0 +1,8 @@
+[settings]
+name = "Hives"
+looks_config = "../necto/looks.toml"
+location = ""
+run_command = "..\\..\\venv\\Scripts\\python bot.py"
+run_command_linux = "../../venv/bin/python bot.py"
+# must set to true if you want the bot to be ran as a hivemind
+hivemind = true

@@ -29,10 +29,10 @@ class Bot:
     _has_field_info = False
 
     def __init__(self):
-        spawn_id = os.environ.get("BOT_SPAWN_ID")
+        spawn_id = os.environ.get("RLBOT_SPAWN_IDS")
 
         if spawn_id is None:
-            self.logger.warning("BOT_SPAWN_ID environment variable not set")
+            self.logger.warning("RLBOT_SPAWN_IDS environment variable not set")
         else:
             self.spawn_id = int(spawn_id)
             self.logger.info(f"Spawn ID: {self.spawn_id}")
@@ -102,7 +102,7 @@ class Bot:
             or len(packet.players) <= self.index
             or packet.players[self.index].spawn_id != self.spawn_id
         ):
-            # spawn id should only be 0 if BOT_SPAWN_ID was not set
+            # spawn id should only be 0 if RLBOT_SPAWN_IDS was not set
             if self.spawn_id == 0:
                 # in this case, if there's only one player, we can assume it's us
                 player_index = -1
@@ -113,7 +113,7 @@ class Bot:
 
                     if player_index != -1:
                         self.logger.error(
-                            "Multiple bots in the game, please set BOT_SPAWN_ID"
+                            "Multiple bots in the game, please set RLBOT_SPAWN_IDS"
                         )
                         return
 
@@ -188,6 +188,8 @@ class Bot:
         """
         Called for all heaver initialization that needs to happen.
         Field info and match settings are fully loaded at this point, and won't return garbage data.
+
+        NOTE: `self.index` is not set at this point, and should not be used. `self.team` and `self.name` _are_ set with correct information.
         """
         pass
 

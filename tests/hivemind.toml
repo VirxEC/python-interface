@@ -1,0 +1,35 @@
+[rlbot]
+launcher = "steam"
+auto_start_bots = true
+
+[match]
+num_cars = 6
+game_mode = "Soccer"
+game_map_upk = "Stadium_P"
+
+[mutators]
+match_length = "Unlimited"
+
+[[cars]]
+type = "human"
+team = 0
+
+[[cars]]
+config = "hivemind/bot.toml"
+team = 0
+
+[[cars]]
+config = "hivemind/bot.toml"
+team = 0
+
+[[cars]]
+config = "hivemind/bot.toml"
+team = 1
+
+[[cars]]
+config = "hivemind/bot.toml"
+team = 1
+
+[[cars]]
+config = "hivemind/bot.toml"
+team = 1

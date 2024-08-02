@@ -30,16 +30,13 @@ class Hivemind:
     _has_field_info = False
 
     def __init__(self):
-        spawn_id = os.environ.get("BOT_SPAWN_ID")
+        spawn_ids = os.environ.get("RLBOT_SPAWN_IDS")
 
-        if spawn_id is None:
-            self._logger.warning("BOT_SPAWN_ID environment variable not set")
+        if spawn_ids is None:
+            self._logger.warning("RLBOT_SPAWN_IDS environment variable not set")
         else:
-            self._logger.info(f"Spawn ID: {spawn_id}")
-            self.spawn_ids.append(int(spawn_id))
-
-        # todo: figure out how to get the spawn ids of the other bots we control
-        # match comms?
+            self._logger.info(f"Spawn ID: {spawn_ids}")
+            self.spawn_ids = [int(id) for id in spawn_ids.split(",")]
 
         self._game_interface = SocketRelay(logger=self._logger)
         self._game_interface.match_settings_handlers.append(self._handle_match_settings)
@@ -91,11 +88,14 @@ class Hivemind:
         if not self._initialized_bot:
             return
 
-        if len(self.indicies) != len(self.spawn_ids):
-            for i, player in enumerate(packet.players):
-                if player.spawn_id in self.spawn_ids and i not in self.indicies:
-                    self.indicies.append(i)
-                    break
+        if len(self.indicies) != len(self.spawn_ids) or any(
+            packet.players[i].spawn_id not in self.spawn_ids for i in self.indicies
+        ):
+            self.indicies = [
+                i
+                for i, player in enumerate(packet.players)
+                if player.spawn_id in self.spawn_ids
+            ]
 
             if len(self.indicies) != len(self.spawn_ids):
                 return
