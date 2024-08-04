@@ -8,9 +8,9 @@ game_mode = "Soccer"
 game_map_upk = "Stadium_P"
 enable_rendering = true
 
-[cars]
+[[cars]]
 type = "human"
 team = 0
 
-[scripts]
+[[scripts]]
 config = "render_test/script.toml"
