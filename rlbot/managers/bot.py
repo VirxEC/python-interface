@@ -199,4 +199,4 @@ class Bot:
         """
         Where all the logic of your bot gets its input and returns its output.
         """
-        return flat.ControllerState()
+        raise NotImplementedError

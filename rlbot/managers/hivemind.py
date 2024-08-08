@@ -195,4 +195,4 @@ class Hivemind:
         """
         Where all the logic of your bot gets its input and returns its output.
         """
-        return {}
+        raise NotImplementedError
