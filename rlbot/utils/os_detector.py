@@ -21,4 +21,4 @@ match platform.system():
         MAIN_EXECUTABLE_NAME = ""
         CURRENT_OS = OS.UNKNOWN
 
-        get_logger("os_detector").warn(f"Unknown OS: {unknown_os}")
+        get_logger("os_detector").warning("Unknown OS: %s", unknown_os)

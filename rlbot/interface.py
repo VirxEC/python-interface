@@ -84,7 +84,7 @@ class SocketRelay:
         size = len(data)
         if size > MAX_SIZE_2_BYTES:
             self.logger.error(
-                f"Couldn't send a {data_type} message because it was too big!"
+                "Couldn't send a %s message because it was too big!", data_type
             )
             return
 
@@ -141,8 +141,10 @@ class SocketRelay:
             self.on_connect_handlers.append(handler)
             try:
                 self.connect_and_run(False, False, False, True, rlbot_server_port)
-            except timeout:
-                raise TimeoutError("Took too long to connect to the RLBot executable!")
+            except timeout as e:
+                raise TimeoutError(
+                    "Took too long to connect to the RLBot executable!"
+                ) from e
 
     def connect_and_run(
         self,
@@ -170,7 +172,9 @@ class SocketRelay:
         self.socket.settimeout(None)
         self.is_connected = True
         self.logger.info(
-            f"Socket manager connected to port {rlbot_server_port} from port {self.socket.getsockname()[1]}!"
+            "Socket manager connected to port %s from port %s!",
+            rlbot_server_port,
+            self.socket.getsockname()[1],
         )
 
         for handler in self.on_connect_handlers:
@@ -200,13 +204,16 @@ class SocketRelay:
                     self.handle_incoming_message(incoming_message)
                 except flat.InvalidFlatbuffer as e:
                     self.logger.error(
-                        f"Error while unpacking message of type {incoming_message.type.name} "
-                        f"({len(incoming_message.data)} bytes): {e}"
+                        "Error while unpacking message of type %s (%s bytes): %s",
+                        incoming_message.type.name,
+                        len(incoming_message.data),
+                        e,
                     )
                 except Exception as e:
                     self.logger.warning(
-                        "Unexpected error while handling message of type "
-                        f"{incoming_message.type.name}: {e}"
+                        "Unexpected error while handling message of type %s: %s",
+                        incoming_message.type.name,
+                        e,
                     )
         except:
             self.logger.error("Socket manager disconnected unexpectedly!")

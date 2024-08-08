@@ -39,7 +39,7 @@ class MatchManager:
             self.main_executable_name
         )
         if self.rlbot_server_process is not None:
-            self.logger.info(f"Already have {self.main_executable_name} running!")
+            self.logger.info("Already have %s running!", self.main_executable_name)
             return
 
         if self.main_executable_path is None:
@@ -52,7 +52,9 @@ class MatchManager:
         self.rlbot_server_process = psutil.Process(rlbot_server_process.pid)
 
         self.logger.info(
-            f"Started {self.main_executable_name} with process id {self.rlbot_server_process.pid}"
+            "Started %s with process id %s",
+            self.main_executable_name,
+            self.rlbot_server_process.pid,
         )
 
     def _packet_reporter(self, packet: flat.GameTickPacket):
@@ -112,7 +114,7 @@ class MatchManager:
 
             if self.rlbot_server_process is not None:
                 self.logger.info(
-                    f"Waiting for {self.main_executable_name} to shut down..."
+                    "Waiting for %s to shut down...", self.main_executable_name
                 )
 
                 if ensure_shutdown:
@@ -120,12 +122,14 @@ class MatchManager:
                         self.rlbot_server_process.terminate()
                     elif i == 4 or i == 7:
                         self.logger.warning(
-                            f"{self.main_executable_name} is not responding to terminate requests."
+                            "%s is not responding to terminate requests.",
+                            self.main_executable_name,
                         )
                         self.rlbot_server_process.terminate()
                     elif i >= 10 and i % 3 == 1:
                         self.logger.error(
-                            f"{self.main_executable_name} is not responding, forcefully killing."
+                            "%s is not responding, forcefully killing.",
+                            self.main_executable_name,
                         )
                         self.rlbot_server_process.kill()
 

@@ -35,7 +35,7 @@ class Hivemind:
         if spawn_ids is None:
             self._logger.warning("RLBOT_SPAWN_IDS environment variable not set")
         else:
-            self._logger.info(f"Spawn ID: {spawn_ids}")
+            self._logger.info("Spawn ID: %s", spawn_ids)
             self.spawn_ids = [int(id) for id in spawn_ids.split(",")]
 
         self._game_interface = SocketRelay(logger=self._logger)
@@ -104,7 +104,7 @@ class Hivemind:
             controller = self.get_outputs(packet)
         except Exception as e:
             self._logger.error(
-                f"Hivemind (with {self.names}) returned an error to RLBot: {e}"
+                "Hivemind (with %s) returned an error to RLBot: %s", self.names, e
             )
             print_exc()
             return
@@ -182,12 +182,12 @@ class Hivemind:
         """
         Called for all heaver initialization that needs to happen.
         Field info and match settings are fully loaded at this point, and won't return garbage data.
+
+        NOTE: `self.index` is not set at this point, and should not be used. `self.team` and `self.name` _are_ set with correct information.
         """
-        pass
 
     def retire(self):
         """Called after the game ends"""
-        pass
 
     def get_outputs(
         self, game_tick_packet: flat.GameTickPacket

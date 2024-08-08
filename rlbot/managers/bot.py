@@ -35,7 +35,7 @@ class Bot:
             self.logger.warning("RLBOT_SPAWN_IDS environment variable not set")
         else:
             self.spawn_id = int(spawn_id)
-            self.logger.info(f"Spawn ID: {self.spawn_id}")
+            self.logger.info("Spawn ID: %s", self.spawn_id)
 
         self._game_interface = SocketRelay(logger=self.logger)
         self._game_interface.match_settings_handlers.append(self._handle_match_settings)
@@ -55,7 +55,7 @@ class Bot:
             self.initialize_agent()
         except Exception as e:
             self.logger.critical(
-                f"Bot {self.name} failed to initialize due the following error: {e}"
+                "Bot %s failed to initialize due the following error: %s", self.name, e
             )
             print_exc()
             exit()
@@ -131,7 +131,7 @@ class Bot:
         try:
             controller = self.get_output(packet)
         except Exception as e:
-            self.logger.error(f"Bot {self.name} returned an error to RLBot: {e}")
+            self.logger.error("Bot %s returned an error to RLBot: %s", self.name, e)
             print_exc()
             return
 
@@ -191,11 +191,9 @@ class Bot:
 
         NOTE: `self.index` is not set at this point, and should not be used. `self.team` and `self.name` _are_ set with correct information.
         """
-        pass
 
     def retire(self):
         """Called after the game ends"""
-        pass
 
     def get_output(self, game_tick_packet: flat.GameTickPacket) -> flat.ControllerState:
         """

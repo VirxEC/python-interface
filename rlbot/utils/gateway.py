@@ -72,7 +72,7 @@ def launch(
 
     port = find_open_server_port()
     args = str(path) + " " + str(port)
-    DEFAULT_LOGGER.info(f"Launching RLBotServer with via {args}")
+    DEFAULT_LOGGER.info("Launching RLBotServer with via %s", args)
 
     return subprocess.Popen(args, shell=True, cwd=directory), port
 
@@ -97,7 +97,9 @@ def find_server_process(
             return proc, port
         except Exception as e:
             logger.error(
-                f"Failed to read the name of a process while hunting for {main_executable_name}: {e}"
+                "Failed to read the name of a process while hunting for %s: %s",
+                main_executable_name,
+                e,
             )
 
     return None, RLBOT_SERVER_PORT

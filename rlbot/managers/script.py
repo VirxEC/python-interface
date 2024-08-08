@@ -92,4 +92,3 @@ class Script:
 
     def retire(self):
         """Called after the game ends"""
-        pass
