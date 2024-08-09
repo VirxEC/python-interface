@@ -6,6 +6,11 @@ from rlbot import flat
 
 
 class PhysicsObject:
+    _has_computed_rot_mtx = False
+    _rotation_mtx: np.ndarray = np.zeros((3, 3))
+    _invert_vec: np.ndarray = np.asarray([-1, -1, 1])
+    _invert_pyr: np.ndarray = np.asarray([0, math.pi, 0])
+
     def __init__(
         self,
         position=None,
@@ -15,9 +20,6 @@ class PhysicsObject:
     ):
         self.position: np.ndarray = position if position else np.zeros(3)
 
-        # ones by default to prevent mathematical errors when converting quat to rot matrix on empty physics state
-        self.quaternion: np.ndarray = np.ones(4)
-
         self.linear_velocity: np.ndarray = (
             linear_velocity if linear_velocity else np.zeros(3)
         )
@@ -25,11 +27,6 @@ class PhysicsObject:
             angular_velocity if angular_velocity else np.zeros(3)
         )
         self._euler_angles: np.ndarray = euler_angles if euler_angles else np.zeros(3)
-        self._rotation_mtx: np.ndarray = np.zeros((3, 3))
-        self._has_computed_rot_mtx = False
-
-        self._invert_vec = np.asarray([-1, -1, 1])
-        self._invert_pyr = np.asarray([0, math.pi, 0])
 
     def decode_car_data(self, car_data: flat.Physics):
         self.position = self._vector_to_numpy(car_data.location)

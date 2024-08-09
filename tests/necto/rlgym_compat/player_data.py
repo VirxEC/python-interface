@@ -2,14 +2,13 @@ from .physics_object import PhysicsObject
 
 
 class PlayerData(object):
-    def __init__(self):
-        self.car_id: int = -1
-        self.team_num: int = -1
-        self.is_demoed: bool = False
-        self.on_ground: bool = False
-        self.ball_touched: bool = False
-        self.has_jump: bool = False
-        self.has_flip: bool = False
-        self.boost_amount: float = -1
-        self.car_data: PhysicsObject = PhysicsObject()
-        self.inverted_car_data: PhysicsObject = PhysicsObject()
+    car_id: int = -1
+    team_num: int = -1
+    is_demoed: bool = False
+    on_ground: bool = False
+    ball_touched: bool = False
+    has_jump: bool = False
+    has_flip: bool = False
+    boost_amount: float = -1
+    car_data: PhysicsObject = PhysicsObject()
+    inverted_car_data: PhysicsObject = PhysicsObject()
