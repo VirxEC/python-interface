@@ -96,6 +96,7 @@ def get_player_config(
 
 class MatchManager:
     logger = DEFAULT_LOGGER
+    packet: Optional[flat.GameTickPacket] = None
     game_state = flat.GameStateType.Inactive
     rlbot_server_process: Optional[psutil.Process] = None
     rlbot_server_port = RLBOT_SERVER_PORT
@@ -141,6 +142,7 @@ class MatchManager:
         )
 
     def _packet_reporter(self, packet: flat.GameTickPacket):
+        self.packet = packet
         self.game_state = packet.game_info.game_state_type
 
     def wait_for_valid_packet(self):
