@@ -1,6 +1,7 @@
+import tomllib
 from pathlib import Path
 from time import sleep
-from typing import Optional
+from typing import Any, Optional
 
 import psutil
 
@@ -8,7 +9,89 @@ from rlbot import flat, version
 from rlbot.interface import RLBOT_SERVER_PORT, SocketRelay
 from rlbot.utils import gateway
 from rlbot.utils.logging import DEFAULT_LOGGER
-from rlbot.utils.os_detector import MAIN_EXECUTABLE_NAME
+from rlbot.utils.os_detector import CURRENT_OS, MAIN_EXECUTABLE_NAME, OS
+
+
+def get_player_paint(config: dict[str, Any]) -> flat.LoadoutPaint:
+    return flat.LoadoutPaint(
+        config.get("car_paint_id", 0),
+        config.get("decal_paint_id", 0),
+        config.get("wheels_paint_id", 0),
+        config.get("boost_paint_id", 0),
+        config.get("antenna_paint_id", 0),
+        config.get("hat_paint_id", 0),
+        config.get("trails_paint_id", 0),
+        config.get("goal_explosion_paint_id", 0),
+    )
+
+
+def get_player_loadout(path: str, team: int) -> flat.PlayerLoadout:
+    with open(path, "rb") as f:
+        config = tomllib.load(f)
+
+    loadout = config["blue_loadout"] if team == 0 else config["orange_loadout"]
+    paint = loadout.get("paint", None)
+
+    return flat.PlayerLoadout(
+        loadout.get("team_color_id", 0),
+        loadout.get("custom_color_id", 0),
+        loadout.get("car_id", 0),
+        loadout.get("decal_id", 0),
+        loadout.get("wheels_id", 0),
+        loadout.get("boost_id", 0),
+        loadout.get("antenna_id", 0),
+        loadout.get("hat_id", 0),
+        loadout.get("paint_finish_id", 0),
+        loadout.get("custom_finish_id", 0),
+        loadout.get("engine_audio_id", 0),
+        loadout.get("trails_id", 0),
+        loadout.get("goal_explosion_id", 0),
+        get_player_paint(paint) if paint is not None else None,
+    )
+
+
+def get_player_config(
+    type: flat.RLBot | flat.Psyonix, team: int, path: Path | str
+) -> flat.PlayerConfiguration:
+    with open(path, "rb") as f:
+        config = tomllib.load(f)
+
+    match path:
+        case Path():
+            parent = path.parent
+        case _:
+            parent = Path(path).parent
+
+    settings: dict[str, Any] = config["settings"]
+
+    location = parent
+    if "location" in settings:
+        location /= settings["location"]
+
+    run_command = settings.get("run_command", "")
+    if CURRENT_OS == OS.LINUX and "run_command_linux" in settings:
+        run_command = settings["run_command_linux"]
+
+    loadout_path = settings.get("looks_config", None)
+    if loadout_path is not None:
+        loadout_path = parent / loadout_path
+
+    loadout = (
+        get_player_loadout(loadout_path, team)
+        if loadout_path is not None and loadout_path.exists()
+        else None
+    )
+
+    return flat.PlayerConfiguration(
+        type,
+        settings["name"],
+        team,
+        str(location),
+        str(run_command),
+        loadout,
+        0,
+        settings.get("hivemind", False),
+    )
 
 
 class MatchManager:
