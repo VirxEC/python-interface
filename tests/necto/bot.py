@@ -65,11 +65,6 @@ class Necto(Bot):
             "Also check out the RLGym Twitch stream to watch live bot training and occasional showmatches!"
         )
 
-        # t = 5
-        # for i in range(t):
-        #     self.logger.info(f"Waiting {t - i}s...")
-        #     sleep(1)
-
     def render_attention_weights(
         self,
         weights: list[torch.Tensor],
