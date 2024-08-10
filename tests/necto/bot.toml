@@ -1,6 +1,6 @@
 [settings]
 name = "Necto"
-looks_config = "looks.toml"
+loadout_config = "loadout.toml"
 run_command = "..\\..\\venv\\Scripts\\python bot.py"
 run_command_linux = "../../venv/bin/python bot.py"
 

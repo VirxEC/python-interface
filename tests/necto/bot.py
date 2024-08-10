@@ -1,3 +1,4 @@
+from time import sleep
 import numpy as np
 import torch
 from agent import Agent
@@ -63,6 +64,11 @@ class Necto(Bot):
         self.logger.info(
             "Also check out the RLGym Twitch stream to watch live bot training and occasional showmatches!"
         )
+
+        # t = 5
+        # for i in range(t):
+        #     self.logger.info(f"Waiting {t - i}s...")
+        #     sleep(1)
 
     def render_attention_weights(
         self,

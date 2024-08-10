@@ -1,4 +1,4 @@
-__version__ = "5.0.0"
+__version__ = "5.0.0-beta.1"
 
 
 RESET_SEQ = "\033[0m"
@@ -15,7 +15,7 @@ BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = (
 )
 
 RELEASE_NOTES = {
-    "5.0.0": """
+    "5.0.0-beta.1": """
     Initial iteration of the Python interface for RLBot.
     """
 }

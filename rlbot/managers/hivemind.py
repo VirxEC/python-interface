@@ -42,7 +42,7 @@ class Hivemind:
         self._game_interface.match_settings_handlers.append(self._handle_match_settings)
         self._game_interface.field_info_handlers.append(self._handle_field_info)
         self._game_interface.match_communication_handlers.append(
-            self._handle_match_communication
+            self.handle_match_communication
         )
         self._game_interface.ball_prediction_handlers.append(
             self._handle_ball_prediction
@@ -50,6 +50,21 @@ class Hivemind:
         self._game_interface.packet_handlers.append(self._handle_packet)
 
         self.renderer = Renderer(self._game_interface)
+
+    def _initialize_agent(self):
+        try:
+            self.initialize_agent()
+        except Exception as e:
+            self._logger.critical(
+                "Hivemind %s failed to initialize due the following error: %s",
+                "Unknown" if len(self.names) == 0 else self.names[0],
+                e,
+            )
+            print_exc()
+            exit()
+
+        self._initialized_bot = True
+        self._game_interface.send_init_complete(flat.InitComplete(self.spawn_ids[0]))
 
     def _handle_match_settings(self, match_settings: flat.MatchSettings):
         self.match_settings = match_settings
@@ -64,30 +79,19 @@ class Hivemind:
                 break
 
         if not self._initialized_bot and self._has_field_info:
-            self.initialize_agent()
-            self._initialized_bot = True
+            self._initialize_agent()
 
     def _handle_field_info(self, field_info: flat.FieldInfo):
         self.field_info = field_info
         self._has_field_info = True
 
         if not self._initialized_bot and self._has_match_settings:
-            self.initialize_agent()
-            self._initialized_bot = True
-
-    def _handle_match_communication(self, match_comm: flat.MatchComm):
-        if match_comm.team_only and self.team != match_comm.team:
-            return
-
-        self.handle_match_communication(match_comm)
+            self._initialize_agent()
 
     def _handle_ball_prediction(self, ball_prediction: flat.BallPrediction):
         self.ball_prediction = ball_prediction
 
     def _handle_packet(self, packet: flat.GameTickPacket):
-        if not self._initialized_bot:
-            return
-
         if len(self.indicies) != len(self.spawn_ids) or any(
             packet.players[i].spawn_id not in self.spawn_ids for i in self.indicies
         ):
@@ -177,6 +181,15 @@ class Hivemind:
         Sets the game to the given desired state.
         """
         self._game_interface.send_game_state(game_state)
+
+    def set_loadout(self, loadout: flat.PlayerLoadout, spawn_id: int):
+        """
+        Sets the loadout of a bot.
+
+        For use as a loadout generator, call inside of `initialize_agent`.
+        Will be ignored if called outside of `initialize_agent` when state setting is disabled.
+        """
+        self._game_interface.send_set_loadout(flat.SetLoadout(spawn_id, loadout))
 
     def initialize_agent(self):
         """

@@ -4,10 +4,7 @@ from rlbot.managers import Script
 
 
 class RenderFun(Script):
-    def __init__(self):
-        super().__init__("RenderFun")
-
-        self.zero_two = unzip_and_build_obj()
+    zero_two = unzip_and_build_obj()
 
     def handle_packet(self, _):
         self.zero_two.render(self.renderer)

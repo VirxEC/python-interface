@@ -29,8 +29,10 @@ class SocketDataType(IntEnum):
     REMOVE_RENDER_GROUP = 8
     MATCH_COMMUNICATION = 9
     BALL_PREDICTION = 10
-    READY_MESSAGE = 11
+    CONNECTION_SETTINGS = 11
     STOP_COMMAND = 12
+    SET_LOADOUT = 13
+    INIT_COMPLETE = 14
 
 
 MAX_SIZE_2_BYTES = 2**16 - 1
@@ -90,6 +92,12 @@ class SocketRelay:
 
         message = int_to_bytes(data_type) + int_to_bytes(size) + data
         self.socket.sendall(message)
+
+    def send_init_complete(self, init_complete: flat.InitComplete):
+        self.send_bytes(init_complete.pack(), SocketDataType.INIT_COMPLETE)
+
+    def send_set_loadout(self, set_loadout: flat.SetLoadout):
+        self.send_bytes(set_loadout.pack(), SocketDataType.SET_LOADOUT)
 
     def send_match_comm(self, match_comm: flat.MatchComm):
         self.send_bytes(match_comm.pack(), SocketDataType.MATCH_COMMUNICATION)
@@ -180,12 +188,12 @@ class SocketRelay:
         for handler in self.on_connect_handlers:
             handler()
 
-        flatbuffer = flat.ReadyMessage(
+        flatbuffer = flat.ConnectionSettings(
             wants_ball_predictions,
             wants_match_communcations,
             close_after_match,
         ).pack()
-        self.send_bytes(flatbuffer, SocketDataType.READY_MESSAGE)
+        self.send_bytes(flatbuffer, SocketDataType.CONNECTION_SETTINGS)
 
         incoming_message = read_from_socket(self.socket)
         self.handle_incoming_message(incoming_message)
