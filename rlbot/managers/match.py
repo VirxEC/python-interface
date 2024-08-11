@@ -105,6 +105,7 @@ class MatchManager:
     packet: Optional[flat.GameTickPacket] = None
     rlbot_server_process: Optional[psutil.Process] = None
     rlbot_server_port = RLBOT_SERVER_PORT
+    initialized = False
 
     def __init__(
         self,
@@ -161,7 +162,10 @@ class MatchManager:
     ):
         self.logger.info("Python attempting to start match.")
         self.rlbot_interface.start_match(match_config, self.rlbot_server_port)
-        self.rlbot_interface.send_init_complete(flat.InitComplete())
+
+        if not self.initialized:
+            self.rlbot_interface.send_init_complete(flat.InitComplete())
+            self.initialized = True
 
         if wait_for_start:
             self.wait_for_valid_packet()

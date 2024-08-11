@@ -54,7 +54,9 @@ class Script:
             self.initialize_agent()
         except Exception as e:
             self.logger.critical(
-                "Script %s failed to initialize due the following error: %s", self.name, e
+                "Script %s failed to initialize due the following error: %s",
+                self.name,
+                e,
             )
             print_exc()
             exit()
