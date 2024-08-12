@@ -174,6 +174,9 @@ class MatchManager:
     def disconnect(self):
         self.rlbot_interface.disconnect()
 
+    def stop_match(self):
+        self.rlbot_interface.stop_match()
+
     def shut_down(self, ensure_shutdown=True):
         self.logger.info("Shutting down RLBot...")
 

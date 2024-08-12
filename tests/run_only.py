@@ -10,4 +10,6 @@ RLBOT_SERVER_FOLDER = CURRENT_FILE / "../../core/RLBotCS/bin/Release/"
 if __name__ == "__main__":
     match_manager = MatchManager(RLBOT_SERVER_FOLDER)
     match_manager.start_match(MATCH_CONFIG_PATH, False)
+    input()
+    match_manager.stop_match()
     match_manager.disconnect()
