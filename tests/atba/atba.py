@@ -102,7 +102,7 @@ class Atba(Bot):
         if self.match_comms:
             # Limit packet spam
             if packet.game_info.frame_num - self.last_send >= 360:
-                self.send_match_comm(b"", "Hello world!")
+                self.send_match_comm(b"", "Hello world!", True)
                 self.last_send = packet.game_info.frame_num
 
         ball_location = Vector2(packet.balls[0].physics.location)
