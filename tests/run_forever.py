@@ -36,3 +36,5 @@ if __name__ == "__main__":
 
         # let the end screen play for 5 seconds
         sleep(5)
+        match_manager.stop_match()
+        sleep(1)
