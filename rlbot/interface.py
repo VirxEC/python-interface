@@ -1,7 +1,7 @@
 import logging
 from enum import IntEnum
 from pathlib import Path
-from socket import socket, timeout
+from socket import IPPROTO_TCP, TCP_NODELAY, socket, timeout
 from threading import Thread
 from time import sleep
 from typing import Callable, Optional
@@ -78,6 +78,7 @@ class SocketRelay:
         self.logger = get_logger("interface") if logger is None else logger
 
         self.socket = socket()
+        self.socket.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
 
     def __del__(self):
         self.socket.close()
