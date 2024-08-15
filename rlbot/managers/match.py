@@ -177,6 +177,9 @@ class MatchManager:
     def stop_match(self):
         self.rlbot_interface.stop_match()
 
+    def set_game_state(self, game_state: flat.DesiredGameState):
+        self.rlbot_interface.send_game_state(game_state)
+
     def shut_down(self, ensure_shutdown=True):
         self.logger.info("Shutting down RLBot...")
 
