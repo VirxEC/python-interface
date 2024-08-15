@@ -46,15 +46,15 @@ if __name__ == "__main__":
             if (
                 match_manager.packet is not None
                 and match_manager.packet.game_info.game_state_type
-                == flat.GameStateType.Active
+                == flat.GameStateType.Countdown
             ):
-                match_manager.rlbot_interface.send_game_state(
+                match_manager.set_game_state(
                     flat.DesiredGameState(
                         game_info_state=flat.DesiredGameInfoState(game_speed=10)
                     )
                 )
 
-            sleep(0.1)
+            sleep(1)
 
         # let the end screen play for 5 seconds (just for fun)
         sleep(5)
