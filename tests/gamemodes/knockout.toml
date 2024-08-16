@@ -1,0 +1,11 @@
+[match]
+num_cars = 1
+game_mode = "Knockout"
+# Quadron - "KO_Quadron_P"
+# Calavera - "KO_Calavera_P"
+# Carbon - "KO_Carbon_P"
+game_map_upk = "KO_Quadron_P"
+
+[[cars]]
+type = "human"
+team = 0

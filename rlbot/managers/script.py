@@ -151,5 +151,5 @@ class Script:
     def retire(self):
         """Called after the game ends"""
 
-    def handle_packet(self, game_tick_packet: flat.GameTickPacket):
+    def handle_packet(self, packet: flat.GameTickPacket):
         pass

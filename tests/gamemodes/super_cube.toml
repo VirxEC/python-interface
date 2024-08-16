@@ -1,0 +1,14 @@
+[match]
+num_cars = 1
+game_mode = "Soccer"
+
+[mutators]
+ball_max_speed = "Super_Fast"
+ball_type = "Cube"
+ball_weight = "Light"
+ball_bounciness = "High"
+boost_amount = "Unlimited_Boost"
+
+[[cars]]
+type = "human"
+team = 0

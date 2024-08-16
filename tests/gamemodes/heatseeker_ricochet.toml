@@ -1,0 +1,11 @@
+[match]
+num_cars = 1
+game_mode = "Heatseeker"
+# Hourglass - "Labs_PillarGlass_P"
+# Barricade - "Labs_PillarHeat_P"
+# Colossus - "Labs_PillarWings_P"
+game_map_upk = "Labs_PillarGlass_P"
+
+[[cars]]
+type = "human"
+team = 0

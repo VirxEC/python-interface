@@ -1,0 +1,13 @@
+[match]
+num_cars = 1
+game_mode = "Soccer"
+game_map_upk = "ThrowbackStadium_P"
+
+[mutators]
+rumble = "Spike_Rush"
+respawn_time = "One_Second"
+game_event = "Rugby"
+
+[[cars]]
+type = "human"
+team = 0

@@ -21,7 +21,7 @@ if __name__ == "__main__":
         auto_start_bots=True,
         game_mode=flat.GameMode.Soccer,
         enable_state_setting=True,
-        existing_match_behavior=flat.ExistingMatchBehavior.Continue_And_Spawn,
+        existing_match_behavior=flat.ExistingMatchBehavior.Restart,
         skip_replays=True,
         player_configurations=[
             get_player_config(flat.RLBot(), 0, BOT_PATH),

@@ -1,0 +1,11 @@
+[match]
+num_cars = 1
+game_mode = "Dropshot"
+game_map_upk = "ShatterShot_P"
+
+[mutators]
+rumble = "Default"
+
+[[cars]]
+type = "human"
+team = 0

@@ -1,31 +1,11 @@
-[rlbot]
-# "Steam", "Epic", "Custom"
-launcher = "steam"
-# Should RLBot start the bot processes automatically, or will a separate script start them
-auto_start_bots = true
 
 [match]
-# Number of bots/players which will be spawned.
-num_cars = 0
-# Number of scripts which will be spawned.
-num_scripts = 0
+num_cars = 1
 # What game mode the game should load.
 # Accepted values are "Soccer", "Hoops", "Dropshot", "Hockey", "Rumble", "Heatseeker", "Gridiron", "Knockout"
 game_mode = "Soccer"
 # Which map the game should load into
 game_map_upk = "Stadium_P"
-# Automatically skip replays after a goal. Also stops match replays from being saved.
-skip_replays = false
-# Skip the kickoff countdown
-start_without_countdown = false
-# What should we do if you click run while a match is already in progress?
-# "Restart_If_Different", "Restart", "Continue_And_Spawn"
-existing_match_behavior = "Restart"
-enable_rendering = false
-enable_state_setting = true
-auto_save_replay = false
-# Whether or not to use freeplay instead of an exhibition match
-freeplay = false
 
 [mutators]
 # "Five_Minutes", "Ten_Minutes", "Twenty_Minutes", "Unlimited"
@@ -66,3 +46,7 @@ max_time = "Default"
 game_event = "Default"
 # "Default", "Haunted"
 audio = "Default"
+
+[[cars]]
+type = "human"
+team = 0

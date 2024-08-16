@@ -203,7 +203,7 @@ class Hivemind:
         """Called after the game ends"""
 
     def get_outputs(
-        self, game_tick_packet: flat.GameTickPacket
+        self, packet: flat.GameTickPacket
     ) -> dict[int, flat.ControllerState]:
         """
         Where all the logic of your bot gets its input and returns its output.

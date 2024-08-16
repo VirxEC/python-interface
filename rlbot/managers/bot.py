@@ -196,7 +196,7 @@ class Bot:
     def retire(self):
         """Called after the game ends"""
 
-    def get_output(self, game_tick_packet: flat.GameTickPacket) -> flat.ControllerState:
+    def get_output(self, packet: flat.GameTickPacket) -> flat.ControllerState:
         """
         Where all the logic of your bot gets its input and returns its output.
         """

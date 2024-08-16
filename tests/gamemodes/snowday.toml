@@ -1,0 +1,12 @@
+[match]
+num_cars = 1
+game_mode = "Snowday"
+# DFHStadium (Snowy) - "Stadium_Winter_P"
+# Mannfield (Snowy) - "Park_Winter_P"
+# Utopia Coliseum (Snowy) - "UtopiaStadium_Winter_P"
+# Beckwith Park (Snowy) - "Park_Snowy_P"
+game_map_upk = "Stadium_Winter_P"
+
+[[cars]]
+type = "human"
+team = 0

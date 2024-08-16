@@ -23,6 +23,8 @@ class RenderFun(Script):
                     radius = shape.diameter / 2
                 case flat.BoxShape() as shape:
                     radius = shape.length / 2
+                case _:
+                    radius = 0
 
             self.do_render(radius)
 
