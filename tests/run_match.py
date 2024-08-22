@@ -15,9 +15,13 @@ if __name__ == "__main__":
     match_manager.ensure_server_started()
     match_manager.start_match(MATCH_CONFIG_PATH)
 
-    sleep(5)
-
-    while match_manager.game_state != flat.GameStateType.Ended:
-        sleep(0.1)
-
-    match_manager.shut_down()
+    try:
+        # wait for the match to end
+        while (
+            match_manager.packet is None
+            or match_manager.packet.game_info.game_state_type
+            != flat.GameStateType.Ended
+        ):
+            sleep(0.1)
+    finally:
+        match_manager.shut_down()

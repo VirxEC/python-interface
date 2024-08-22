@@ -72,7 +72,13 @@ def get_player_config(
     if CURRENT_OS == OS.LINUX and "run_command_linux" in settings:
         run_command = settings["run_command_linux"]
 
-    loadout_path = settings.get("looks_config", None)
+    loadout_path = settings.get("loadout_config", None)
+
+    if loadout_path is None:
+        loadout_path = settings.get("looks_config", None)
+        if loadout_path is not None:
+            DEFAULT_LOGGER.error("looks_config is deprecated, use loadout_config.")
+
     if loadout_path is not None:
         loadout_path = parent / loadout_path
 
@@ -97,9 +103,9 @@ def get_player_config(
 class MatchManager:
     logger = DEFAULT_LOGGER
     packet: Optional[flat.GameTickPacket] = None
-    game_state = flat.GameStateType.Inactive
     rlbot_server_process: Optional[psutil.Process] = None
     rlbot_server_port = RLBOT_SERVER_PORT
+    initialized = False
 
     def __init__(
         self,
@@ -143,10 +149,9 @@ class MatchManager:
 
     def _packet_reporter(self, packet: flat.GameTickPacket):
         self.packet = packet
-        self.game_state = packet.game_info.game_state_type
 
     def wait_for_valid_packet(self):
-        while self.game_state in {
+        while self.packet is not None and self.packet.game_info.game_state_type in {
             flat.GameStateType.Inactive,
             flat.GameStateType.Ended,
         }:
@@ -158,12 +163,22 @@ class MatchManager:
         self.logger.info("Python attempting to start match.")
         self.rlbot_interface.start_match(match_config, self.rlbot_server_port)
 
+        if not self.initialized:
+            self.rlbot_interface.send_init_complete(flat.InitComplete())
+            self.initialized = True
+
         if wait_for_start:
             self.wait_for_valid_packet()
             self.logger.info("Match has started.")
 
     def disconnect(self):
         self.rlbot_interface.disconnect()
+
+    def stop_match(self):
+        self.rlbot_interface.stop_match()
+
+    def set_game_state(self, game_state: flat.DesiredGameState):
+        self.rlbot_interface.send_game_state(game_state)
 
     def shut_down(self, ensure_shutdown=True):
         self.logger.info("Shutting down RLBot...")
@@ -172,7 +187,7 @@ class MatchManager:
         try:
             self.rlbot_interface.stop_match(shutdown_server=True)
         except BrokenPipeError:
-            match gateway.find_server_process(self.main_executable_name):
+            match gateway.find_server_process(self.main_executable_name)[0]:
                 case psutil.Process() as proc:
                     self.logger.warning(
                         "Can't communicate with RLBotServer, ensuring shutdown."

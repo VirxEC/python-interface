@@ -4,11 +4,8 @@ from rlbot.managers import Script
 
 
 class RenderFun(Script):
-    def __init__(self):
-        super().__init__("RenderFun")
-
-        self.needs_render = True
-        self.last_state = flat.GameStateType.Inactive
+    needs_render = True
+    last_state = flat.GameStateType.Inactive
 
     def handle_packet(self, packet: flat.GameTickPacket):
         if (
@@ -26,6 +23,8 @@ class RenderFun(Script):
                     radius = shape.diameter / 2
                 case flat.BoxShape() as shape:
                     radius = shape.length / 2
+                case _:
+                    radius = 0
 
             self.do_render(radius)
 

@@ -1,0 +1,16 @@
+[match]
+num_cars = 1
+game_mode = "Soccer"
+# Map set currently unknown
+game_map_upk = "Stadium_P"
+
+[mutators]
+ball_max_speed = "Fast"
+ball_type = "Beachball"
+ball_weight = "Beach_Ball_Curve"
+ball_size = "Medium"
+ball_bounciness = "High"
+
+[[cars]]
+type = "human"
+team = 0

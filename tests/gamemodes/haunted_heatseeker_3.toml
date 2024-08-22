@@ -1,0 +1,8 @@
+[match]
+num_cars = 1
+game_mode = "Heatseeker"
+game_map_upk = "Trainstation_Spooky_P"
+
+[[cars]]
+type = "human"
+team = 0

@@ -1,0 +1,7 @@
+[match]
+num_cars = 1
+game_mode = "Rumble"
+
+[[cars]]
+type = "human"
+team = 0

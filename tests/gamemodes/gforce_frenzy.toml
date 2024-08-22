@@ -1,0 +1,13 @@
+
+[match]
+num_cars = 1
+game_mode = "Soccer"
+
+[mutators]
+boost_amount = "Unlimited_Boost"
+boost_strength = "Five"
+gravity = "Low"
+
+[[cars]]
+type = "human"
+team = 0

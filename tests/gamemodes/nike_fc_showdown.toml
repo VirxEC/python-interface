@@ -1,0 +1,15 @@
+
+[match]
+num_cars = 1
+game_mode = "Soccer"
+game_map_upk = "swoosh_p"
+
+[mutators]
+ball_max_speed = "Fast"
+ball_weight = "Magnus_FutBall"
+ball_bounciness = "LowishBounciness"
+ball_type = "Ekin"
+
+[[cars]]
+type = "human"
+team = 0

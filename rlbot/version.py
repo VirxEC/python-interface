@@ -1,4 +1,4 @@
-__version__ = "5.0.0"
+__version__ = "5.0.0-beta.1"
 
 
 RESET_SEQ = "\033[0m"
@@ -6,7 +6,7 @@ COLOR_SEQ = "\033[32;%dm"
 BOLD_SEQ = "\033[1m"
 
 
-def _get_color(color):
+def _get_color(color: int) -> str:
     return COLOR_SEQ % (30 + color)
 
 
@@ -15,7 +15,7 @@ BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = (
 )
 
 RELEASE_NOTES = {
-    "5.0.0": """
+    "5.0.0-beta.1": """
     Initial iteration of the Python interface for RLBot.
     """
 }

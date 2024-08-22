@@ -1,0 +1,14 @@
+[match]
+num_cars = 1
+game_mode = "Soccer"
+game_map_upk = "Haunted_TrainStation_P"
+
+[mutators]
+ball_type = "Haunted"
+rumble = "Haunted_Ball_Beam"
+game_event = "Haunted"
+audio = "Haunted"
+
+[[cars]]
+type = "human"
+team = 0

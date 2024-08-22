@@ -41,7 +41,7 @@ class Bot:
         self._game_interface.match_settings_handlers.append(self._handle_match_settings)
         self._game_interface.field_info_handlers.append(self._handle_field_info)
         self._game_interface.match_communication_handlers.append(
-            self._handle_match_communication
+            self.handle_match_communication
         )
         self._game_interface.ball_prediction_handlers.append(
             self._handle_ball_prediction
@@ -61,6 +61,7 @@ class Bot:
             exit()
 
         self._initialized_bot = True
+        self._game_interface.send_init_complete(flat.InitComplete(self.spawn_id))
 
     def _handle_match_settings(self, match_settings: flat.MatchSettings):
         self.match_settings = match_settings
@@ -84,19 +85,10 @@ class Bot:
         if not self._initialized_bot and self._has_match_settings:
             self._initialize_agent()
 
-    def _handle_match_communication(self, match_comm: flat.MatchComm):
-        if match_comm.team_only and self.team != match_comm.team:
-            return
-
-        self.handle_match_communication(match_comm)
-
     def _handle_ball_prediction(self, ball_prediction: flat.BallPrediction):
         self.ball_prediction = ball_prediction
 
     def _handle_packet(self, packet: flat.GameTickPacket):
-        if not self._initialized_bot:
-            return
-
         if (
             self.index == -1
             or len(packet.players) <= self.index
@@ -184,6 +176,15 @@ class Bot:
         """
         self._game_interface.send_game_state(game_state)
 
+    def set_loadout(self, loadout: flat.PlayerLoadout, spawn_id: int):
+        """
+        Sets the loadout of a bot.
+
+        For use as a loadout generator, call inside of `initialize_agent`.
+        Will be ignored if called outside of `initialize_agent` when state setting is disabled.
+        """
+        self._game_interface.send_set_loadout(flat.SetLoadout(spawn_id, loadout))
+
     def initialize_agent(self):
         """
         Called for all heaver initialization that needs to happen.
@@ -195,7 +196,7 @@ class Bot:
     def retire(self):
         """Called after the game ends"""
 
-    def get_output(self, game_tick_packet: flat.GameTickPacket) -> flat.ControllerState:
+    def get_output(self, packet: flat.GameTickPacket) -> flat.ControllerState:
         """
         Where all the logic of your bot gets its input and returns its output.
         """

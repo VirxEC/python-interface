@@ -1,0 +1,19 @@
+[rlbot]
+launcher = "steam"
+auto_start_bots = true
+
+[match]
+num_cars = 2
+game_mode = "Soccer"
+game_map_upk = "Stadium_P"
+enable_state_setting = true
+existing_match_behavior = "Continue_And_Spawn"
+skip_replays = true
+
+[[cars]]
+config = "necto/bot.toml"
+team = 1
+
+[[cars]]
+config = "necto/bot.toml"
+team = 0
