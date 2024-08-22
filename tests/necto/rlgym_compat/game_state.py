@@ -55,9 +55,10 @@ class GameState:
         player_data.inverted_car_data.invert(player_data.car_data)
 
         if player_info.air_state == flat.AirState.OnGround:
-            self._on_ground_ticks[index] = 0
-            self._air_time_since_jump[index] = 0
-            self._has_jumped[index] = False
+            if not self._has_jumped[index] or self._air_time_since_jump[index] > 0:
+                self._has_jumped[index] = False
+                self._on_ground_ticks[index] = 0
+                self._air_time_since_jump[index] = 0
         else:
             self._on_ground_ticks[index] += ticks_elapsed
 
