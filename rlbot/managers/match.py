@@ -187,7 +187,7 @@ class MatchManager:
         try:
             self.rlbot_interface.stop_match(shutdown_server=True)
         except BrokenPipeError:
-            match gateway.find_server_process(self.main_executable_name):
+            match gateway.find_server_process(self.main_executable_name)[0]:
                 case psutil.Process() as proc:
                     self.logger.warning(
                         "Can't communicate with RLBotServer, ensuring shutdown."

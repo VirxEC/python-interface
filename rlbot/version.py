@@ -6,7 +6,7 @@ COLOR_SEQ = "\033[32;%dm"
 BOLD_SEQ = "\033[1m"
 
 
-def _get_color(color):
+def _get_color(color: int) -> str:
     return COLOR_SEQ % (30 + color)
 
 
