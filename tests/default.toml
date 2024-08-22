@@ -1,4 +1,6 @@
 [rlbot]
+# use this along with launcher = "custom"
+# game_path = "legendary"
 # "Steam", "Epic", "Custom"
 launcher = "steam"
 # Should RLBot start the bot processes automatically, or will a separate script start them
@@ -40,7 +42,7 @@ overtime = "Unlimited"
 game_speed = "Default"
 # "Default", "Slow", "Fast", "Super_Fast"
 ball_max_speed = "Default"
-# "Default", "Cube", "Puck", "Basketball", "Beachball", "Anniversary", "Haunted", "Ekin"
+# "Default", "Cube", "Puck", "Basketball", "Beachball", "Anniversary", "Haunted", "Ekin", "SpookyCube"
 ball_type = "Default"
 # "Default", "Light", "Heavy", "Super_Light", "Curve_Ball", "Beach_Ball_Curve", "Magnus_FutBall"
 ball_weight = "Default"
