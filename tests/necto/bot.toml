@@ -3,6 +3,7 @@ name = "Necto"
 loadout_config = "loadout.toml"
 run_command = "..\\..\\venv\\Scripts\\python bot.py"
 run_command_linux = "../../venv/bin/python bot.py"
+logo_file = "necto_logo.png"
 
 [details]
 description = "Necto is the official RLGym community bot, trained using PPO with workers run by people all around the world."
@@ -10,7 +11,6 @@ fun_fact = "Necto uses an attention mechanism, commonly used for text understand
 source_link = "https://github.com/Rolv-Arild/Necto"
 developer = "Rolv, Soren, and several contributors"
 language = "rlgym"
-logo_file = "necto_logo.png"
 # ALL POSSIBLE TAGS: 1v1, teamplay, goalie, hoops, dropshot, snow-day, spike-rush, heatseaker, memebot
 # NOTE: Only add the goalie tag if your bot only plays as a goalie; this directly contrasts with the teamplay tag!
 # NOTE: Only add a tag for a special game mode if you bot properly supports it
