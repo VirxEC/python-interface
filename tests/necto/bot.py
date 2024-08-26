@@ -54,7 +54,7 @@ class Necto(Bot):
     def initialize_agent(self):
         # Initialize the rlgym GameState object now that the game is active and the info is available
         self.obs_builder = NectoObsBuilder(self.field_info)
-        self.game_state = GameState(self.field_info)
+        self.game_state = GameState(self.field_info, self.tick_skip)
 
         self.logger.warning(
             "Remember to run Necto at 120fps with vsync off! "
@@ -117,7 +117,7 @@ class Necto(Bot):
         if len(packet.balls) == 0:
             return self.controls
 
-        self.game_state.decode(packet, ticks_elapsed)
+        self.game_state.decode(packet)
 
         if self.update_action == 1 and len(self.game_state.players) > self.index:
             self.update_action = 0
