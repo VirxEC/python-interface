@@ -79,6 +79,7 @@ GAME_MAP_TO_UPK = {
     "Calavera": "KO_Calavera_P",
     "SaltyShores_SaltyFest": "Beach_Night_GRS_P",
     "Carbon": "KO_Carbon_P",
+    "DriftWoods": "Woods_P",
 }
 
 STANDARD_MAPS = [
@@ -129,4 +130,5 @@ STANDARD_MAPS = [
     "Neotokyo_Hacked",
     "AquaDome_Shallows",
     "SaltyShores_SaltyFest",
+    "DriftWoods",
 ]
