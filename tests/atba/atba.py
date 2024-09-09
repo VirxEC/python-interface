@@ -97,7 +97,7 @@ class Atba(Bot):
             return self.controller
 
         if self.state_setting:
-            self.test_state_setting(packet.balls[0].physics.velocity)
+            self.test_state_setting(packet)
 
         if self.match_comms:
             # Limit packet spam
@@ -119,15 +119,27 @@ class Atba(Bot):
 
         return self.controller
 
-    def test_state_setting(self, ball_velocity: flat.Vector3):
+    def test_state_setting(self, packet: flat.GameTickPacket):
         game_state = flat.DesiredGameState(
             [
                 flat.DesiredBallState(
                     flat.DesiredPhysics(
-                        velocity=flat.Vector3Partial(z=ball_velocity.z + 10)
+                        velocity=flat.Vector3Partial(
+                            z=packet.balls[0].physics.velocity.z + 10
+                        )
                     )
                 )
-            ]
+            ],
+            [
+                flat.DesiredCarState(
+                    flat.DesiredPhysics(
+                        velocity=flat.Vector3Partial(
+                            z=packet.players[i].physics.velocity.z + 1
+                        )
+                    )
+                )
+                for i in range(len(packet.players))
+            ],
         )
         self.set_game_state(game_state)
 

@@ -54,6 +54,14 @@ class Necto(Bot):
     def initialize_agent(self):
         # Initialize the rlgym GameState object now that the game is active and the info is available
         self.obs_builder = NectoObsBuilder(self.field_info)
+
+        if len(self.field_info.boost_pads) != 34:
+            self.logger.warning(
+                "The standard number of boost pads is 34, but this map has %d:%s",
+                len(self.field_info.boost_pads),
+                "\n".join(map(str, self.field_info.boost_pads)),
+            )
+
         self.game_state = GameState(self.field_info, self.tick_skip)
 
         self.logger.warning(
