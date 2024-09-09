@@ -1,4 +1,5 @@
 import os
+from threading import Event, Thread
 from traceback import print_exc
 from typing import Optional
 
@@ -29,6 +30,12 @@ class Hivemind:
     _has_match_settings = False
     _has_field_info = False
 
+    _latest_packet = flat.GameTickPacket()
+    _lastest_prediction = flat.BallPrediction()
+    _packet_event = Event()
+    _packet_thread = None
+    _run_packet_thread = True
+
     def __init__(self):
         spawn_ids = os.environ.get("RLBOT_SPAWN_IDS")
 
@@ -48,6 +55,9 @@ class Hivemind:
             self._handle_ball_prediction
         )
         self._game_interface.packet_handlers.append(self._handle_packet)
+
+        self._packet_thread = Thread(target=self._packet_processor, daemon=True)
+        self._packet_thread.start()
 
         self.renderer = Renderer(self._game_interface)
 
@@ -76,7 +86,6 @@ class Hivemind:
                 self.team = player.team
                 self.names.append(player.name)
                 self.loggers[i] = get_logger(player.name)
-                break
 
         if not self._initialized_bot and self._has_field_info:
             self._initialize_agent()
@@ -89,9 +98,13 @@ class Hivemind:
             self._initialize_agent()
 
     def _handle_ball_prediction(self, ball_prediction: flat.BallPrediction):
-        self.ball_prediction = ball_prediction
+        self._lastest_prediction = ball_prediction
 
     def _handle_packet(self, packet: flat.GameTickPacket):
+        self._latest_packet = packet
+        self._packet_event.set()
+
+    def _packet_preprocess(self, packet: flat.GameTickPacket) -> bool:
         if len(self.indicies) != len(self.spawn_ids) or any(
             packet.players[i].spawn_id not in self.spawn_ids for i in self.indicies
         ):
@@ -102,20 +115,35 @@ class Hivemind:
             ]
 
             if len(self.indicies) != len(self.spawn_ids):
-                return
+                return False
 
-        try:
-            controller = self.get_outputs(packet)
-        except Exception as e:
-            self._logger.error(
-                "Hivemind (with %s) returned an error to RLBot: %s", self.names, e
-            )
-            print_exc()
-            return
+        # print([player.name for player in packet.players], self.spawn_ids, self.indicies)
+        return True
 
-        for index, controller in controller.items():
-            player_input = flat.PlayerInput(index, controller)
-            self._game_interface.send_player_input(player_input)
+    def _packet_processor(self):
+        while self._run_packet_thread:
+            self._packet_event.wait()
+
+            self.ball_prediction = self._lastest_prediction
+            packet = self._latest_packet
+
+            self._packet_event.clear()
+
+            if not self._packet_preprocess(self._latest_packet):
+                continue
+
+            try:
+                controller = self.get_outputs(packet)
+            except Exception as e:
+                self._logger.error(
+                    "Hivemind (with %s) returned an error to RLBot: %s", self.names, e
+                )
+                print_exc()
+                continue
+
+            for index, controller in controller.items():
+                player_input = flat.PlayerInput(index, controller)
+                self._game_interface.send_player_input(player_input)
 
     def run(
         self,

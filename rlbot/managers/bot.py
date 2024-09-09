@@ -133,7 +133,7 @@ class Bot:
 
             if self.index == -1:
                 return False
-            
+
         return True
 
     def _packet_processor(self):
