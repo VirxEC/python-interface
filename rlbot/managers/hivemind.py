@@ -82,7 +82,6 @@ class Hivemind:
 
         # search match settings for our spawn ids
         for i, player in enumerate(self.match_settings.player_configurations):
-            print(player.name)
             if player.spawn_id in self.spawn_ids:
                 self.team = player.team
                 self.names.append(player.name)
