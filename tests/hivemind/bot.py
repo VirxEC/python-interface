@@ -80,6 +80,7 @@ class Hives(Hivemind):
 
             self.controllers[i].steer = -steer_correction_radians
             self.controllers[i].throttle = 1
+            self.controllers[i].boost = True
 
         return self.controllers
 

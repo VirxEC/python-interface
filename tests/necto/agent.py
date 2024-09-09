@@ -14,10 +14,12 @@ class Agent:
             self.actor = torch.jit.load(f)
         torch.set_num_threads(1)
 
-    def act(self, state, beta: float) -> tuple[np.ndarray, list[torch.Tensor]]:
-        state = tuple(torch.from_numpy(s).float() for s in state)
+    def act(
+        self, state: tuple[np.ndarray, np.ndarray, np.ndarray], beta: float
+    ) -> tuple[np.ndarray, list[torch.Tensor]]:
+        tensor_state = tuple(torch.from_numpy(s).float() for s in state)
         with torch.no_grad():
-            out, weights = self.actor(state)
+            out, weights = self.actor(tensor_state)
 
         max_shape = max(o.shape[-1] for o in out)
         logits = (

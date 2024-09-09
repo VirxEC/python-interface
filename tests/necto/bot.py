@@ -44,7 +44,7 @@ class Necto(Bot):
     render = False
     hardcoded_kickoffs = True
 
-    prev_time = 0
+    prev_frame = 0
     controls = ControllerState()
     action = np.zeros(8)
     update_action = True
@@ -115,11 +115,10 @@ class Necto(Bot):
         self.renderer.end_rendering()
 
     def get_output(self, packet: GameTickPacket) -> ControllerState:
-        cur_time = packet.game_info.seconds_elapsed
-        delta = cur_time - self.prev_time
-        self.prev_time = cur_time
+        cur_frame = packet.game_info.frame_num
+        ticks_elapsed = cur_frame - self.prev_frame
+        self.prev_frame = cur_frame
 
-        ticks_elapsed = round(delta * 120)
         self.ticks += ticks_elapsed
 
         if len(packet.balls) == 0:

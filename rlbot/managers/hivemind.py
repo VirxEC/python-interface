@@ -1,3 +1,4 @@
+from logging import Logger
 import os
 from threading import Event, Thread
 from traceback import print_exc
@@ -15,7 +16,7 @@ class Hivemind:
     """
 
     _logger = DEFAULT_LOGGER
-    loggers = {}
+    loggers: list[Logger] = []
 
     team: int = -1
     indicies: list[int] = []
@@ -81,11 +82,11 @@ class Hivemind:
         self._has_match_settings = True
 
         # search match settings for our spawn ids
-        for i, player in enumerate(self.match_settings.player_configurations):
+        for player in self.match_settings.player_configurations:
             if player.spawn_id in self.spawn_ids:
                 self.team = player.team
                 self.names.append(player.name)
-                self.loggers[i] = get_logger(player.name)
+                self.loggers.append(get_logger(player.name))
 
         if not self._initialized_bot and self._has_field_info:
             self._initialize_agent()
@@ -117,7 +118,6 @@ class Hivemind:
             if len(self.indicies) != len(self.spawn_ids):
                 return False
 
-        # print([player.name for player in packet.players], self.spawn_ids, self.indicies)
         return True
 
     def _packet_processor(self):

@@ -74,8 +74,8 @@ class NectoObsBuilder:
             if self.demo_timers[player.car_id] <= 0:
                 self.demo_timers[player.car_id] = 3
             else:
-                self.demo_timers[player.car_id] = max(
-                    self.demo_timers[player.car_id] - self.tick_skip / 120, 0  # type: ignore
+                self.demo_timers[player.car_id] = max(  # type: ignore
+                    self.demo_timers[player.car_id] - self.tick_skip / 120, 0
                 )
             qkv[0, n, 21] = self.demo_timers[player.car_id] / 10
             n += 1
