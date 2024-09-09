@@ -1,4 +1,5 @@
 import os
+from threading import Thread, Event
 from traceback import print_exc
 from typing import Optional
 
@@ -28,6 +29,12 @@ class Bot:
     _has_match_settings = False
     _has_field_info = False
 
+    _latest_packet = flat.GameTickPacket()
+    _lastest_prediction = flat.BallPrediction()
+    _packet_event = Event()
+    _packet_thread = None
+    _run_packet_thread = True
+
     def __init__(self):
         spawn_id = os.environ.get("RLBOT_SPAWN_IDS")
 
@@ -47,6 +54,9 @@ class Bot:
             self._handle_ball_prediction
         )
         self._game_interface.packet_handlers.append(self._handle_packet)
+
+        self._packet_thread = Thread(target=self._packet_processor, daemon=True)
+        self._packet_thread.start()
 
         self.renderer = Renderer(self._game_interface)
 
@@ -86,49 +96,67 @@ class Bot:
             self._initialize_agent()
 
     def _handle_ball_prediction(self, ball_prediction: flat.BallPrediction):
-        self.ball_prediction = ball_prediction
+        self._lastest_prediction = ball_prediction
 
     def _handle_packet(self, packet: flat.GameTickPacket):
-        if (
-            self.index == -1
-            or len(packet.players) <= self.index
-            or packet.players[self.index].spawn_id != self.spawn_id
-        ):
-            # spawn id should only be 0 if RLBOT_SPAWN_IDS was not set
-            if self.spawn_id == 0:
-                # in this case, if there's only one player, we can assume it's us
-                player_index = -1
-                for i, player in enumerate(packet.players):
-                    # skip human players/psyonix bots
-                    if not player.is_bot:
-                        continue
+        self._latest_packet = packet
+        self._packet_event.set()
 
-                    if player_index != -1:
-                        self.logger.error(
-                            "Multiple bots in the game, please set RLBOT_SPAWN_IDS"
-                        )
-                        return
+    def _packet_processor(self):
+        while self._run_packet_thread:
+            self._packet_event.wait()
 
-                    player_index = i
-                self.index = player_index
-
-            for i, player in enumerate(packet.players):
-                if player.spawn_id == self.spawn_id:
-                    self.index = i
-                    break
-
-            if self.index == -1:
+            # if the thread was unblocked,
+            # but it we're not supposed to be running,
+            # then exit
+            if not self._run_packet_thread:
                 return
 
-        try:
-            controller = self.get_output(packet)
-        except Exception as e:
-            self.logger.error("Bot %s returned an error to RLBot: %s", self.name, e)
-            print_exc()
-            return
+            self.ball_prediction = self._lastest_prediction
+            packet: flat.GameTickPacket = self._latest_packet
 
-        player_input = flat.PlayerInput(self.index, controller)
-        self._game_interface.send_player_input(player_input)
+            self._packet_event.clear()
+
+            if (
+                self.index == -1
+                or len(packet.players) <= self.index
+                or packet.players[self.index].spawn_id != self.spawn_id
+            ):
+                # spawn id should only be 0 if RLBOT_SPAWN_IDS was not set
+                if self.spawn_id == 0:
+                    # in this case, if there's only one player, we can assume it's us
+                    player_index = -1
+                    for i, player in enumerate(packet.players):
+                        # skip human players/psyonix bots
+                        if not player.is_bot:
+                            continue
+
+                        if player_index != -1:
+                            self.logger.error(
+                                "Multiple bots in the game, please set RLBOT_SPAWN_IDS"
+                            )
+                            return
+
+                        player_index = i
+                    self.index = player_index
+
+                for i, player in enumerate(packet.players):
+                    if player.spawn_id == self.spawn_id:
+                        self.index = i
+                        break
+
+                if self.index == -1:
+                    return
+
+            try:
+                controller = self.get_output(packet)
+            except Exception as e:
+                self.logger.error("Bot %s returned an error to RLBot: %s", self.name, e)
+                print_exc()
+                return
+
+            player_input = flat.PlayerInput(self.index, controller)
+            self._game_interface.send_player_input(player_input)
 
     def run(
         self,
@@ -144,6 +172,9 @@ class Bot:
                 rlbot_server_port=rlbot_server_port,
             )
         finally:
+            self._run_packet_thread = False
+            self._packet_event.set()
+
             self.retire()
             del self._game_interface
 
