@@ -102,6 +102,40 @@ class Bot:
         self._latest_packet = packet
         self._packet_event.set()
 
+    def _packet_preprocess(self, packet: flat.GameTickPacket) -> bool:
+        if (
+            self.index == -1
+            or len(packet.players) <= self.index
+            or packet.players[self.index].spawn_id != self.spawn_id
+        ):
+            # spawn id should only be 0 if RLBOT_SPAWN_IDS was not set
+            if self.spawn_id == 0:
+                # in this case, if there's only one player, we can assume it's us
+                player_index = -1
+                for i, player in enumerate(packet.players):
+                    # skip human players/psyonix bots
+                    if not player.is_bot:
+                        continue
+
+                    if player_index != -1:
+                        self.logger.error(
+                            "Multiple bots in the game, please set RLBOT_SPAWN_IDS"
+                        )
+                        return False
+
+                    player_index = i
+                self.index = player_index
+
+            for i, player in enumerate(packet.players):
+                if player.spawn_id == self.spawn_id:
+                    self.index = i
+                    break
+
+            if self.index == -1:
+                return False
+            
+        return True
+
     def _packet_processor(self):
         while self._run_packet_thread:
             self._packet_event.wait()
@@ -117,43 +151,15 @@ class Bot:
 
             self._packet_event.clear()
 
-            if (
-                self.index == -1
-                or len(packet.players) <= self.index
-                or packet.players[self.index].spawn_id != self.spawn_id
-            ):
-                # spawn id should only be 0 if RLBOT_SPAWN_IDS was not set
-                if self.spawn_id == 0:
-                    # in this case, if there's only one player, we can assume it's us
-                    player_index = -1
-                    for i, player in enumerate(packet.players):
-                        # skip human players/psyonix bots
-                        if not player.is_bot:
-                            continue
-
-                        if player_index != -1:
-                            self.logger.error(
-                                "Multiple bots in the game, please set RLBOT_SPAWN_IDS"
-                            )
-                            return
-
-                        player_index = i
-                    self.index = player_index
-
-                for i, player in enumerate(packet.players):
-                    if player.spawn_id == self.spawn_id:
-                        self.index = i
-                        break
-
-                if self.index == -1:
-                    return
+            if not self._packet_preprocess(packet):
+                continue
 
             try:
                 controller = self.get_output(packet)
             except Exception as e:
                 self.logger.error("Bot %s returned an error to RLBot: %s", self.name, e)
                 print_exc()
-                return
+                continue
 
             player_input = flat.PlayerInput(self.index, controller)
             self._game_interface.send_player_input(player_input)
