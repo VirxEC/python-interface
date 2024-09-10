@@ -1,4 +1,4 @@
-__version__ = "5.0.0-beta.2"
+__version__ = "5.0.0-beta.3"
 
 
 RESET_SEQ = "\033[0m"
@@ -15,6 +15,9 @@ BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = (
 )
 
 RELEASE_NOTES = {
+    "5.0.0-beta.3": """
+    Add `team_color` static method to the rendering manager
+    """,
     "5.0.0-beta.2": """
     Ensure bots don't fall behind the most recent GameTickPacket.
     """,

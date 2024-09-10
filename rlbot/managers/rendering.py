@@ -56,6 +56,15 @@ class Renderer:
         return flat.Color(alpha, red, green, blue)
 
     @staticmethod
+    def team_color(team: int, alt_color: int):
+        if team == 0:
+            return Renderer.cyan if alt_color else Renderer.blue
+        elif team == 1:
+            return Renderer.red if alt_color else Renderer.orange
+
+        return Renderer.gray if alt_color else Renderer.white
+
+    @staticmethod
     def _get_group_id(group_id: str) -> int:
         return hash(str(group_id).encode("utf-8")) % MAX_INT
 
