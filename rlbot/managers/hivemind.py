@@ -30,7 +30,7 @@ class Hivemind:
     _has_match_settings = False
     _has_field_info = False
 
-    _latest_packet = flat.GameTickPacket()
+    _latest_packet: Optional[flat.GameTickPacket] = None
     _lastest_prediction = flat.BallPrediction()
 
     def __init__(self):
