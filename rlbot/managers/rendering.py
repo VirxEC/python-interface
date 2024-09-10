@@ -56,7 +56,7 @@ class Renderer:
         return flat.Color(alpha, red, green, blue)
 
     @staticmethod
-    def team_color(team: int, alt_color: int):
+    def team_color(team: int, alt_color: bool = False):
         if team == 0:
             return Renderer.cyan if alt_color else Renderer.blue
         elif team == 1:
