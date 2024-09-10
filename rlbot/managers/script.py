@@ -128,10 +128,36 @@ class Script:
             )
         )
 
-    def set_game_state(self, game_state: flat.DesiredGameState):
+    def set_game_state(
+        self,
+        balls: dict[int, flat.DesiredBallState] = {},
+        cars: dict[int, flat.DesiredCarState] = {},
+        game_info: Optional[flat.DesiredGameInfoState] = None,
+        commands: list[flat.ConsoleCommand] = [],
+    ):
         """
-        Sets the game to the given desired state.
+        Sets the game to the desired state.
         """
+
+        game_state = flat.DesiredGameState(
+            game_info_state=game_info, console_commands=commands
+        )
+
+        # convert the dictionaries to lists by
+        # filling in the blanks with empty states
+
+        if balls:
+            max_entry = max(balls.keys())
+            game_state.ball_states = [
+                balls.get(i, flat.DesiredBallState()) for i in range(max_entry + 1)
+            ]
+
+        if cars:
+            max_entry = max(cars.keys())
+            game_state.car_states = [
+                cars.get(i, flat.DesiredCarState()) for i in range(max_entry + 1)
+            ]
+
         self._game_interface.send_game_state(game_state)
 
     def set_loadout(self, loadout: flat.PlayerLoadout, spawn_id: int):

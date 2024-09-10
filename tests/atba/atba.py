@@ -120,28 +120,25 @@ class Atba(Bot):
         return self.controller
 
     def test_state_setting(self, packet: flat.GameTickPacket):
-        game_state = flat.DesiredGameState(
-            [
-                flat.DesiredBallState(
+        self.set_game_state(
+            {
+                0: flat.DesiredBallState(
                     flat.DesiredPhysics(
                         velocity=flat.Vector3Partial(
                             z=packet.balls[0].physics.velocity.z + 10
                         )
                     )
                 )
-            ],
-            [
-                flat.DesiredCarState(
+            },
+            {
+                i: flat.DesiredCarState(
                     flat.DesiredPhysics(
-                        velocity=flat.Vector3Partial(
-                            z=packet.players[i].physics.velocity.z + 1
-                        )
+                        velocity=flat.Vector3Partial(z=car.physics.velocity.z + 1)
                     )
                 )
-                for i in range(len(packet.players))
-            ],
+                for i, car in enumerate(packet.players)
+            },
         )
-        self.set_game_state(game_state)
 
     def test_rendering(self, packet: flat.GameTickPacket):
         if not self.needs_render:
