@@ -16,6 +16,7 @@ BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = (
 
 RELEASE_NOTES = {
     "5.0.0-beta.3": """
+    Ensure bots don't fall behind the most recent GameTickPacket, without threading
     Add `team_color` static method to the rendering manager
     """,
     "5.0.0-beta.2": """
