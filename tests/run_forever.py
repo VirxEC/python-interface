@@ -16,6 +16,9 @@ if __name__ == "__main__":
 
     current_map = -1
 
+    BLUE_NECTO = get_player_config(flat.RLBot(), 0, BOT_PATH)
+    ORANGE_NECTO = get_player_config(flat.RLBot(), 1, BOT_PATH)
+
     match_settings = flat.MatchSettings(
         launcher=flat.Launcher.Steam,
         auto_start_bots=True,
@@ -23,9 +26,16 @@ if __name__ == "__main__":
         enable_state_setting=True,
         existing_match_behavior=flat.ExistingMatchBehavior.Restart,
         skip_replays=True,
+        mutator_settings=flat.MutatorSettings(
+            match_length=flat.MatchLength.Unlimited,
+        ),
         player_configurations=[
-            get_player_config(flat.RLBot(), 0, BOT_PATH),
-            get_player_config(flat.RLBot(), 1, BOT_PATH),
+            BLUE_NECTO,
+            BLUE_NECTO,
+            BLUE_NECTO,
+            ORANGE_NECTO,
+            ORANGE_NECTO,
+            ORANGE_NECTO,
         ],
     )
 
@@ -49,9 +59,7 @@ if __name__ == "__main__":
                 == flat.GameStateType.Countdown
             ):
                 match_manager.set_game_state(
-                    flat.DesiredGameState(
-                        game_info_state=flat.DesiredGameInfoState(game_speed=10)
-                    )
+                    game_info=flat.DesiredGameInfoState(game_speed=2)
                 )
 
             sleep(1)
