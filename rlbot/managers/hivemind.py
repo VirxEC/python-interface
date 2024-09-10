@@ -1,6 +1,5 @@
 from logging import Logger
 import os
-from threading import Event, Thread
 from traceback import print_exc
 from typing import Optional
 
@@ -33,9 +32,6 @@ class Hivemind:
 
     _latest_packet = flat.GameTickPacket()
     _lastest_prediction = flat.BallPrediction()
-    _packet_event = Event()
-    _packet_thread = None
-    _run_packet_thread = True
 
     def __init__(self):
         spawn_ids = os.environ.get("RLBOT_SPAWN_IDS")
@@ -56,9 +52,6 @@ class Hivemind:
             self._handle_ball_prediction
         )
         self._game_interface.packet_handlers.append(self._handle_packet)
-
-        self._packet_thread = Thread(target=self._packet_processor, daemon=True)
-        self._packet_thread.start()
 
         self.renderer = Renderer(self._game_interface)
 
@@ -103,9 +96,8 @@ class Hivemind:
 
     def _handle_packet(self, packet: flat.GameTickPacket):
         self._latest_packet = packet
-        self._packet_event.set()
 
-    def _packet_preprocess(self, packet: flat.GameTickPacket) -> bool:
+    def _packet_processor(self, packet: flat.GameTickPacket):
         if len(self.indicies) != len(self.spawn_ids) or any(
             packet.players[i].spawn_id not in self.spawn_ids for i in self.indicies
         ):
@@ -116,45 +108,67 @@ class Hivemind:
             ]
 
             if len(self.indicies) != len(self.spawn_ids):
-                return False
+                return
 
-        return True
+        self.ball_prediction = self._lastest_prediction
 
-    def _packet_processor(self):
-        while self._run_packet_thread:
-            self._packet_event.wait()
+        try:
+            controller = self.get_outputs(packet)
+        except Exception as e:
+            self._logger.error(
+                "Hivemind (with %s) returned an error to RLBot: %s", self.names, e
+            )
+            print_exc()
+            return
 
-            self.ball_prediction = self._lastest_prediction
-            packet = self._latest_packet
-
-            self._packet_event.clear()
-
-            if not self._packet_preprocess(self._latest_packet):
-                continue
-
-            try:
-                controller = self.get_outputs(packet)
-            except Exception as e:
-                self._logger.error(
-                    "Hivemind (with %s) returned an error to RLBot: %s", self.names, e
-                )
-                print_exc()
-                continue
-
-            for index, controller in controller.items():
-                player_input = flat.PlayerInput(index, controller)
-                self._game_interface.send_player_input(player_input)
+        for index, controller in controller.items():
+            player_input = flat.PlayerInput(index, controller)
+            self._game_interface.send_player_input(player_input)
 
     def run(
         self,
         wants_match_communcations: bool = True,
         wants_ball_predictions: bool = True,
     ):
+        rlbot_server_port = int(os.environ.get("RLBOT_SERVER_PORT", 23234))
+
         try:
-            self._game_interface.connect_and_run(
+            self._game_interface.connect(
                 wants_match_communcations,
                 wants_ball_predictions,
+                rlbot_server_port=rlbot_server_port,
             )
+
+            # custom message handling logic
+            # this reads all data in the socket until there's no more immediately available
+            # checks if there was a GameTickPacket in the data, and if so, processes it
+            # then sets the socket to non-blocking and waits for more data
+            # if there was no GameTickPacket, it sets to blocking and waits for more data
+            while True:
+                try:
+                    self._game_interface.handle_incoming_messages(True)
+
+                    # a clean exit means that the socket was closed
+                    break
+                except BlockingIOError:
+                    # the socket was still open,
+                    # but we don't know if data was read
+                    pass
+
+                # check data was read that needs to be processed
+                if self._latest_packet is None:
+                    # there's no data we need to process
+                    # data is coming, but we haven't gotten it yet - wait for it
+                    # after `handle_incoming_messages` gets it's first message,
+                    # it will set the socket back to non-blocking on its own
+                    # that will ensure that `BlockingIOError` gets raised
+                    # when it's done reading the next batch of messages
+                    self._game_interface.socket.setblocking(True)
+                    continue
+
+                # process the packet that we got
+                self._packet_processor(self._latest_packet)
+                self._latest_packet = None
         finally:
             self.retire()
             del self._game_interface

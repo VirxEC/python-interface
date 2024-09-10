@@ -155,18 +155,18 @@ class SocketRelay:
                     "Took too long to connect to the RLBot executable!"
                 ) from e
 
-    def connect_and_run(
+    def connect(
         self,
         wants_match_communcations: bool,
         wants_ball_predictions: bool,
         close_after_match: bool = True,
-        only_wait_for_ready: bool = False,
         rlbot_server_port: int = RLBOT_SERVER_PORT,
     ):
         """
-        Connects to the socket and begins a loop that reads messages and calls any handlers
-        that have been registered. Connect and run are combined into a single method because
-        currently bad things happen if the buffer is allowed to fill up.
+        Connects to the socket and sends the connection settings.
+
+        NOTE: Bad things happen if the buffer is allowed to fill up. Ensure
+        `handle_incoming_messages` is called frequently enough to prevent this.
         """
         self.socket.settimeout(self.connection_timeout)
         for _ in range(int(self.connection_timeout * 10)):
@@ -196,6 +196,26 @@ class SocketRelay:
         ).pack()
         self.send_bytes(flatbuffer, SocketDataType.CONNECTION_SETTINGS)
 
+    def connect_and_run(
+        self,
+        wants_match_communcations: bool,
+        wants_ball_predictions: bool,
+        close_after_match: bool = True,
+        only_wait_for_ready: bool = False,
+        rlbot_server_port: int = RLBOT_SERVER_PORT,
+    ):
+        """
+        Connects to the socket and begins a loop that reads messages and calls any handlers
+        that have been registered. Connect and run are combined into a single method because
+        currently bad things happen if the buffer is allowed to fill up.
+        """
+        self.connect(
+            wants_match_communcations,
+            wants_ball_predictions,
+            close_after_match,
+            rlbot_server_port,
+        )
+
         incoming_message = read_from_socket(self.socket)
         self.handle_incoming_message(incoming_message)
 
@@ -204,10 +224,13 @@ class SocketRelay:
         else:
             self.handle_incoming_messages()
 
-    def handle_incoming_messages(self):
+    def handle_incoming_messages(self, set_nonblocking_after_recv: bool = False):
         try:
             while self._should_continue:
                 incoming_message = read_from_socket(self.socket)
+
+                if set_nonblocking_after_recv:
+                    self.socket.setblocking(False)
 
                 try:
                     self.handle_incoming_message(incoming_message)
@@ -224,6 +247,8 @@ class SocketRelay:
                         incoming_message.type.name,
                         e,
                     )
+        except BlockingIOError:
+            raise BlockingIOError
         except:
             self.logger.error("Socket manager disconnected unexpectedly!")
 

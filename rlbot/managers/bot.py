@@ -1,5 +1,4 @@
 import os
-from threading import Thread, Event
 from traceback import print_exc
 from typing import Optional
 
@@ -29,11 +28,8 @@ class Bot:
     _has_match_settings = False
     _has_field_info = False
 
-    _latest_packet = flat.GameTickPacket()
+    _latest_packet: Optional[flat.GameTickPacket] = None
     _lastest_prediction = flat.BallPrediction()
-    _packet_event = Event()
-    _packet_thread = None
-    _run_packet_thread = True
 
     def __init__(self):
         spawn_id = os.environ.get("RLBOT_SPAWN_IDS")
@@ -54,9 +50,6 @@ class Bot:
             self._handle_ball_prediction
         )
         self._game_interface.packet_handlers.append(self._handle_packet)
-
-        self._packet_thread = Thread(target=self._packet_processor, daemon=True)
-        self._packet_thread.start()
 
         self.renderer = Renderer(self._game_interface)
 
@@ -100,9 +93,8 @@ class Bot:
 
     def _handle_packet(self, packet: flat.GameTickPacket):
         self._latest_packet = packet
-        self._packet_event.set()
 
-    def _packet_preprocess(self, packet: flat.GameTickPacket) -> bool:
+    def _packet_processor(self, packet: flat.GameTickPacket):
         if (
             self.index == -1
             or len(packet.players) <= self.index
@@ -121,7 +113,7 @@ class Bot:
                         self.logger.error(
                             "Multiple bots in the game, please set RLBOT_SPAWN_IDS"
                         )
-                        return False
+                        return
 
                     player_index = i
                 self.index = player_index
@@ -132,37 +124,19 @@ class Bot:
                     break
 
             if self.index == -1:
-                return False
-
-        return True
-
-    def _packet_processor(self):
-        while self._run_packet_thread:
-            self._packet_event.wait()
-
-            # if the thread was unblocked,
-            # but it we're not supposed to be running,
-            # then exit
-            if not self._run_packet_thread:
                 return
 
-            self.ball_prediction = self._lastest_prediction
-            packet: flat.GameTickPacket = self._latest_packet
+        self.ball_prediction = self._lastest_prediction
 
-            self._packet_event.clear()
+        try:
+            controller = self.get_output(packet)
+        except Exception as e:
+            self.logger.error("Bot %s returned an error to RLBot: %s", self.name, e)
+            print_exc()
+            return
 
-            if not self._packet_preprocess(packet):
-                continue
-
-            try:
-                controller = self.get_output(packet)
-            except Exception as e:
-                self.logger.error("Bot %s returned an error to RLBot: %s", self.name, e)
-                print_exc()
-                continue
-
-            player_input = flat.PlayerInput(self.index, controller)
-            self._game_interface.send_player_input(player_input)
+        player_input = flat.PlayerInput(self.index, controller)
+        self._game_interface.send_player_input(player_input)
 
     def run(
         self,
@@ -172,15 +146,43 @@ class Bot:
         rlbot_server_port = int(os.environ.get("RLBOT_SERVER_PORT", 23234))
 
         try:
-            self._game_interface.connect_and_run(
+            self._game_interface.connect(
                 wants_match_communcations,
                 wants_ball_predictions,
                 rlbot_server_port=rlbot_server_port,
             )
-        finally:
-            self._run_packet_thread = False
-            self._packet_event.set()
 
+            # custom message handling logic
+            # this reads all data in the socket until there's no more immediately available
+            # checks if there was a GameTickPacket in the data, and if so, processes it
+            # then sets the socket to non-blocking and waits for more data
+            # if there was no GameTickPacket, it sets to blocking and waits for more data
+            while True:
+                try:
+                    self._game_interface.handle_incoming_messages(True)
+
+                    # a clean exit means that the socket was closed
+                    break
+                except BlockingIOError:
+                    # the socket was still open,
+                    # but we don't know if data was read
+                    pass
+
+                # check data was read that needs to be processed
+                if self._latest_packet is None:
+                    # there's no data we need to process
+                    # data is coming, but we haven't gotten it yet - wait for it
+                    # after `handle_incoming_messages` gets it's first message,
+                    # it will set the socket back to non-blocking on its own
+                    # that will ensure that `BlockingIOError` gets raised
+                    # when it's done reading the next batch of messages
+                    self._game_interface.socket.setblocking(True)
+                    continue
+
+                # process the packet that we got
+                self._packet_processor(self._latest_packet)
+                self._latest_packet = None
+        finally:
             self.retire()
             del self._game_interface
 
