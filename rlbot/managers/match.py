@@ -73,12 +73,6 @@ def get_player_config(
         run_command = settings["run_command_linux"]
 
     loadout_path = settings.get("loadout_config", None)
-
-    if loadout_path is None:
-        loadout_path = settings.get("looks_config", None)
-        if loadout_path is not None:
-            DEFAULT_LOGGER.error("looks_config is deprecated, use loadout_config.")
-
     if loadout_path is not None:
         loadout_path = parent / loadout_path
 
@@ -133,7 +127,7 @@ class MatchManager:
             return
 
         if self.main_executable_path is None:
-            raise Exception("No main_executable_path found. Please specify it.")
+            self.main_executable_path = Path.cwd()
 
         rlbot_server_process, self.rlbot_server_port = gateway.launch(
             self.main_executable_path,
