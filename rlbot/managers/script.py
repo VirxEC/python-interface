@@ -40,7 +40,7 @@ class Script:
         self._game_interface.match_settings_handlers.append(self._handle_match_settings)
         self._game_interface.field_info_handlers.append(self._handle_field_info)
         self._game_interface.match_communication_handlers.append(
-            self.handle_match_communication
+            self._handle_match_communication
         )
         self._game_interface.ball_prediction_handlers.append(
             self._handle_ball_prediction
@@ -105,8 +105,26 @@ class Script:
             self.retire()
             del self._game_interface
 
-    def handle_match_communication(self, match_comm: flat.MatchComm):
-        pass
+    def _handle_match_communication(self, match_comm: flat.MatchComm):
+        self.handle_match_communication(
+            match_comm.index,
+            match_comm.team,
+            match_comm.content,
+            match_comm.display,
+            match_comm.team_only,
+        )
+
+    def handle_match_communication(
+        self,
+        index: int,
+        team: int,
+        content: bytes,
+        display: Optional[str],
+        team_only: bool,
+    ):
+        """
+        Called when a match communication is received.
+        """
 
     def send_match_comm(
         self, content: bytes, display: Optional[str] = None, team_only: bool = False

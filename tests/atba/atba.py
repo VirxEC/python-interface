@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+from typing import Optional
 
 from rlbot import flat
 from rlbot.managers import Bot
@@ -77,10 +78,15 @@ class Atba(Bot):
         )
         self.renderer.end_rendering()
 
-    def handle_match_communication(self, match_comm: flat.MatchComm):
-        self.logger.info(
-            f"Received match communication from index {match_comm.index}! {match_comm.display}"
-        )
+    def handle_match_communication(
+        self,
+        index: int,
+        team: int,
+        content: bytes,
+        display: Optional[str],
+        team_only: bool,
+    ):
+        self.logger.info(f"Received match communication from index {index}! {display}")
 
     def get_output(self, packet: flat.GameTickPacket) -> flat.ControllerState:
         if self.rendering:
