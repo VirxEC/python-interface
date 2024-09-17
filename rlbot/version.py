@@ -1,4 +1,4 @@
-__version__ = "5.0.0-beta.5"
+__version__ = "5.0.0-beta.6"
 
 
 RESET_SEQ = "\033[0m"
@@ -15,8 +15,11 @@ BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = (
 )
 
 RELEASE_NOTES = {
+    "5.0.0-beta.6": """
+    Update to new sockets spec
+    """,
     "5.0.0-beta.5": """
-    Better handle `handle_match_communication` API
+    Better `handle_match_communication` API
     """,
     "5.0.0-beta.4": """
     Better state setting API
