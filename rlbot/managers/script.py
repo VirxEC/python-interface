@@ -69,9 +69,9 @@ class Script:
         self._has_match_settings = True
 
         # search match settings for our spawn id
-        for player in self.match_settings.player_configurations:
-            if player.spawn_id == self.spawn_id:
-                self.name = player.name
+        for script in self.match_settings.script_configurations:
+            if script.spawn_id == self.spawn_id or self.spawn_id == 0:
+                self.name = script.name
                 self.logger = get_logger(self.name)
                 break
 
