@@ -72,11 +72,19 @@ class Bot:
 
         # search match settings for our spawn id
         for player in self.match_settings.player_configurations:
-            if player.spawn_id == self.spawn_id:
+            if player.spawn_id == self.spawn_id or self.spawn_id == 0:
                 self.team = player.team
                 self.name = player.name
                 self.logger = get_logger(self.name)
                 break
+
+            if self.spawn_id == 0:
+                match player.variety.item:
+                    case flat.RLBot():
+                        self.team = player.team
+                        self.name = player.name
+                        self.logger = get_logger(self.name)
+                        break
 
         if not self._initialized_bot and self._has_field_info:
             self._initialize_agent()
