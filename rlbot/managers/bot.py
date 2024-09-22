@@ -72,7 +72,7 @@ class Bot:
 
         # search match settings for our spawn id
         for player in self.match_settings.player_configurations:
-            if player.spawn_id == self.spawn_id or self.spawn_id == 0:
+            if player.spawn_id == self.spawn_id:
                 self.team = player.team
                 self.name = player.name
                 self.logger = get_logger(self.name)
