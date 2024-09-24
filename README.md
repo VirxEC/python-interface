@@ -2,7 +2,13 @@
 
 A high performance Python interface for communicating with RLBot v5.
 
+## Making a bot with this interface
+
+See this video tutorial on YouTube for a quick start guide: <https://www.youtube.com/watch?v=GLqvodQ942A>
+
 ## Dev setup
+
+The following is how to setup a development environment for this project, NOT how to create a bot using this interface!
 
 - Ensure Python 3.11+ is installed
 - Create a virtual Python environment
