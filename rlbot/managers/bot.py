@@ -29,7 +29,7 @@ class Bot:
     _has_field_info = False
 
     _latest_packet: Optional[flat.GameTickPacket] = None
-    _lastest_prediction = flat.BallPrediction()
+    _latest_prediction = flat.BallPrediction()
 
     def __init__(self):
         spawn_id = os.environ.get("RLBOT_SPAWN_IDS")
@@ -97,7 +97,7 @@ class Bot:
             self._initialize_agent()
 
     def _handle_ball_prediction(self, ball_prediction: flat.BallPrediction):
-        self._lastest_prediction = ball_prediction
+        self._latest_prediction = ball_prediction
 
     def _handle_packet(self, packet: flat.GameTickPacket):
         self._latest_packet = packet
@@ -134,7 +134,7 @@ class Bot:
             if self.index == -1:
                 return
 
-        self.ball_prediction = self._lastest_prediction
+        self.ball_prediction = self._latest_prediction
 
         try:
             controller = self.get_output(packet)

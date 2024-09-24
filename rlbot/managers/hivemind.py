@@ -31,7 +31,7 @@ class Hivemind:
     _has_field_info = False
 
     _latest_packet: Optional[flat.GameTickPacket] = None
-    _lastest_prediction = flat.BallPrediction()
+    _latest_prediction = flat.BallPrediction()
 
     def __init__(self):
         spawn_ids = os.environ.get("RLBOT_SPAWN_IDS")
@@ -92,7 +92,7 @@ class Hivemind:
             self._initialize_agent()
 
     def _handle_ball_prediction(self, ball_prediction: flat.BallPrediction):
-        self._lastest_prediction = ball_prediction
+        self._latest_prediction = ball_prediction
 
     def _handle_packet(self, packet: flat.GameTickPacket):
         self._latest_packet = packet
@@ -110,7 +110,7 @@ class Hivemind:
             if len(self.indicies) != len(self.spawn_ids):
                 return
 
-        self.ball_prediction = self._lastest_prediction
+        self.ball_prediction = self._latest_prediction
 
         try:
             controller = self.get_outputs(packet)
