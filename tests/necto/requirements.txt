@@ -1,5 +1,6 @@
 rlbot==5.*
 numpy==1.*
-rlgym_compat @ git+https://github.com/JPK314/rlgym-compat@v5-rework
---find-links https://download.pytorch.org/whl/torch_stable.html
-torch==2.3.1+cpu
+rocketsim==2.1.*
+rlgym_compat @ git+https://github.com/JPK314/rlgym-compat@rlgymv2-rlbot-v5
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch

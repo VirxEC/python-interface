@@ -1,4 +1,5 @@
-from typing import Callable, Optional, Sequence
+from collections.abc import Callable, Sequence
+from typing import Optional
 
 from rlbot import flat
 from rlbot.interface import SocketRelay

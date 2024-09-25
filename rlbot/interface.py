@@ -1,10 +1,11 @@
 import logging
+from collections.abc import Callable
 from enum import IntEnum
 from pathlib import Path
 from socket import IPPROTO_TCP, TCP_NODELAY, socket, timeout
 from threading import Thread
 from time import sleep
-from typing import Callable, Optional
+from typing import Optional
 
 from rlbot import flat
 from rlbot.utils.logging import get_logger

@@ -1,8 +1,10 @@
+from pathlib import Path
 import numpy as np
 import torch
 from agent import Agent
 from necto_obs import NectoObsBuilder
-from rlgym_compat import GameState
+from rlgym_compat import V1GameState
+from rlgym_compat.sim_extra_info import SimExtraInfo
 
 from rlbot.flat import ControllerState, GameStateType, GameTickPacket, Vector3
 from rlbot.managers import Bot
@@ -33,6 +35,8 @@ KICKOFF_NUMPY = np.array(
     ]
 )
 
+COLLISION_MESH_PATH = Path(__file__).parent / "collision_meshes"
+
 
 class Necto(Bot):
     agent = Agent()
@@ -51,6 +55,8 @@ class Necto(Bot):
     kickoff_index = -1
     ticks = tick_skip  # So we take an action the first tick
 
+    sim_extra_info: SimExtraInfo | None = None
+
     def initialize_agent(self):
         # Initialize the rlgym GameState object now that the game is active and the info is available
         self.obs_builder = NectoObsBuilder(self.field_info)
@@ -62,7 +68,14 @@ class Necto(Bot):
                 "\n".join(map(str, self.field_info.boost_pads)),
             )
 
-        self.game_state = GameState(self.field_info, self.tick_skip)
+        self.game_state = V1GameState(
+            self.field_info, self.match_settings, self.tick_skip
+        )
+
+        if COLLISION_MESH_PATH.exists():
+            self.sim_extra_info = SimExtraInfo(
+                self.field_info, self.match_settings, self.tick_skip
+            )
 
         self.logger.warning(
             "Remember to run Necto at 120fps with vsync off! "
@@ -124,7 +137,11 @@ class Necto(Bot):
         if len(packet.balls) == 0:
             return self.controls
 
-        self.game_state.decode(packet)
+        extra_info = None
+        if self.sim_extra_info is not None:
+            extra_info = self.sim_extra_info.get_extra_info(packet)
+
+        self.game_state.update(packet, extra_info)
 
         if self.update_action == 1 and len(self.game_state.players) > self.index:
             self.update_action = 0

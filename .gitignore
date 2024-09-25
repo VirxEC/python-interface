@@ -178,3 +178,4 @@ pyrightconfig.json
 .vscode/
 *.obj
 RLBotServer*
+collision_meshes/

@@ -1,8 +1,7 @@
 from collections import Counter
 
 import numpy as np
-from rlgym_compat.common_values import BLUE_TEAM, ORANGE_TEAM
-from rlgym_compat.game_state import GameState, PlayerData
+from rlgym_compat import BLUE_TEAM, ORANGE_TEAM, V1GameState, V1PlayerData
 
 from rlbot import flat
 
@@ -30,11 +29,11 @@ class NectoObsBuilder:
             [bp.is_full_boost for bp in field_info.boost_pads]
         )
 
-    def reset(self, initial_state: GameState):
+    def reset(self, initial_state: V1GameState):
         self.demo_timers = Counter()
         self.boost_timers = np.zeros(len(initial_state.boost_pads))
 
-    def _maybe_update_obs(self, state: GameState):
+    def _maybe_update_obs(self, state: V1GameState):
         if self.boost_timers is None:
             self.reset(state)
         else:
@@ -109,7 +108,7 @@ class NectoObsBuilder:
         self.current_mask = mask
 
     def build_obs(
-        self, player: PlayerData, state: GameState, previous_action: np.ndarray
+        self, player: V1PlayerData, state: V1GameState, previous_action: np.ndarray
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         self._maybe_update_obs(state)
         invert = player.team_num == ORANGE_TEAM
