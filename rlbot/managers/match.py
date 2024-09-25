@@ -116,7 +116,7 @@ class MatchManager:
         """
         Ensures that RLBotServer is running.
         """
-        if not print_version_info:
+        if print_version_info:
             version.print_current_release_notes()
 
         self.rlbot_server_process, self.rlbot_server_port = gateway.find_server_process(
