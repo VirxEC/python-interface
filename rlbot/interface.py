@@ -158,7 +158,7 @@ class SocketRelay:
 
     def connect(
         self,
-        wants_match_communcations: bool,
+        wants_match_communications: bool,
         wants_ball_predictions: bool,
         close_after_match: bool = True,
         rlbot_server_port: int = RLBOT_SERVER_PORT,
@@ -192,14 +192,14 @@ class SocketRelay:
 
         flatbuffer = flat.ConnectionSettings(
             wants_ball_predictions,
-            wants_match_communcations,
+            wants_match_communications,
             close_after_match,
         ).pack()
         self.send_bytes(flatbuffer, SocketDataType.CONNECTION_SETTINGS)
 
     def connect_and_run(
         self,
-        wants_match_communcations: bool,
+        wants_match_communications: bool,
         wants_ball_predictions: bool,
         close_after_match: bool = True,
         only_wait_for_ready: bool = False,
@@ -211,7 +211,7 @@ class SocketRelay:
         currently bad things happen if the buffer is allowed to fill up.
         """
         self.connect(
-            wants_match_communcations,
+            wants_match_communications,
             wants_ball_predictions,
             close_after_match,
             rlbot_server_port,

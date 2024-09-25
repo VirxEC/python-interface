@@ -90,14 +90,14 @@ class Script:
 
     def run(
         self,
-        wants_match_communcations: bool = True,
+        wants_match_communications: bool = True,
         wants_ball_predictions: bool = True,
     ):
         rlbot_server_port = int(os.environ.get("RLBOT_SERVER_PORT", 23234))
 
         try:
             self._game_interface.connect_and_run(
-                wants_match_communcations,
+                wants_match_communications,
                 wants_ball_predictions,
                 rlbot_server_port=rlbot_server_port,
             )

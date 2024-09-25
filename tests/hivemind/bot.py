@@ -68,7 +68,7 @@ class Hives(Hivemind):
         ball_location = Vector2(packet.balls[0].physics.location)
 
         self.controllers.clear()
-        for i in self.indicies:
+        for i in self.indices:
             self.controllers[i] = flat.ControllerState()
 
             my_car = packet.players[i]
