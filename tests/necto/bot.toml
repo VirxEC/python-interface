@@ -4,6 +4,7 @@ loadout_config = "loadout.toml"
 run_command = "..\\..\\venv\\Scripts\\python bot.py"
 run_command_linux = "../../venv/bin/python bot.py"
 logo_file = "necto_logo.png"
+group_id = "rlgym/necto"
 
 [details]
 description = "Necto is the official RLGym community bot, trained using PPO with workers run by people all around the world."

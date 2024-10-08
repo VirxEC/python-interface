@@ -28,15 +28,13 @@ class Script:
     _has_field_info = False
 
     def __init__(self):
-        spawn_id = os.environ.get("RLBOT_SPAWN_IDS")
+        group_id = os.environ.get("RLBOT_GROUP_ID")
 
-        if spawn_id is None:
-            self.logger.warning("RLBOT_SPAWN_IDS environment variable not set")
-        else:
-            self.spawn_id = int(spawn_id)
-            self.logger.info("Spawn ID: %s", self.spawn_id)
+        if group_id is None:
+            self.logger.critical("RLBOT_GROUP_ID environment variable is not set")
+            exit(1)
 
-        self._game_interface = SocketRelay(logger=self.logger)
+        self._game_interface = SocketRelay(group_id, logger=self.logger)
         self._game_interface.match_settings_handlers.append(self._handle_match_settings)
         self._game_interface.field_info_handlers.append(self._handle_field_info)
         self._game_interface.match_communication_handlers.append(
@@ -62,7 +60,7 @@ class Script:
             exit()
 
         self._initialized_bot = True
-        self._game_interface.send_init_complete(flat.InitComplete(self.spawn_id))
+        self._game_interface.send_init_complete()
 
     def _handle_match_settings(self, match_settings: flat.MatchSettings):
         self.match_settings = match_settings

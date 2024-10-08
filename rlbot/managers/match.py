@@ -90,6 +90,7 @@ def get_player_config(
         str(run_command),
         loadout,
         0,
+        settings.get("group_id", ""),
         settings.get("hivemind", False),
     )
 
@@ -109,7 +110,7 @@ class MatchManager:
         self.main_executable_path = main_executable_path
         self.main_executable_name = main_executable_name
 
-        self.rlbot_interface: SocketRelay = SocketRelay()
+        self.rlbot_interface: SocketRelay = SocketRelay("")
         self.rlbot_interface.packet_handlers.append(self._packet_reporter)
 
     def ensure_server_started(self, print_version_info: bool = True):
@@ -158,7 +159,7 @@ class MatchManager:
         self.rlbot_interface.start_match(match_config, self.rlbot_server_port)
 
         if not self.initialized:
-            self.rlbot_interface.send_init_complete(flat.InitComplete())
+            self.rlbot_interface.send_init_complete()
             self.initialized = True
 
         if wait_for_start:

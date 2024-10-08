@@ -34,15 +34,13 @@ class Hivemind:
     _latest_prediction = flat.BallPrediction()
 
     def __init__(self):
-        spawn_ids = os.environ.get("RLBOT_SPAWN_IDS")
+        group_id = os.environ.get("RLBOT_GROUP_ID")
 
-        if spawn_ids is None:
-            self._logger.warning("RLBOT_SPAWN_IDS environment variable not set")
-        else:
-            self._logger.info("Spawn ID: %s", spawn_ids)
-            self.spawn_ids = [int(id) for id in spawn_ids.split(",")]
+        if group_id is None:
+            self._logger.critical("RLBOT_GROUP_ID environment variable is not set")
+            exit(1)
 
-        self._game_interface = SocketRelay(logger=self._logger)
+        self._game_interface = SocketRelay(group_id, logger=self._logger)
         self._game_interface.match_settings_handlers.append(self._handle_match_settings)
         self._game_interface.field_info_handlers.append(self._handle_field_info)
         self._game_interface.match_communication_handlers.append(
@@ -68,7 +66,7 @@ class Hivemind:
             exit()
 
         self._initialized_bot = True
-        self._game_interface.send_init_complete(flat.InitComplete(self.spawn_ids[0]))
+        self._game_interface.send_init_complete()
 
     def _handle_match_settings(self, match_settings: flat.MatchSettings):
         self.match_settings = match_settings

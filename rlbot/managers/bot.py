@@ -27,20 +27,21 @@ class Bot:
     _initialized_bot = False
     _has_match_settings = False
     _has_field_info = False
+    _has_player_mapping = False
 
     _latest_packet: Optional[flat.GameTickPacket] = None
     _latest_prediction = flat.BallPrediction()
 
     def __init__(self):
-        spawn_id = os.environ.get("RLBOT_SPAWN_IDS")
+        group_id = os.environ.get("RLBOT_GROUP_ID")
 
-        if spawn_id is None:
-            self.logger.warning("RLBOT_SPAWN_IDS environment variable not set")
-        else:
-            self.spawn_id = int(spawn_id)
-            self.logger.info("Spawn ID: %s", self.spawn_id)
+        if group_id is None:
+            self.logger.critical("RLBOT_GROUP_ID environment variable is not set")
+            exit(1)
 
-        self._game_interface = SocketRelay(logger=self.logger)
+        self.logger.info(group_id)
+
+        self._game_interface = SocketRelay(group_id, logger=self.logger)
         self._game_interface.match_settings_handlers.append(self._handle_match_settings)
         self._game_interface.field_info_handlers.append(self._handle_field_info)
         self._game_interface.match_communication_handlers.append(
@@ -49,11 +50,29 @@ class Bot:
         self._game_interface.ball_prediction_handlers.append(
             self._handle_ball_prediction
         )
+        self._game_interface.team_controllables_handlers.append(
+            self._handle_player_mappings
+        )
         self._game_interface.packet_handlers.append(self._handle_packet)
 
         self.renderer = Renderer(self._game_interface)
 
     def _initialize_agent(self):
+        # search match settings for our name
+        for player in self.match_settings.player_configurations:
+            if player.spawn_id == self.spawn_id:
+                self.name = player.name
+                self.logger = get_logger(self.name)
+                break
+
+        self.logger.info(
+            "Bot %s initialized - index %s / team %s / spawn id %s",
+            self.name,
+            self.index,
+            self.team,
+            self.spawn_id,
+        )
+
         try:
             self.initialize_agent()
         except Exception as e:
@@ -64,36 +83,42 @@ class Bot:
             exit()
 
         self._initialized_bot = True
-        self._game_interface.send_init_complete(flat.InitComplete(self.spawn_id))
+        self._game_interface.send_init_complete()
 
     def _handle_match_settings(self, match_settings: flat.MatchSettings):
         self.match_settings = match_settings
         self._has_match_settings = True
 
-        # search match settings for our spawn id
-        for player in self.match_settings.player_configurations:
-            if player.spawn_id == self.spawn_id:
-                self.team = player.team
-                self.name = player.name
-                self.logger = get_logger(self.name)
-                break
-
-            if self.spawn_id == 0:
-                match player.variety.item:
-                    case flat.RLBot():
-                        self.team = player.team
-                        self.name = player.name
-                        self.logger = get_logger(self.name)
-                        break
-
-        if not self._initialized_bot and self._has_field_info:
+        if (
+            not self._initialized_bot
+            and self._has_field_info
+            and self._has_player_mapping
+        ):
             self._initialize_agent()
 
     def _handle_field_info(self, field_info: flat.FieldInfo):
         self.field_info = field_info
         self._has_field_info = True
 
-        if not self._initialized_bot and self._has_match_settings:
+        if (
+            not self._initialized_bot
+            and self._has_match_settings
+            and self._has_player_mapping
+        ):
+            self._initialize_agent()
+
+    def _handle_player_mappings(self, player_mappings: flat.TeamControllables):
+        self.team = player_mappings.team
+        controllable = player_mappings.controllables[0]
+        self.spawn_id = controllable.spawn_id
+        self.index = controllable.index
+        self._has_player_mapping = True
+
+        if (
+            not self._initialized_bot
+            and self._has_match_settings
+            and self._has_field_info
+        ):
             self._initialize_agent()
 
     def _handle_ball_prediction(self, ball_prediction: flat.BallPrediction):
@@ -103,36 +128,8 @@ class Bot:
         self._latest_packet = packet
 
     def _packet_processor(self, packet: flat.GameTickPacket):
-        if (
-            self.index == -1
-            or len(packet.players) <= self.index
-            or packet.players[self.index].spawn_id != self.spawn_id
-        ):
-            # spawn id should only be 0 if RLBOT_SPAWN_IDS was not set
-            if self.spawn_id == 0:
-                # in this case, if there's only one player, we can assume it's us
-                player_index = -1
-                for i, player in enumerate(packet.players):
-                    # skip human players/psyonix bots
-                    if not player.is_bot:
-                        continue
-
-                    if player_index != -1:
-                        self.logger.error(
-                            "Multiple bots in the game, please set RLBOT_SPAWN_IDS"
-                        )
-                        return
-
-                    player_index = i
-                self.index = player_index
-
-            for i, player in enumerate(packet.players):
-                if player.spawn_id == self.spawn_id:
-                    self.index = i
-                    break
-
-            if self.index == -1:
-                return
+        if len(packet.players) <= self.index:
+            return
 
         self.ball_prediction = self._latest_prediction
 
@@ -279,9 +276,7 @@ class Bot:
     def initialize_agent(self):
         """
         Called for all heaver initialization that needs to happen.
-        Field info and match settings are fully loaded at this point, and won't return garbage data.
-
-        NOTE: `self.index` is not set at this point, and should not be used. `self.team` and `self.name` _are_ set with correct information.
+        Field info, match settings, name, index, and team are fully loaded at this point, and won't return garbage data.
         """
 
     def retire(self):

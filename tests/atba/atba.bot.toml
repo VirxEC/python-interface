@@ -12,6 +12,7 @@ run_command = "..\\..\\venv\\Scripts\\python atba.py"
 # The command RLBot will call to start your bot on linux
 # If this isn't set, RLBot may attempt to run the Windows command under Wine
 run_command_linux = "../../venv/bin/python atba.py"
+group_id = "botmaker/atba"
 
 [details]
 description = "Made possible by RLBot"
