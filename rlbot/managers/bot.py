@@ -57,7 +57,7 @@ class Bot:
 
         self.renderer = Renderer(self._game_interface)
 
-    def _initialize_agent(self):
+    def _initialize(self):
         # search match settings for our name
         for player in self.match_settings.player_configurations:
             if player.spawn_id == self.spawn_id:
@@ -66,7 +66,7 @@ class Bot:
                 break
 
         try:
-            self.initialize_agent()
+            self.initialize()
         except Exception as e:
             self.logger.critical(
                 "Bot %s failed to initialize due the following error: %s", self.name, e
@@ -86,7 +86,7 @@ class Bot:
             and self._has_field_info
             and self._has_player_mapping
         ):
-            self._initialize_agent()
+            self._initialize()
 
     def _handle_field_info(self, field_info: flat.FieldInfo):
         self.field_info = field_info
@@ -97,7 +97,7 @@ class Bot:
             and self._has_match_settings
             and self._has_player_mapping
         ):
-            self._initialize_agent()
+            self._initialize()
 
     def _handle_player_mappings(self, player_mappings: flat.TeamControllables):
         self.team = player_mappings.team
@@ -111,7 +111,7 @@ class Bot:
             and self._has_match_settings
             and self._has_field_info
         ):
-            self._initialize_agent()
+            self._initialize()
 
     def _handle_ball_prediction(self, ball_prediction: flat.BallPrediction):
         self._latest_prediction = ball_prediction
@@ -260,12 +260,12 @@ class Bot:
         """
         Sets the loadout of a bot.
 
-        For use as a loadout generator, call inside of `initialize_agent`.
-        Will be ignored if called outside of `initialize_agent` when state setting is disabled.
+        For use as a loadout generator, call inside of `initialize`.
+        Will be ignored if called outside of `initialize` when state setting is disabled.
         """
         self._game_interface.send_set_loadout(flat.SetLoadout(spawn_id, loadout))
 
-    def initialize_agent(self):
+    def initialize(self):
         """
         Called for all heaver initialization that needs to happen.
         Field info, match settings, name, index, and team are fully loaded at this point, and won't return garbage data.

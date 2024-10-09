@@ -61,7 +61,7 @@ class Atba(Bot):
     last_send = 0
     controller = flat.ControllerState()
 
-    def initialize_agent(self):
+    def initialize(self):
         self.logger.info("Initializing agent!")
 
         num_boost_pads = len(self.field_info.boost_pads)

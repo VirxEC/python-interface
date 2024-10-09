@@ -16,6 +16,7 @@ BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = (
 
 RELEASE_NOTES = {
     "5.0.0-beta.9": """
+    Rename the `initialize_agent` method to `initialize`
     Update to new sockets spec
     """,
     "5.0.0-beta.8": """

@@ -51,12 +51,12 @@ class Script:
 
         self.renderer = Renderer(self._game_interface)
 
-    def _initialize_agent(self):
+    def _initialize(self):
         self.name = self.match_settings.script_configurations[self.index].name
         self.logger = get_logger(self.name)
 
         try:
-            self.initialize_agent()
+            self.initialize()
         except Exception as e:
             self.logger.critical(
                 "Script %s failed to initialize due the following error: %s",
@@ -78,7 +78,7 @@ class Script:
             and self._has_field_info
             and self._has_player_mapping
         ):
-            self._initialize_agent()
+            self._initialize()
 
     def _handle_field_info(self, field_info: flat.FieldInfo):
         self.field_info = field_info
@@ -89,7 +89,7 @@ class Script:
             and self._has_match_settings
             and self._has_player_mapping
         ):
-            self._initialize_agent()
+            self._initialize()
 
     def _handle_player_mappings(self, player_mappings: flat.TeamControllables):
         self.team = player_mappings.team
@@ -103,7 +103,7 @@ class Script:
             and self._has_match_settings
             and self._has_field_info
         ):
-            self._initialize_agent()
+            self._initialize()
 
     def _handle_ball_prediction(self, ball_prediction: flat.BallPrediction):
         self._latest_prediction = ball_prediction
@@ -236,7 +236,7 @@ class Script:
         """
         self._game_interface.send_set_loadout(flat.SetLoadout(self.spawn_id, loadout))
 
-    def initialize_agent(self):
+    def initialize(self):
         """
         Called for all heaver initialization that needs to happen.
         Field info and match settings are fully loaded at this point, and won't return garbage data.

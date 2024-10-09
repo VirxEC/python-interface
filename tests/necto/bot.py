@@ -51,7 +51,7 @@ class Necto(Bot):
     kickoff_index = -1
     ticks = tick_skip  # So we take an action the first tick
 
-    def initialize_agent(self):
+    def initialize(self):
         # Initialize the rlgym GameState object now that the game is active and the info is available
         self.obs_builder = NectoObsBuilder(self.field_info)
 
