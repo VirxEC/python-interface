@@ -65,14 +65,6 @@ class Bot:
                 self.logger = get_logger(self.name)
                 break
 
-        self.logger.info(
-            "Bot %s initialized - index %s / team %s / spawn id %s",
-            self.name,
-            self.index,
-            self.team,
-            self.spawn_id,
-        )
-
         try:
             self.initialize_agent()
         except Exception as e:
