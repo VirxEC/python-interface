@@ -3,7 +3,6 @@ launcher = "steam"
 auto_start_bots = true
 
 [match]
-num_cars = 6
 game_mode = "Soccer"
 game_map_upk = "Stadium_P"
 

@@ -2,8 +2,6 @@
 launcher = "steam"
 
 [match]
-num_cars = 1
-num_scripts = 1
 game_mode = "Soccer"
 game_map_upk = "Stadium_P"
 enable_rendering = true

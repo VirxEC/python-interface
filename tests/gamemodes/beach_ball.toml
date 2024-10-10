@@ -1,5 +1,4 @@
 [match]
-num_cars = 1
 game_mode = "Soccer"
 # Map set currently unknown
 game_map_upk = "Stadium_P"

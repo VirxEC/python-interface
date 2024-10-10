@@ -3,8 +3,6 @@ launcher = "steam"
 auto_start_bots = true
 
 [match]
-num_cars = 5
-num_scripts = 0
 game_mode = "Soccer"
 game_map_upk = "Stadium_P"
 skip_replays = false
@@ -26,7 +24,6 @@ rumble = "Spikes_Only"
 boost_strength = "OneAndAHalf"
 respawn_time = "One_Second"
 
-# Only num_cars configs will be used, in the order they are defined
 [[cars]]
 # The location of the configuration file for your agent here
 # The path is always relative to the folder that this file is in
