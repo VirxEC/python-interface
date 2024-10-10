@@ -4,7 +4,7 @@ from agent import Agent
 from necto_obs import NectoObsBuilder
 from rlgym_compat import V1GameState
 
-from rlbot.flat import ControllerState, GameStateType, GameTickPacket, Vector3
+from rlbot.flat import ControllerState, GameStatus, GamePacket, Vector3
 from rlbot.managers import Bot
 
 KICKOFF_CONTROLS = (
@@ -116,7 +116,7 @@ class Necto(Bot):
 
         self.renderer.end_rendering()
 
-    def get_output(self, packet: GameTickPacket) -> ControllerState:
+    def get_output(self, packet: GamePacket) -> ControllerState:
         cur_frame = packet.game_info.frame_num
         ticks_elapsed = cur_frame - self.prev_frame
         self.prev_frame = cur_frame
@@ -144,7 +144,7 @@ class Necto(Bot):
             obs = self.obs_builder.build_obs(player, self.game_state, self.action)
 
             beta = self.beta
-            if packet.game_info.game_state_type == GameStateType.Ended:
+            if packet.game_info.game_status == GameStatus.Ended:
                 beta = 0  # Celebrate with random actions
             self.action, weights = self.agent.act(obs, beta)
 
@@ -161,8 +161,8 @@ class Necto(Bot):
 
         return self.controls
 
-    def maybe_do_kickoff(self, packet: GameTickPacket, ticks_elapsed: int):
-        if packet.game_info.game_state_type == GameStateType.Kickoff:
+    def maybe_do_kickoff(self, packet: GamePacket, ticks_elapsed: int):
+        if packet.game_info.game_status == GameStatus.Kickoff:
             if self.kickoff_index >= 0:
                 self.kickoff_index += round(ticks_elapsed)
             elif self.kickoff_index == -1:

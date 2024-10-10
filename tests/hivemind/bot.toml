@@ -1,6 +1,6 @@
 [settings]
 name = "Hives"
-loadout_config = "../necto/loadout.toml"
+loadout_file = "../necto/loadout.toml"
 location = ""
 run_command = "..\\..\\venv\\Scripts\\python bot.py"
 run_command_linux = "../../venv/bin/python bot.py"

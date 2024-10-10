@@ -31,7 +31,7 @@ class Hivemind:
     _has_field_info = False
     _has_player_mapping = False
 
-    _latest_packet: Optional[flat.GameTickPacket] = None
+    _latest_packet: Optional[flat.GamePacket] = None
     _latest_prediction = flat.BallPrediction()
 
     def __init__(self):
@@ -115,10 +115,10 @@ class Hivemind:
     def _handle_ball_prediction(self, ball_prediction: flat.BallPrediction):
         self._latest_prediction = ball_prediction
 
-    def _handle_packet(self, packet: flat.GameTickPacket):
+    def _handle_packet(self, packet: flat.GamePacket):
         self._latest_packet = packet
 
-    def _packet_processor(self, packet: flat.GameTickPacket):
+    def _packet_processor(self, packet: flat.GamePacket):
         if len(packet.players) <= self.indices[-1]:
             return
 
@@ -284,9 +284,7 @@ class Hivemind:
     def retire(self):
         """Called after the game ends"""
 
-    def get_outputs(
-        self, packet: flat.GameTickPacket
-    ) -> dict[int, flat.ControllerState]:
+    def get_outputs(self, packet: flat.GamePacket) -> dict[int, flat.ControllerState]:
         """
         Where all the logic of your bot gets its input and returns its output.
         """

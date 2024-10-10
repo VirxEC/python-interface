@@ -29,7 +29,7 @@ class Bot:
     _has_field_info = False
     _has_player_mapping = False
 
-    _latest_packet: Optional[flat.GameTickPacket] = None
+    _latest_packet: Optional[flat.GamePacket] = None
     _latest_prediction = flat.BallPrediction()
 
     def __init__(self):
@@ -116,10 +116,10 @@ class Bot:
     def _handle_ball_prediction(self, ball_prediction: flat.BallPrediction):
         self._latest_prediction = ball_prediction
 
-    def _handle_packet(self, packet: flat.GameTickPacket):
+    def _handle_packet(self, packet: flat.GamePacket):
         self._latest_packet = packet
 
-    def _packet_processor(self, packet: flat.GameTickPacket):
+    def _packet_processor(self, packet: flat.GamePacket):
         if len(packet.players) <= self.index:
             return
 
@@ -151,9 +151,9 @@ class Bot:
 
             # custom message handling logic
             # this reads all data in the socket until there's no more immediately available
-            # checks if there was a GameTickPacket in the data, and if so, processes it
+            # checks if there was a GamePacket in the data, and if so, processes it
             # then sets the socket to non-blocking and waits for more data
-            # if there was no GameTickPacket, it sets to blocking and waits for more data
+            # if there was no GamePacket, it sets to blocking and waits for more data
             while True:
                 try:
                     self._game_interface.handle_incoming_messages(True)
@@ -274,7 +274,7 @@ class Bot:
     def retire(self):
         """Called after the game ends"""
 
-    def get_output(self, packet: flat.GameTickPacket) -> flat.ControllerState:
+    def get_output(self, packet: flat.GamePacket) -> flat.ControllerState:
         """
         Where all the logic of your bot gets its input and returns its output.
         """

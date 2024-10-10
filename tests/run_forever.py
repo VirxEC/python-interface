@@ -50,13 +50,12 @@ if __name__ == "__main__":
 
         while (
             match_manager.packet is None
-            or match_manager.packet.game_info.game_state_type
-            != flat.GameStateType.Ended
+            or match_manager.packet.game_info.game_status != flat.GameStatus.Ended
         ):
             if (
                 match_manager.packet is not None
-                and match_manager.packet.game_info.game_state_type
-                == flat.GameStateType.Countdown
+                and match_manager.packet.game_info.game_status
+                == flat.GameStatus.Countdown
             ):
                 match_manager.set_game_state(
                     game_info=flat.DesiredGameInfoState(game_speed=2)

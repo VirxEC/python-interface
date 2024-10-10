@@ -72,7 +72,7 @@ def get_player_config(
     if CURRENT_OS == OS.LINUX and "run_command_linux" in settings:
         run_command = settings["run_command_linux"]
 
-    loadout_path = settings.get("loadout_config", None)
+    loadout_path = settings.get("loadout_file", None)
     if loadout_path is not None:
         loadout_path = parent / loadout_path
 
@@ -97,7 +97,7 @@ def get_player_config(
 
 class MatchManager:
     logger = DEFAULT_LOGGER
-    packet: Optional[flat.GameTickPacket] = None
+    packet: Optional[flat.GamePacket] = None
     rlbot_server_process: Optional[psutil.Process] = None
     rlbot_server_port = RLBOT_SERVER_PORT
     initialized = False
@@ -142,13 +142,13 @@ class MatchManager:
             self.rlbot_server_process.pid,
         )
 
-    def _packet_reporter(self, packet: flat.GameTickPacket):
+    def _packet_reporter(self, packet: flat.GamePacket):
         self.packet = packet
 
     def wait_for_valid_packet(self):
-        while self.packet is not None and self.packet.game_info.game_state_type in {
-            flat.GameStateType.Inactive,
-            flat.GameStateType.Ended,
+        while self.packet is not None and self.packet.game_info.game_status in {
+            flat.GameStatus.Inactive,
+            flat.GameStatus.Ended,
         }:
             sleep(0.1)
 

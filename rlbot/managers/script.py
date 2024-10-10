@@ -28,7 +28,7 @@ class Script:
     _has_field_info = False
     _has_player_mapping = False
 
-    _latest_packet: Optional[flat.GameTickPacket] = None
+    _latest_packet: Optional[flat.GamePacket] = None
     _latest_prediction = flat.BallPrediction()
 
     def __init__(self):
@@ -108,10 +108,10 @@ class Script:
     def _handle_ball_prediction(self, ball_prediction: flat.BallPrediction):
         self._latest_prediction = ball_prediction
 
-    def _handle_packet(self, packet: flat.GameTickPacket):
+    def _handle_packet(self, packet: flat.GamePacket):
         self._latest_packet = packet
 
-    def _packet_processor(self, packet: flat.GameTickPacket):
+    def _packet_processor(self, packet: flat.GamePacket):
         if len(packet.players) <= self.index:
             return
 
@@ -245,5 +245,5 @@ class Script:
     def retire(self):
         """Called after the game ends"""
 
-    def handle_packet(self, packet: flat.GameTickPacket):
+    def handle_packet(self, packet: flat.GamePacket):
         pass

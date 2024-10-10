@@ -88,15 +88,15 @@ class Atba(Bot):
     ):
         self.logger.info(f"Received match communication from index {index}! {display}")
 
-    def get_output(self, packet: flat.GameTickPacket) -> flat.ControllerState:
+    def get_output(self, packet: flat.GamePacket) -> flat.ControllerState:
         if self.rendering:
             self.test_rendering(packet)
 
         if (
-            packet.game_info.game_state_type
+            packet.game_info.game_status
             not in {
-                flat.GameStateType.Active,
-                flat.GameStateType.Kickoff,
+                flat.GameStatus.Active,
+                flat.GameStatus.Kickoff,
             }
             or len(packet.balls) == 0
         ):
@@ -125,7 +125,7 @@ class Atba(Bot):
 
         return self.controller
 
-    def test_state_setting(self, packet: flat.GameTickPacket):
+    def test_state_setting(self, packet: flat.GamePacket):
         self.set_game_state(
             {
                 0: flat.DesiredBallState(
@@ -146,7 +146,7 @@ class Atba(Bot):
             },
         )
 
-    def test_rendering(self, packet: flat.GameTickPacket):
+    def test_rendering(self, packet: flat.GamePacket):
         if not self.needs_render:
             self.needs_render = (
                 self.last_demoed and packet.players[self.index].demolished_timeout <= 0

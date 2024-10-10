@@ -66,7 +66,7 @@ class SocketRelay:
     _should_continue = True
 
     on_connect_handlers: list[Callable[[], None]] = []
-    packet_handlers: list[Callable[[flat.GameTickPacket], None]] = []
+    packet_handlers: list[Callable[[flat.GamePacket], None]] = []
     field_info_handlers: list[Callable[[flat.FieldInfo], None]] = []
     match_settings_handlers: list[Callable[[flat.MatchSettings], None]] = []
     match_communication_handlers: list[Callable[[flat.MatchComm], None]] = []
@@ -269,7 +269,7 @@ class SocketRelay:
                 self._should_continue = False
             case SocketDataType.GAME_TICK_PACKET:
                 if len(self.packet_handlers) > 0:
-                    packet = flat.GameTickPacket.unpack(incoming_message.data)
+                    packet = flat.GamePacket.unpack(incoming_message.data)
                     for handler in self.packet_handlers:
                         handler(packet)
             case SocketDataType.FIELD_INFO:
