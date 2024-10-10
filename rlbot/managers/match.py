@@ -64,9 +64,9 @@ def get_player_config(
 
     settings: dict[str, Any] = config["settings"]
 
-    location = parent
-    if "location" in settings:
-        location /= settings["location"]
+    root_dir = parent
+    if "root_dir" in settings:
+        root_dir /= settings["root_dir"]
 
     run_command = settings.get("run_command", "")
     if CURRENT_OS == OS.LINUX and "run_command_linux" in settings:
@@ -86,7 +86,7 @@ def get_player_config(
         type,
         settings["name"],
         team,
-        str(location),
+        str(root_dir),
         str(run_command),
         loadout,
         0,

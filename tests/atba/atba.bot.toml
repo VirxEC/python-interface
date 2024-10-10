@@ -5,7 +5,7 @@ name = "ATBA_v5"
 loadout_file = "../necto/loadout.toml"
 # (OPTIONAL) - what you want the working directory set to
 # This is relative to the location of this file
-location = ""
+root_dir = ""
 # The command RLBot will call to start your bot on Windows
 # ex: "bot.exe" for compiled bots, or "python bot.py" if you don't want to freeze your python bot
 run_command = "..\\..\\venv\\Scripts\\python atba.py"

@@ -35,13 +35,13 @@ class Hivemind:
     _latest_prediction = flat.BallPrediction()
 
     def __init__(self):
-        group_id = os.environ.get("RLBOT_GROUP_ID")
+        agent_id = os.environ.get("RLBOT_AGENT_ID")
 
-        if group_id is None:
-            self._logger.critical("RLBOT_GROUP_ID environment variable is not set")
+        if agent_id is None:
+            self._logger.critical("RLBOT_AGENT_ID environment variable is not set")
             exit(1)
 
-        self._game_interface = SocketRelay(group_id, logger=self._logger)
+        self._game_interface = SocketRelay(agent_id, logger=self._logger)
         self._game_interface.match_settings_handlers.append(self._handle_match_settings)
         self._game_interface.field_info_handlers.append(self._handle_field_info)
         self._game_interface.match_communication_handlers.append(
@@ -97,7 +97,7 @@ class Hivemind:
         ):
             self._initialize()
 
-    def _handle_player_mappings(self, player_mappings: flat.TeamControllables):
+    def _handle_player_mappings(self, player_mappings: flat.ControllableTeamInfo):
         self.team = player_mappings.team
         for controllable in player_mappings.controllables:
             self.spawn_ids.append(controllable.spawn_id)

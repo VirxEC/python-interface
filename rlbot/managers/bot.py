@@ -33,15 +33,13 @@ class Bot:
     _latest_prediction = flat.BallPrediction()
 
     def __init__(self):
-        group_id = os.environ.get("RLBOT_GROUP_ID")
+        agent_id = os.environ.get("RLBOT_AGENT_ID")
 
-        if group_id is None:
-            self.logger.critical("RLBOT_GROUP_ID environment variable is not set")
+        if agent_id is None:
+            self.logger.critical("RLBOT_AGENT_ID environment variable is not set")
             exit(1)
 
-        self.logger.info(group_id)
-
-        self._game_interface = SocketRelay(group_id, logger=self.logger)
+        self._game_interface = SocketRelay(agent_id, logger=self.logger)
         self._game_interface.match_settings_handlers.append(self._handle_match_settings)
         self._game_interface.field_info_handlers.append(self._handle_field_info)
         self._game_interface.match_communication_handlers.append(
@@ -50,7 +48,7 @@ class Bot:
         self._game_interface.ball_prediction_handlers.append(
             self._handle_ball_prediction
         )
-        self._game_interface.team_controllables_handlers.append(
+        self._game_interface.controllable_team_info_handlers.append(
             self._handle_player_mappings
         )
         self._game_interface.packet_handlers.append(self._handle_packet)
@@ -99,7 +97,7 @@ class Bot:
         ):
             self._initialize()
 
-    def _handle_player_mappings(self, player_mappings: flat.TeamControllables):
+    def _handle_player_mappings(self, player_mappings: flat.ControllableTeamInfo):
         self.team = player_mappings.team
         controllable = player_mappings.controllables[0]
         self.spawn_id = controllable.spawn_id

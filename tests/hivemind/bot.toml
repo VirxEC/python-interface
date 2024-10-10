@@ -1,7 +1,6 @@
 [settings]
 name = "Hives"
 loadout_file = "../necto/loadout.toml"
-location = ""
 run_command = "..\\..\\venv\\Scripts\\python bot.py"
 run_command_linux = "../../venv/bin/python bot.py"
 group_id = "botmaker/hives"

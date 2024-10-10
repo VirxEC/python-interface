@@ -34,7 +34,7 @@ class SocketDataType(IntEnum):
     STOP_COMMAND = 12
     SET_LOADOUT = 13
     INIT_COMPLETE = 14
-    TEAM_CONTROLLABLES = 15
+    CONTROLLABLE_TEAM_INFO = 15
 
 
 MAX_SIZE_2_BYTES = 2**16 - 1
@@ -71,16 +71,18 @@ class SocketRelay:
     match_settings_handlers: list[Callable[[flat.MatchSettings], None]] = []
     match_communication_handlers: list[Callable[[flat.MatchComm], None]] = []
     ball_prediction_handlers: list[Callable[[flat.BallPrediction], None]] = []
-    team_controllables_handlers: list[Callable[[flat.TeamControllables], None]] = []
+    controllable_team_info_handlers: list[
+        Callable[[flat.ControllableTeamInfo], None]
+    ] = []
     raw_handlers: list[Callable[[SocketMessage], None]] = []
 
     def __init__(
         self,
-        group_id: str,
+        agent_id: str,
         connection_timeout: float = 120,
         logger: Optional[logging.Logger] = None,
     ):
-        self.group_id = group_id
+        self.agent_id = agent_id
         self.connection_timeout = connection_timeout
         self.logger = get_logger("interface") if logger is None else logger
 
@@ -197,7 +199,7 @@ class SocketRelay:
             handler()
 
         flatbuffer = flat.ConnectionSettings(
-            self.group_id,
+            self.agent_id,
             wants_ball_predictions,
             wants_match_communications,
             close_after_match,
@@ -292,12 +294,12 @@ class SocketRelay:
                     ball_prediction = flat.BallPrediction.unpack(incoming_message.data)
                     for handler in self.ball_prediction_handlers:
                         handler(ball_prediction)
-            case SocketDataType.TEAM_CONTROLLABLES:
-                if len(self.team_controllables_handlers) > 0:
-                    player_mappings = flat.TeamControllables.unpack(
+            case SocketDataType.CONTROLLABLE_TEAM_INFO:
+                if len(self.controllable_team_info_handlers) > 0:
+                    player_mappings = flat.ControllableTeamInfo.unpack(
                         incoming_message.data
                     )
-                    for handler in self.team_controllables_handlers:
+                    for handler in self.controllable_team_info_handlers:
                         handler(player_mappings)
 
     def disconnect(self):
