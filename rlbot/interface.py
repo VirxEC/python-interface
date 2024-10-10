@@ -20,7 +20,7 @@ class SocketDataType(IntEnum):
     """
 
     NONE = 0
-    GAME_TICK_PACKET = 1
+    GAME_PACKET = 1
     FIELD_INFO = 2
     START_COMMAND = 3
     MATCH_SETTINGS = 4
@@ -267,7 +267,7 @@ class SocketRelay:
         match incoming_message.type:
             case SocketDataType.NONE:
                 self._should_continue = False
-            case SocketDataType.GAME_TICK_PACKET:
+            case SocketDataType.GAME_PACKET:
                 if len(self.packet_handlers) > 0:
                     packet = flat.GamePacket.unpack(incoming_message.data)
                     for handler in self.packet_handlers:
