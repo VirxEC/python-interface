@@ -90,7 +90,7 @@ def get_player_config(
         str(run_command),
         loadout,
         0,
-        settings.get("group_id", ""),
+        settings.get("agent_id", ""),
         settings.get("hivemind", False),
     )
 
