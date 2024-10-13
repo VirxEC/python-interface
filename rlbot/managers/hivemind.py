@@ -34,8 +34,8 @@ class Hivemind:
     _latest_packet: Optional[flat.GamePacket] = None
     _latest_prediction = flat.BallPrediction()
 
-    def __init__(self):
-        agent_id = os.environ.get("RLBOT_AGENT_ID")
+    def __init__(self, default_agent_id: Optional[str] = None):
+        agent_id = os.environ.get("RLBOT_AGENT_ID") or default_agent_id
 
         if agent_id is None:
             self._logger.critical("RLBOT_AGENT_ID environment variable is not set")
