@@ -29,20 +29,19 @@ class Hivemind:
     _initialized_bot = False
     _has_match_settings = False
     _has_field_info = False
+    _has_player_mapping = False
 
-    _latest_packet: Optional[flat.GameTickPacket] = None
+    _latest_packet: Optional[flat.GamePacket] = None
     _latest_prediction = flat.BallPrediction()
 
-    def __init__(self):
-        spawn_ids = os.environ.get("RLBOT_SPAWN_IDS")
+    def __init__(self, default_agent_id: Optional[str] = None):
+        agent_id = os.environ.get("RLBOT_AGENT_ID") or default_agent_id
 
-        if spawn_ids is None:
-            self._logger.warning("RLBOT_SPAWN_IDS environment variable not set")
-        else:
-            self._logger.info("Spawn ID: %s", spawn_ids)
-            self.spawn_ids = [int(id) for id in spawn_ids.split(",")]
+        if agent_id is None:
+            self._logger.critical("RLBOT_AGENT_ID environment variable is not set")
+            exit(1)
 
-        self._game_interface = SocketRelay(logger=self._logger)
+        self._game_interface = SocketRelay(agent_id, logger=self._logger)
         self._game_interface.match_settings_handlers.append(self._handle_match_settings)
         self._game_interface.field_info_handlers.append(self._handle_field_info)
         self._game_interface.match_communication_handlers.append(
@@ -55,9 +54,15 @@ class Hivemind:
 
         self.renderer = Renderer(self._game_interface)
 
-    def _initialize_agent(self):
+    def _initialize(self):
+        # search match settings for our spawn ids
+        for player in self.match_settings.player_configurations:
+            if player.spawn_id in self.spawn_ids:
+                self.names.append(player.name)
+                self.loggers.append(get_logger(player.name))
+
         try:
-            self.initialize_agent()
+            self.initialize()
         except Exception as e:
             self._logger.critical(
                 "Hivemind %s failed to initialize due the following error: %s",
@@ -68,47 +73,54 @@ class Hivemind:
             exit()
 
         self._initialized_bot = True
-        self._game_interface.send_init_complete(flat.InitComplete(self.spawn_ids[0]))
+        self._game_interface.send_init_complete()
 
     def _handle_match_settings(self, match_settings: flat.MatchSettings):
         self.match_settings = match_settings
         self._has_match_settings = True
 
-        # search match settings for our spawn ids
-        for player in self.match_settings.player_configurations:
-            if player.spawn_id in self.spawn_ids:
-                self.team = player.team
-                self.names.append(player.name)
-                self.loggers.append(get_logger(player.name))
-
-        if not self._initialized_bot and self._has_field_info:
-            self._initialize_agent()
+        if (
+            not self._initialized_bot
+            and self._has_field_info
+            and self._has_player_mapping
+        ):
+            self._initialize()
 
     def _handle_field_info(self, field_info: flat.FieldInfo):
         self.field_info = field_info
         self._has_field_info = True
 
-        if not self._initialized_bot and self._has_match_settings:
-            self._initialize_agent()
+        if (
+            not self._initialized_bot
+            and self._has_match_settings
+            and self._has_player_mapping
+        ):
+            self._initialize()
+
+    def _handle_player_mappings(self, player_mappings: flat.ControllableTeamInfo):
+        self.team = player_mappings.team
+        for controllable in player_mappings.controllables:
+            self.spawn_ids.append(controllable.spawn_id)
+            self.indices.append(controllable.index)
+
+        self._has_player_mapping = True
+
+        if (
+            not self._initialized_bot
+            and self._has_match_settings
+            and self._has_field_info
+        ):
+            self._initialize()
 
     def _handle_ball_prediction(self, ball_prediction: flat.BallPrediction):
         self._latest_prediction = ball_prediction
 
-    def _handle_packet(self, packet: flat.GameTickPacket):
+    def _handle_packet(self, packet: flat.GamePacket):
         self._latest_packet = packet
 
-    def _packet_processor(self, packet: flat.GameTickPacket):
-        if len(self.indices) != len(self.spawn_ids) or any(
-            packet.players[i].spawn_id not in self.spawn_ids for i in self.indices
-        ):
-            self.indices = [
-                i
-                for i, player in enumerate(packet.players)
-                if player.spawn_id in self.spawn_ids
-            ]
-
-            if len(self.indices) != len(self.spawn_ids):
-                return
+    def _packet_processor(self, packet: flat.GamePacket):
+        if len(packet.players) <= self.indices[-1]:
+            return
 
         self.ball_prediction = self._latest_prediction
 
@@ -139,34 +151,18 @@ class Hivemind:
                 rlbot_server_port=rlbot_server_port,
             )
 
-            # custom message handling logic
-            # this reads all data in the socket until there's no more immediately available
-            # checks if there was a GameTickPacket in the data, and if so, processes it
-            # then sets the socket to non-blocking and waits for more data
-            # if there was no GameTickPacket, it sets to blocking and waits for more data
+            # see bot.py for an explanation of this loop
             while True:
                 try:
                     self._game_interface.handle_incoming_messages(True)
-
-                    # a clean exit means that the socket was closed
                     break
                 except BlockingIOError:
-                    # the socket was still open,
-                    # but we don't know if data was read
                     pass
 
-                # check data was read that needs to be processed
                 if self._latest_packet is None:
-                    # there's no data we need to process
-                    # data is coming, but we haven't gotten it yet - wait for it
-                    # after `handle_incoming_messages` gets it's first message,
-                    # it will set the socket back to non-blocking on its own
-                    # that will ensure that `BlockingIOError` gets raised
-                    # when it's done reading the next batch of messages
                     self._game_interface.socket.setblocking(True)
                     continue
 
-                # process the packet that we got
                 self._packet_processor(self._latest_packet)
                 self._latest_packet = None
         finally:
@@ -272,12 +268,12 @@ class Hivemind:
         """
         Sets the loadout of a bot.
 
-        For use as a loadout generator, call inside of `initialize_agent`.
-        Will be ignored if called outside of `initialize_agent` when state setting is disabled.
+        For use as a loadout generator, call inside of `initialize`.
+        Will be ignored if called outside of `initialize` when state setting is disabled.
         """
         self._game_interface.send_set_loadout(flat.SetLoadout(spawn_id, loadout))
 
-    def initialize_agent(self):
+    def initialize(self):
         """
         Called for all heaver initialization that needs to happen.
         Field info and match settings are fully loaded at this point, and won't return garbage data.
@@ -288,9 +284,7 @@ class Hivemind:
     def retire(self):
         """Called after the game ends"""
 
-    def get_outputs(
-        self, packet: flat.GameTickPacket
-    ) -> dict[int, flat.ControllerState]:
+    def get_outputs(self, packet: flat.GamePacket) -> dict[int, flat.ControllerState]:
         """
         Where all the logic of your bot gets its input and returns its output.
         """

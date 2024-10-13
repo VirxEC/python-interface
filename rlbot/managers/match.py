@@ -64,15 +64,15 @@ def get_player_config(
 
     settings: dict[str, Any] = config["settings"]
 
-    location = parent
-    if "location" in settings:
-        location /= settings["location"]
+    root_dir = parent
+    if "root_dir" in settings:
+        root_dir /= settings["root_dir"]
 
     run_command = settings.get("run_command", "")
     if CURRENT_OS == OS.LINUX and "run_command_linux" in settings:
         run_command = settings["run_command_linux"]
 
-    loadout_path = settings.get("loadout_config", None)
+    loadout_path = settings.get("loadout_file", None)
     if loadout_path is not None:
         loadout_path = parent / loadout_path
 
@@ -86,17 +86,18 @@ def get_player_config(
         type,
         settings["name"],
         team,
-        str(location),
+        str(root_dir),
         str(run_command),
         loadout,
         0,
+        settings.get("agent_id", ""),
         settings.get("hivemind", False),
     )
 
 
 class MatchManager:
     logger = DEFAULT_LOGGER
-    packet: Optional[flat.GameTickPacket] = None
+    packet: Optional[flat.GamePacket] = None
     rlbot_server_process: Optional[psutil.Process] = None
     rlbot_server_port = RLBOT_SERVER_PORT
     initialized = False
@@ -109,7 +110,7 @@ class MatchManager:
         self.main_executable_path = main_executable_path
         self.main_executable_name = main_executable_name
 
-        self.rlbot_interface: SocketRelay = SocketRelay()
+        self.rlbot_interface: SocketRelay = SocketRelay("")
         self.rlbot_interface.packet_handlers.append(self._packet_reporter)
 
     def ensure_server_started(self, print_version_info: bool = True):
@@ -141,13 +142,13 @@ class MatchManager:
             self.rlbot_server_process.pid,
         )
 
-    def _packet_reporter(self, packet: flat.GameTickPacket):
+    def _packet_reporter(self, packet: flat.GamePacket):
         self.packet = packet
 
     def wait_for_valid_packet(self):
-        while self.packet is not None and self.packet.game_info.game_state_type in {
-            flat.GameStateType.Inactive,
-            flat.GameStateType.Ended,
+        while self.packet is not None and self.packet.game_info.game_status in {
+            flat.GameStatus.Inactive,
+            flat.GameStatus.Ended,
         }:
             sleep(0.1)
 
@@ -158,7 +159,7 @@ class MatchManager:
         self.rlbot_interface.start_match(match_config, self.rlbot_server_port)
 
         if not self.initialized:
-            self.rlbot_interface.send_init_complete(flat.InitComplete())
+            self.rlbot_interface.send_init_complete()
             self.initialized = True
 
         if wait_for_start:

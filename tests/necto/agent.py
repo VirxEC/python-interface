@@ -18,6 +18,7 @@ class Agent:
         self, state: tuple[np.ndarray, np.ndarray, np.ndarray], beta: float
     ) -> tuple[np.ndarray, list[torch.Tensor]]:
         tensor_state = tuple(torch.from_numpy(s).float() for s in state)
+
         with torch.no_grad():
             out, weights = self.actor(tensor_state)
 

@@ -2,7 +2,6 @@
 launcher = "steam"
 
 [match]
-num_cars = 1
 game_mode = "Heatseeker"
 game_map_upk = "Stadium_P"
 enable_rendering = true

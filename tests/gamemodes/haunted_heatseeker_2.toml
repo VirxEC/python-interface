@@ -1,5 +1,4 @@
 [match]
-num_cars = 1
 game_mode = "Heatseeker"
 game_map_upk = "Farm_HW_P"
 

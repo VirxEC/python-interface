@@ -20,7 +20,7 @@ class SocketDataType(IntEnum):
     """
 
     NONE = 0
-    GAME_TICK_PACKET = 1
+    GAME_PACKET = 1
     FIELD_INFO = 2
     START_COMMAND = 3
     MATCH_SETTINGS = 4
@@ -34,6 +34,7 @@ class SocketDataType(IntEnum):
     STOP_COMMAND = 12
     SET_LOADOUT = 13
     INIT_COMPLETE = 14
+    CONTROLLABLE_TEAM_INFO = 15
 
 
 MAX_SIZE_2_BYTES = 2**16 - 1
@@ -65,16 +66,23 @@ class SocketRelay:
     _should_continue = True
 
     on_connect_handlers: list[Callable[[], None]] = []
-    packet_handlers: list[Callable[[flat.GameTickPacket], None]] = []
+    packet_handlers: list[Callable[[flat.GamePacket], None]] = []
     field_info_handlers: list[Callable[[flat.FieldInfo], None]] = []
     match_settings_handlers: list[Callable[[flat.MatchSettings], None]] = []
     match_communication_handlers: list[Callable[[flat.MatchComm], None]] = []
     ball_prediction_handlers: list[Callable[[flat.BallPrediction], None]] = []
+    controllable_team_info_handlers: list[
+        Callable[[flat.ControllableTeamInfo], None]
+    ] = []
     raw_handlers: list[Callable[[SocketMessage], None]] = []
 
     def __init__(
-        self, connection_timeout: float = 120, logger: Optional[logging.Logger] = None
+        self,
+        agent_id: str,
+        connection_timeout: float = 120,
+        logger: Optional[logging.Logger] = None,
     ):
+        self.agent_id = agent_id
         self.connection_timeout = connection_timeout
         self.logger = get_logger("interface") if logger is None else logger
 
@@ -95,8 +103,8 @@ class SocketRelay:
         message = int_to_bytes(data_type) + int_to_bytes(size) + data
         self.socket.sendall(message)
 
-    def send_init_complete(self, init_complete: flat.InitComplete):
-        self.send_bytes(init_complete.pack(), SocketDataType.INIT_COMPLETE)
+    def send_init_complete(self):
+        self.send_bytes(bytes(), SocketDataType.INIT_COMPLETE)
 
     def send_set_loadout(self, set_loadout: flat.SetLoadout):
         self.send_bytes(set_loadout.pack(), SocketDataType.SET_LOADOUT)
@@ -191,6 +199,7 @@ class SocketRelay:
             handler()
 
         flatbuffer = flat.ConnectionSettings(
+            self.agent_id,
             wants_ball_predictions,
             wants_match_communications,
             close_after_match,
@@ -260,9 +269,9 @@ class SocketRelay:
         match incoming_message.type:
             case SocketDataType.NONE:
                 self._should_continue = False
-            case SocketDataType.GAME_TICK_PACKET:
+            case SocketDataType.GAME_PACKET:
                 if len(self.packet_handlers) > 0:
-                    packet = flat.GameTickPacket.unpack(incoming_message.data)
+                    packet = flat.GamePacket.unpack(incoming_message.data)
                     for handler in self.packet_handlers:
                         handler(packet)
             case SocketDataType.FIELD_INFO:
@@ -285,6 +294,13 @@ class SocketRelay:
                     ball_prediction = flat.BallPrediction.unpack(incoming_message.data)
                     for handler in self.ball_prediction_handlers:
                         handler(ball_prediction)
+            case SocketDataType.CONTROLLABLE_TEAM_INFO:
+                if len(self.controllable_team_info_handlers) > 0:
+                    player_mappings = flat.ControllableTeamInfo.unpack(
+                        incoming_message.data
+                    )
+                    for handler in self.controllable_team_info_handlers:
+                        handler(player_mappings)
 
     def disconnect(self):
         if not self.is_connected:

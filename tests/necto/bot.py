@@ -1,12 +1,10 @@
-from pathlib import Path
 import numpy as np
 import torch
 from agent import Agent
 from necto_obs import NectoObsBuilder
 from rlgym_compat import V1GameState
-from rlgym_compat.sim_extra_info import SimExtraInfo
 
-from rlbot.flat import ControllerState, GameStateType, GameTickPacket, Vector3
+from rlbot.flat import ControllerState, GameStatus, GamePacket, Vector3
 from rlbot.managers import Bot
 
 KICKOFF_CONTROLS = (
@@ -35,8 +33,6 @@ KICKOFF_NUMPY = np.array(
     ]
 )
 
-COLLISION_MESH_PATH = Path(__file__).parent / "collision_meshes"
-
 
 class Necto(Bot):
     agent = Agent()
@@ -55,9 +51,7 @@ class Necto(Bot):
     kickoff_index = -1
     ticks = tick_skip  # So we take an action the first tick
 
-    sim_extra_info: SimExtraInfo | None = None
-
-    def initialize_agent(self):
+    def initialize(self):
         # Initialize the rlgym GameState object now that the game is active and the info is available
         self.obs_builder = NectoObsBuilder(self.field_info)
 
@@ -71,11 +65,6 @@ class Necto(Bot):
         self.game_state = V1GameState(
             self.field_info, self.match_settings, self.tick_skip
         )
-
-        if COLLISION_MESH_PATH.exists():
-            self.sim_extra_info = SimExtraInfo(
-                self.field_info, self.match_settings, self.tick_skip
-            )
 
         self.logger.warning(
             "Remember to run Necto at 120fps with vsync off! "
@@ -127,7 +116,7 @@ class Necto(Bot):
 
         self.renderer.end_rendering()
 
-    def get_output(self, packet: GameTickPacket) -> ControllerState:
+    def get_output(self, packet: GamePacket) -> ControllerState:
         cur_frame = packet.game_info.frame_num
         ticks_elapsed = cur_frame - self.prev_frame
         self.prev_frame = cur_frame
@@ -137,11 +126,7 @@ class Necto(Bot):
         if len(packet.balls) == 0:
             return self.controls
 
-        extra_info = None
-        if self.sim_extra_info is not None:
-            extra_info = self.sim_extra_info.get_extra_info(packet)
-
-        self.game_state.update(packet, extra_info)
+        self.game_state.update(packet)
 
         if self.update_action == 1 and len(self.game_state.players) > self.index:
             self.update_action = 0
@@ -159,7 +144,7 @@ class Necto(Bot):
             obs = self.obs_builder.build_obs(player, self.game_state, self.action)
 
             beta = self.beta
-            if packet.game_info.game_state_type == GameStateType.Ended:
+            if packet.game_info.game_status == GameStatus.Ended:
                 beta = 0  # Celebrate with random actions
             self.action, weights = self.agent.act(obs, beta)
 
@@ -176,8 +161,8 @@ class Necto(Bot):
 
         return self.controls
 
-    def maybe_do_kickoff(self, packet: GameTickPacket, ticks_elapsed: int):
-        if packet.game_info.game_state_type == GameStateType.Kickoff:
+    def maybe_do_kickoff(self, packet: GamePacket, ticks_elapsed: int):
+        if packet.game_info.game_status == GameStatus.Kickoff:
             if self.kickoff_index >= 0:
                 self.kickoff_index += round(ticks_elapsed)
             elif self.kickoff_index == -1:

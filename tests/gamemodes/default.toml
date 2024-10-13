@@ -1,6 +1,5 @@
 
 [match]
-num_cars = 1
 # What game mode the game should load.
 # Accepted values are "Soccer", "Hoops", "Dropshot", "Hockey", "Rumble", "Heatseeker", "Gridiron", "Knockout"
 game_mode = "Soccer"

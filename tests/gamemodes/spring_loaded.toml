@@ -1,5 +1,4 @@
 [match]
-num_cars = 1
 
 [mutators]
 rumble = "Spring_Loaded"

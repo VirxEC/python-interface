@@ -52,14 +52,12 @@ def get_car_facing_vector(car: flat.PlayerInfo) -> Vector2:
 class Hives(Hivemind):
     controllers: dict[int, flat.ControllerState] = {}
 
-    def get_outputs(
-        self, packet: flat.GameTickPacket
-    ) -> dict[int, flat.ControllerState]:
+    def get_outputs(self, packet: flat.GamePacket) -> dict[int, flat.ControllerState]:
         if (
-            packet.game_info.game_state_type
+            packet.game_info.game_status
             not in {
-                flat.GameStateType.Active,
-                flat.GameStateType.Kickoff,
+                flat.GameStatus.Active,
+                flat.GameStatus.Kickoff,
             }
             or len(packet.balls) == 0
         ):

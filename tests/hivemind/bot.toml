@@ -1,8 +1,8 @@
 [settings]
 name = "Hives"
-loadout_config = "../necto/loadout.toml"
-location = ""
+loadout_file = "../necto/loadout.toml"
 run_command = "..\\..\\venv\\Scripts\\python bot.py"
 run_command_linux = "../../venv/bin/python bot.py"
+agent_id = "botmaker/hives"
 # must set to true if you want the bot to be ran as a hivemind
 hivemind = true

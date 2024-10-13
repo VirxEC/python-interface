@@ -14,5 +14,5 @@ type = "human"
 team = 0
 
 [[cars]]
-config = "necto/bot.toml"
+config = "atba/atba.bot.toml"
 team = 1
