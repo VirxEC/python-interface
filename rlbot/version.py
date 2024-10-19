@@ -1,4 +1,4 @@
-__version__ = "5.0.0-beta.9"
+__version__ = "5.0.0-beta.10"
 
 
 RESET_SEQ = "\033[0m"
@@ -15,6 +15,9 @@ BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = (
 )
 
 RELEASE_NOTES = {
+    "5.0.0-beta.10": """
+    Fix bug in hivemind & script start
+    """,
     "5.0.0-beta.9": """
     Rename the `initialize_agent` method to `initialize`
     Update to new sockets spec

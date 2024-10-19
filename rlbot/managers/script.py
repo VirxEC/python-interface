@@ -47,6 +47,9 @@ class Script:
         self._game_interface.ball_prediction_handlers.append(
             self._handle_ball_prediction
         )
+        self._game_interface.controllable_team_info_handlers.append(
+            self._handle_controllable_team_info
+        )
         self._game_interface.packet_handlers.append(self._handle_packet)
 
         self.renderer = Renderer(self._game_interface)
@@ -91,7 +94,9 @@ class Script:
         ):
             self._initialize()
 
-    def _handle_player_mappings(self, player_mappings: flat.ControllableTeamInfo):
+    def _handle_controllable_team_info(
+        self, player_mappings: flat.ControllableTeamInfo
+    ):
         self.team = player_mappings.team
         controllable = player_mappings.controllables[0]
         self.spawn_id = controllable.spawn_id
