@@ -23,19 +23,19 @@ def _get_anchor(
 
 class Renderer:
     transparent = flat.Color()
-    black = flat.Color(255)
+    black = flat.Color(a=255)
     white = flat.Color(255, 255, 255, 255)
-    grey = gray = flat.Color(255, 128, 128, 128)
-    blue = flat.Color(255, 0, 0, 255)
-    red = flat.Color(255, 255, 0, 0)
-    green = flat.Color(255, 0, 128, 0)
-    lime = flat.Color(255, 0, 255, 0)
-    yellow = flat.Color(255, 255, 255, 0)
-    orange = flat.Color(255, 225, 128, 0)
-    cyan = flat.Color(255, 0, 255, 255)
-    pink = flat.Color(255, 255, 0, 255)
-    purple = flat.Color(255, 128, 0, 128)
-    teal = flat.Color(255, 0, 128, 128)
+    grey = gray = flat.Color(128, 128, 128, 255)
+    blue = flat.Color(0, 0, 255, 255)
+    red = flat.Color(255, 0, 0, 255)
+    green = flat.Color(0, 128, 0, 255)
+    lime = flat.Color(0, 255, 0, 255)
+    yellow = flat.Color(255, 255, 0, 255)
+    orange = flat.Color(225, 128, 0, 255)
+    cyan = flat.Color(0, 255, 255, 255)
+    pink = flat.Color(255, 0, 255, 255)
+    purple = flat.Color(128, 0, 128, 255)
+    teal = flat.Color(0, 128, 128, 255)
 
     _logger = get_logger("renderer")
 
@@ -114,7 +114,7 @@ class Renderer:
         return self._group_id is not None
 
     def _draw(
-        self, render: flat.String2D | flat.String3D | flat.Line3D | flat.PolyLine3D
+        self, render: flat.String2D | flat.String3D | flat.Line3D | flat.PolyLine3D | flat.Rect2D | flat.Rect3D
     ):
         self._current_renders.append(flat.RenderMessage(render))
 
@@ -176,5 +176,41 @@ class Renderer:
                 background,
                 h_align,
                 v_align,
+            )
+        )
+
+    def draw_rect_2d(
+            self,
+            x: float,
+            y: float,
+            width: float,
+            height: float,
+            color: flat.Color,
+            centered: bool = True
+    ):
+        self._draw(
+            flat.Rect2D(
+                x,
+                y,
+                width,
+                height,
+                color,
+                centered,
+            )
+        )
+
+    def draw_rect_3d(
+            self,
+            anchor: flat.RenderAnchor | flat.BallAnchor | flat.CarAnchor | flat.Vector3,
+            width: float,
+            height: float,
+            color: flat.Color,
+    ):
+        self._draw(
+            flat.Rect3D(
+                _get_anchor(anchor),
+                width,
+                height,
+                color,
             )
         )

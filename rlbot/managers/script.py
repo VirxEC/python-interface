@@ -18,15 +18,15 @@ class Script:
     index: int = 0
     name: str = "Unknown"
     spawn_id: int = 0
+    agent_id: str = None
 
     match_settings = flat.MatchSettings()
     field_info = flat.FieldInfo()
     ball_prediction = flat.BallPrediction()
 
-    _initialized_bot = False
+    _initialized_script = False
     _has_match_settings = False
     _has_field_info = False
-    _has_player_mapping = False
 
     _latest_packet: Optional[flat.GamePacket] = None
     _latest_prediction = flat.BallPrediction()
@@ -47,15 +47,14 @@ class Script:
         self._game_interface.ball_prediction_handlers.append(
             self._handle_ball_prediction
         )
-        self._game_interface.controllable_team_info_handlers.append(
-            self._handle_controllable_team_info
-        )
         self._game_interface.packet_handlers.append(self._handle_packet)
 
         self.renderer = Renderer(self._game_interface)
 
-    def _initialize(self):
-        self.name = self.match_settings.script_configurations[self.index].name
+    def _try_initialize(self):
+        if self._initialized_script or not self._has_match_settings:
+            return
+
         self.logger = get_logger(self.name)
 
         try:
@@ -69,46 +68,27 @@ class Script:
             print_exc()
             exit()
 
-        self._initialized_bot = True
+        self._initialized_script = True
         self._game_interface.send_init_complete()
 
     def _handle_match_settings(self, match_settings: flat.MatchSettings):
         self.match_settings = match_settings
-        self._has_match_settings = True
 
-        if (
-            not self._initialized_bot
-            and self._has_field_info
-            and self._has_player_mapping
-        ):
-            self._initialize()
+        for i, script in enumerate(match_settings.script_configurations):
+            if script.agent_id == self.agent_id:
+                self.index = i
+                self.name = script.name
+                self._has_match_settings = True
+                break
+        else:   # else block runs if break was not hit
+            self.logger.warning("Script with agent id '%s' did not find itself in the match settings", self.agent_id)
+
+        self._try_initialize()
 
     def _handle_field_info(self, field_info: flat.FieldInfo):
         self.field_info = field_info
         self._has_field_info = True
-
-        if (
-            not self._initialized_bot
-            and self._has_match_settings
-            and self._has_player_mapping
-        ):
-            self._initialize()
-
-    def _handle_controllable_team_info(
-        self, player_mappings: flat.ControllableTeamInfo
-    ):
-        self.team = player_mappings.team
-        controllable = player_mappings.controllables[0]
-        self.spawn_id = controllable.spawn_id
-        self.index = controllable.index
-        self._has_player_mapping = True
-
-        if (
-            not self._initialized_bot
-            and self._has_match_settings
-            and self._has_field_info
-        ):
-            self._initialize()
+        self._try_initialize()
 
     def _handle_ball_prediction(self, ball_prediction: flat.BallPrediction):
         self._latest_prediction = ball_prediction
@@ -117,8 +97,6 @@ class Script:
         self._latest_packet = packet
 
     def _packet_processor(self, packet: flat.GamePacket):
-        if len(packet.players) <= self.index:
-            return
 
         self.ball_prediction = self._latest_prediction
 
