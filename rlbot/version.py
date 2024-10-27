@@ -1,4 +1,4 @@
-__version__ = "5.0.0-beta.10"
+__version__ = "5.0.0-beta.11"
 
 
 RESET_SEQ = "\033[0m"
@@ -15,6 +15,12 @@ BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = (
 )
 
 RELEASE_NOTES = {
+    "5.0.0-beta.11": """
+    - Improved documentation of managers and renderer.
+    - Renamed various functions and methods.
+    - Fixed extraction of Script index from MatchSettings.
+    - Changed Color to RGBA instead of ARGB.
+    """,
     "5.0.0-beta.10": """
     Fix bug in hivemind & script start
     """,
@@ -71,7 +77,7 @@ def get_current_release_notes():
 def get_help_text():
     return (
         f"{RED+BOLD_SEQ}Trouble?{RESET_SEQ} Ask on Discord at {CYAN}https://discord.gg/5cNbXgG{RESET_SEQ} "
-        f"or report an issue at {CYAN}https://github.com/RLBot/RLBot/issues{RESET_SEQ}"
+        f"or report an issue at {CYAN}https://github.com/RLBot/core/issues{RESET_SEQ}"
     )
 
 

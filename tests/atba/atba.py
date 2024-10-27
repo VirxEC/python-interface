@@ -78,7 +78,7 @@ class Atba(Bot):
         )
         self.renderer.end_rendering()
 
-    def handle_match_communication(
+    def handle_match_comm(
         self,
         index: int,
         team: int,

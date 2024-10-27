@@ -7,12 +7,15 @@ import psutil
 
 from rlbot import flat, version
 from rlbot.interface import RLBOT_SERVER_PORT, SocketRelay
-from rlbot.utils import gateway
+from rlbot.utils import gateway, fill_desired_game_state
 from rlbot.utils.logging import DEFAULT_LOGGER
 from rlbot.utils.os_detector import CURRENT_OS, MAIN_EXECUTABLE_NAME, OS
 
 
-def get_player_paint(config: dict[str, Any]) -> flat.LoadoutPaint:
+def extract_loadout_paint(config: dict[str, Any]) -> flat.LoadoutPaint:
+    """
+    Extracts a `LoadoutPaint` structure from a dictionary.
+    """
     return flat.LoadoutPaint(
         config.get("car_paint_id", 0),
         config.get("decal_paint_id", 0),
@@ -26,6 +29,9 @@ def get_player_paint(config: dict[str, Any]) -> flat.LoadoutPaint:
 
 
 def get_player_loadout(path: str, team: int) -> flat.PlayerLoadout:
+    """
+    Reads the loadout toml file at the provided path and extracts the `PlayerLoadout` for the given team.
+    """
     with open(path, "rb") as f:
         config = tomllib.load(f)
 
@@ -46,13 +52,17 @@ def get_player_loadout(path: str, team: int) -> flat.PlayerLoadout:
         loadout.get("engine_audio_id", 0),
         loadout.get("trails_id", 0),
         loadout.get("goal_explosion_id", 0),
-        get_player_paint(paint) if paint is not None else None,
+        extract_loadout_paint(paint) if paint is not None else None,
     )
 
 
 def get_player_config(
     type: flat.RLBot | flat.Psyonix, team: int, path: Path | str
 ) -> flat.PlayerConfiguration:
+    """
+    Reads the bot toml file at the provided path and
+    creates a `PlayerConfiguration` of the given type for the given team.
+    """
     with open(path, "rb") as f:
         config = tomllib.load(f)
 
@@ -96,6 +106,10 @@ def get_player_config(
 
 
 class MatchManager:
+    """
+    A simple match manager to start and stop matches.
+    """
+
     logger = DEFAULT_LOGGER
     packet: Optional[flat.GamePacket] = None
     rlbot_server_process: Optional[psutil.Process] = None
@@ -106,6 +120,7 @@ class MatchManager:
         self,
         main_executable_path: Optional[Path] = None,
         main_executable_name: str = MAIN_EXECUTABLE_NAME,
+        print_version_info: bool = True
     ):
         self.main_executable_path = main_executable_path
         self.main_executable_name = main_executable_name
@@ -113,12 +128,13 @@ class MatchManager:
         self.rlbot_interface: SocketRelay = SocketRelay("")
         self.rlbot_interface.packet_handlers.append(self._packet_reporter)
 
-    def ensure_server_started(self, print_version_info: bool = True):
-        """
-        Ensures that RLBotServer is running.
-        """
         if print_version_info:
             version.print_current_release_notes()
+
+    def ensure_server_started(self):
+        """
+        Ensures that RLBotServer is running, starting it if it is not.
+        """
 
         self.rlbot_server_process, self.rlbot_server_port = gateway.find_server_process(
             self.main_executable_name
@@ -145,17 +161,17 @@ class MatchManager:
     def _packet_reporter(self, packet: flat.GamePacket):
         self.packet = packet
 
-    def wait_for_valid_packet(self):
-        while self.packet is not None and self.packet.game_info.game_status in {
+    def wait_for_first_packet(self):
+        while self.packet is None or (self.packet is not None and self.packet.game_info.game_status in {
             flat.GameStatus.Inactive,
             flat.GameStatus.Ended,
-        }:
+        }):
             sleep(0.1)
 
     def start_match(
         self, match_config: Path | flat.MatchSettings, wait_for_start: bool = True
     ):
-        self.logger.info("Python attempting to start match.")
+        self.logger.info("Python interface is attempting to start match...")
         self.rlbot_interface.start_match(match_config, self.rlbot_server_port)
 
         if not self.initialized:
@@ -163,10 +179,14 @@ class MatchManager:
             self.initialized = True
 
         if wait_for_start:
-            self.wait_for_valid_packet()
+            self.wait_for_first_packet()
             self.logger.info("Match has started.")
 
     def disconnect(self):
+        """
+        Disconnect from the RLBotServer.
+        Note that the server will continue running as long as Rocket League does.
+        """
         self.rlbot_interface.disconnect()
 
     def stop_match(self):
@@ -181,33 +201,21 @@ class MatchManager:
     ):
         """
         Sets the game to the desired state.
+        Through this it is possible to manipulate the position, velocity, and rotations of cars and balls, and more.
+        See wiki for a full break down and examples.
         """
 
-        game_state = flat.DesiredGameState(
-            game_info_state=game_info, console_commands=commands
-        )
-
-        # convert the dictionaries to lists by
-        # filling in the blanks with empty states
-
-        if balls:
-            max_entry = max(balls.keys())
-            game_state.ball_states = [
-                balls.get(i, flat.DesiredBallState()) for i in range(max_entry + 1)
-            ]
-
-        if cars:
-            max_entry = max(cars.keys())
-            game_state.car_states = [
-                cars.get(i, flat.DesiredCarState()) for i in range(max_entry + 1)
-            ]
-
+        game_state = fill_desired_game_state(balls, cars, game_info, commands)
         self.rlbot_interface.send_game_state(game_state)
 
-    def shut_down(self, ensure_shutdown=True):
+    def shut_down(self, use_force_if_necessary=True):
+        """
+        Shutdown the RLBotServer process.
+        """
+
         self.logger.info("Shutting down RLBot...")
 
-        # in theory this is all we need for the server to cleanly shut itself down
+        # In theory this is all we need for the server to cleanly shut itself down
         try:
             self.rlbot_interface.stop_match(shutdown_server=True)
         except BrokenPipeError:
@@ -223,13 +231,13 @@ class MatchManager:
                     )
                     return
 
-        # Wait for the server to shut down
+        # Wait for the server to shut down.
         # It usually happens quickly, but if it doesn't,
         # we'll forcefully kill it after a few seconds.
 
-        i = 0
+        sleeps = 0
         while self.rlbot_server_process is not None:
-            i += 1
+            sleeps += 1
             sleep(1)
 
             self.rlbot_server_process, _ = gateway.find_server_process(
@@ -241,16 +249,16 @@ class MatchManager:
                     "Waiting for %s to shut down...", self.main_executable_name
                 )
 
-                if ensure_shutdown:
-                    if i == 1:
+                if use_force_if_necessary:
+                    if sleeps == 1:
                         self.rlbot_server_process.terminate()
-                    elif i == 4 or i == 7:
+                    elif sleeps == 4 or sleeps == 7:
                         self.logger.warning(
                             "%s is not responding to terminate requests.",
                             self.main_executable_name,
                         )
                         self.rlbot_server_process.terminate()
-                    elif i >= 10 and i % 3 == 1:
+                    elif sleeps >= 10 and sleeps % 3 == 1:
                         self.logger.error(
                             "%s is not responding, forcefully killing.",
                             self.main_executable_name,

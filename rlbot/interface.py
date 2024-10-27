@@ -16,7 +16,8 @@ RLBOT_SERVER_PORT = 23234
 
 class SocketDataType(IntEnum):
     """
-    https://wiki.rlbot.org/framework/sockets-specification/#data-types
+    See https://github.com/RLBot/core/blob/master/RLBotCS/Types/DataType.cs
+    and https://wiki.rlbot.org/framework/sockets-specification/#data-types
     """
 
     NONE = 0

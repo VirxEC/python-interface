@@ -3,20 +3,21 @@ from traceback import print_exc
 from typing import Optional
 
 from rlbot import flat
-from rlbot.interface import SocketRelay
+from rlbot.interface import SocketRelay, RLBOT_SERVER_PORT
 from rlbot.managers import Renderer
+from rlbot.utils import fill_desired_game_state
 from rlbot.utils.logging import DEFAULT_LOGGER, get_logger
 
 
 class Script:
     """
-    A convenience class for building scripts on top of.
+    A convenience base class for scripts that handles the setup and communication with the rlbot server.
     """
 
     logger = DEFAULT_LOGGER
 
     index: int = 0
-    name: str = "Unknown"
+    name: str = "UnknownScript"
     spawn_id: int = 0
     agent_id: str = None
 
@@ -35,7 +36,9 @@ class Script:
         agent_id = os.environ.get("RLBOT_AGENT_ID") or default_agent_id
 
         if agent_id is None:
-            self.logger.critical("RLBOT_AGENT_ID environment variable is not set")
+            self.logger.critical("Environment variable RLBOT_AGENT_ID is not set and no default agent id is passed to "
+                                 "the constructor of the script. If you are starting your script manually, please set "
+                                 "it manually, e.g. `RLBOT_AGENT_ID=<agent_id> python yourscript.py`")
             exit(1)
 
         self._game_interface = SocketRelay(agent_id, logger=self.logger)
@@ -103,7 +106,7 @@ class Script:
         try:
             self.handle_packet(packet)
         except Exception as e:
-            self.logger.error("Script %s returned an error to RLBot: %s", self.name, e)
+            self.logger.error("Script %s encountered an error to RLBot: %s", self.name, e)
             print_exc()
 
     def run(
@@ -111,7 +114,11 @@ class Script:
         wants_match_communications: bool = True,
         wants_ball_predictions: bool = True,
     ):
-        rlbot_server_port = int(os.environ.get("RLBOT_SERVER_PORT", 23234))
+        """
+        Runs the script. This operation is blocking until the match ends.
+        """
+
+        rlbot_server_port = int(os.environ.get("RLBOT_SERVER_PORT", RLBOT_SERVER_PORT))
 
         try:
             self._game_interface.connect(
@@ -139,7 +146,7 @@ class Script:
             del self._game_interface
 
     def _handle_match_communication(self, match_comm: flat.MatchComm):
-        self.handle_match_communication(
+        self.handle_match_comm(
             match_comm.index,
             match_comm.team,
             match_comm.content,
@@ -147,7 +154,7 @@ class Script:
             match_comm.team_only,
         )
 
-    def handle_match_communication(
+    def handle_match_comm(
         self,
         index: int,
         team: int,
@@ -156,18 +163,20 @@ class Script:
         team_only: bool,
     ):
         """
-        Called when a match communication is received.
+        Called when a match communication message is received.
+        See `send_match_comm`.
+        NOTE: Messages from scripts will have `team == 2` and the index will be its index in the match settings.
         """
 
     def send_match_comm(
         self, content: bytes, display: Optional[str] = None, team_only: bool = False
     ):
         """
-        Emits a match communication; WARNING: as a script, you will recieve your own communication after you send it.
+        Emits a match communication message to other bots and scripts.
 
-        - `content`: The other content of the communication containing arbirtrary data.
-        - `display`: The message to be displayed in the game, or None to skip displaying a message.
-        - `scripts_only`: If True, only other scripts will receive the communication.
+        - `content`: The content of the message containing arbitrary data.
+        - `display`: The message to be displayed in the game in "quick chat", or `None` to display nothing.
+        - `team_only`: If True, only your team will receive the message. For scripts, this means other scripts.
         """
         self._game_interface.send_match_comm(
             flat.MatchComm(
@@ -188,27 +197,11 @@ class Script:
     ):
         """
         Sets the game to the desired state.
+        Through this it is possible to manipulate the position, velocity, and rotations of cars and balls, and more.
+        See wiki for a full break down and examples.
         """
 
-        game_state = flat.DesiredGameState(
-            game_info_state=game_info, console_commands=commands
-        )
-
-        # convert the dictionaries to lists by
-        # filling in the blanks with empty states
-
-        if balls:
-            max_entry = max(balls.keys())
-            game_state.ball_states = [
-                balls.get(i, flat.DesiredBallState()) for i in range(max_entry + 1)
-            ]
-
-        if cars:
-            max_entry = max(cars.keys())
-            game_state.car_states = [
-                cars.get(i, flat.DesiredCarState()) for i in range(max_entry + 1)
-            ]
-
+        game_state = fill_desired_game_state(balls, cars, game_info, commands)
         self._game_interface.send_game_state(game_state)
 
     def set_loadout(self, loadout: flat.PlayerLoadout, spawn_id: int):
@@ -221,12 +214,16 @@ class Script:
 
     def initialize(self):
         """
-        Called for all heaver initialization that needs to happen.
-        Field info and match settings are fully loaded at this point, and won't return garbage data.
+        Called when the script is ready for initialization. Field info, match settings, name, and index are
+        fully loaded at this point, and will not return garbage data unlike in __init__.
         """
 
     def retire(self):
         """Called after the game ends"""
 
     def handle_packet(self, packet: flat.GamePacket):
-        pass
+        """
+        This method is where the main logic of the bot goes.
+        The input is the latest game packet.
+        """
+        raise NotImplementedError

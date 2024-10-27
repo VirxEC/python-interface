@@ -12,6 +12,9 @@ DEFAULT_GROUP_ID = "default"
 def _get_anchor(
     anchor: flat.RenderAnchor | flat.BallAnchor | flat.CarAnchor | flat.Vector3,
 ):
+    """
+    Convert any of the render anchor types to a RenderAnchor.
+    """
     match anchor:
         case flat.BallAnchor() | flat.CarAnchor():
             return flat.RenderAnchor(relative=anchor)
@@ -22,6 +25,10 @@ def _get_anchor(
 
 
 class Renderer:
+    """
+    An interface to the debug rendering features.
+    """
+
     transparent = flat.Color()
     black = flat.Color(a=255)
     white = flat.Color(255, 255, 255, 255)
@@ -53,11 +60,15 @@ class Renderer:
         )
 
     @staticmethod
-    def create_color(red: int, green: int, blue: int, alpha: int = 255):
-        return flat.Color(alpha, red, green, blue)
+    def create_color(red: int, green: int, blue: int, alpha: int = 255) -> flat.Color:
+        return flat.Color(red, green, blue, alpha)
 
     @staticmethod
-    def team_color(team: int, alt_color: bool = False):
+    def team_color(team: int, alt_color: bool = False) -> flat.Color:
+        """
+        Returns the color of the given team (blue or orange),
+        or a secondary color (cyan or red) if `alt_color` is True.
+        """
         if team == 0:
             return Renderer.cyan if alt_color else Renderer.blue
         elif team == 1:
@@ -71,7 +82,7 @@ class Renderer:
 
     def begin_rendering(self, group_id: str = DEFAULT_GROUP_ID):
         """
-        Begins a new render group. All renders added after this call will be part of this group.
+        Begins a new render group. All render messages added after this call will be part of this group.
         """
         if self._group_id is not None:
             self._logger.error(
@@ -83,9 +94,14 @@ class Renderer:
         self._used_group_ids.add(self._group_id)
 
     def end_rendering(self):
+        """
+        End the current render group and send it to the rlbot server.
+        `begin_rendering` must be called before this is called, and the render group will contain
+        all render messages queued between these two calls.
+        """
         if self._group_id is None:
             self._logger.error(
-                "end_rendering was called without begin_rendering first."
+                "`end_rendering` was called without a call to `begin_rendering` first."
             )
             return
 
@@ -94,13 +110,17 @@ class Renderer:
         self._group_id = None
 
     def clear_render_group(self, group_id: str = DEFAULT_GROUP_ID):
+        """
+        Clears all rendering of the provided group.
+        Note: It is not possible to clear render groups of other bots.
+        """
         group_id_hash = Renderer._get_group_id(group_id)
         self._remove_render_group(group_id_hash)
         self._used_group_ids.discard(group_id_hash)
 
     def clear_all_render_groups(self):
         """
-        Clears all render groups which have been drawn to using `begin_rendering(group_id)`.
+        Clears all rendering.
         Note: This does not clear render groups created by other bots.
         """
         for group_id in self._used_group_ids:
@@ -109,11 +129,11 @@ class Renderer:
 
     def is_rendering(self):
         """
-        Returns True if `begin_rendering` has been called without a corresponding `end_rendering`.
+        Returns True if `begin_rendering` has been called without a corresponding call to `end_rendering`.
         """
         return self._group_id is not None
 
-    def _draw(
+    def draw(
         self, render: flat.String2D | flat.String3D | flat.Line3D | flat.PolyLine3D | flat.Rect2D | flat.Rect3D
     ):
         self._current_renders.append(flat.RenderMessage(render))
@@ -124,14 +144,20 @@ class Renderer:
         end: flat.RenderAnchor | flat.BallAnchor | flat.CarAnchor | flat.Vector3,
         color: flat.Color,
     ):
-        self._draw(flat.Line3D(_get_anchor(start), _get_anchor(end), color))
+        """
+        Draws a line between two anchors in 3d space.
+        """
+        self.draw(flat.Line3D(_get_anchor(start), _get_anchor(end), color))
 
     def draw_polyline_3d(
         self,
         points: Sequence[flat.Vector3],
         color: flat.Color,
     ):
-        self._draw(flat.PolyLine3D(points, color))
+        """
+        Draws a line going through each of the provided points.
+        """
+        self.draw(flat.PolyLine3D(points, color))
 
     def draw_string_3d(
         self,
@@ -143,7 +169,11 @@ class Renderer:
         h_align: flat.TextHAlign = flat.TextHAlign.Left,
         v_align: flat.TextVAlign = flat.TextVAlign.Top,
     ):
-        self._draw(
+        """
+        Draws text anchored in 3d space.
+        Characters of the font are 20 pixels tall and 10 pixels wide when `scale == 1.0`.
+        """
+        self.draw(
             flat.String3D(
                 text,
                 _get_anchor(anchor),
@@ -166,7 +196,12 @@ class Renderer:
         h_align: flat.TextHAlign = flat.TextHAlign.Left,
         v_align: flat.TextVAlign = flat.TextVAlign.Top,
     ):
-        self._draw(
+        """
+        Draws text in 2d space.
+        X and y uses screen-space coordinates, i.e. 0.1 is 10% of the screen width/height.
+        Characters of the font are 20 pixels tall and 10 pixels wide when `scale == 1.0`.
+        """
+        self.draw(
             flat.String2D(
                 text,
                 x,
@@ -188,7 +223,12 @@ class Renderer:
             color: flat.Color,
             centered: bool = True
     ):
-        self._draw(
+        """
+        Draws a rectangle anchored in 2d space.
+        X, y, width, and height uses screen-space coordinates, i.e. 0.1 is 10% of the screen width/height.
+        """
+
+        self.draw(
             flat.Rect2D(
                 x,
                 y,
@@ -206,7 +246,12 @@ class Renderer:
             height: float,
             color: flat.Color,
     ):
-        self._draw(
+        """
+        Draws a rectangle anchored in 3d space.
+        Width and height are screen-space sizes, i.e. 0.1 is 10% of the screen width/height.
+        The size does not change based on distance to the camera.
+        """
+        self.draw(
             flat.Rect3D(
                 _get_anchor(anchor),
                 width,
