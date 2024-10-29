@@ -19,7 +19,6 @@ class Script:
     index: int = 0
     name: str = "UnknownScript"
     spawn_id: int = 0
-    agent_id: str = None
 
     match_settings = flat.MatchSettings()
     field_info = flat.FieldInfo()
@@ -33,6 +32,7 @@ class Script:
     _latest_prediction = flat.BallPrediction()
 
     def __init__(self, default_agent_id: Optional[str] = None):
+        self.logger.warning(os.environ.get("RLBOT_AGENT_ID"))
         agent_id = os.environ.get("RLBOT_AGENT_ID") or default_agent_id
 
         if agent_id is None:
@@ -78,13 +78,16 @@ class Script:
         self.match_settings = match_settings
 
         for i, script in enumerate(match_settings.script_configurations):
-            if script.agent_id == self.agent_id:
+            if script.agent_id == self._game_interface.agent_id:
                 self.index = i
                 self.name = script.name
                 self._has_match_settings = True
                 break
         else:   # else block runs if break was not hit
-            self.logger.warning("Script with agent id '%s' did not find itself in the match settings", self.agent_id)
+            self.logger.warning(
+                "Script with agent id '%s' did not find itself in the match settings",
+                self._game_interface.agent_id
+            )
 
         self._try_initialize()
 
@@ -127,20 +130,14 @@ class Script:
                 rlbot_server_port=rlbot_server_port,
             )
 
-            # see bot.py for an explanation of this loop
-            while True:
-                try:
-                    self._game_interface.handle_incoming_messages(True)
-                    break
-                except BlockingIOError:
-                    pass
-
-                if self._latest_packet is None:
-                    self._game_interface.socket.setblocking(True)
-                    continue
-
-                self._packet_processor(self._latest_packet)
-                self._latest_packet = None
+            running = True
+            while running:
+                # Whenever we receive one or more game packets,
+                # we want to process the latest one.
+                running = self._game_interface.handle_incoming_messages(blocking=self._latest_packet is None)
+                if self._latest_packet is not None and running:
+                    self._packet_processor(self._latest_packet)
+                    self._latest_packet = None
         finally:
             self.retire()
             del self._game_interface

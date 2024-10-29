@@ -162,36 +162,14 @@ class Bot:
                 rlbot_server_port=rlbot_server_port,
             )
 
-            # Custom message handling logic.
-            # This reads all data in the socket until there's no more immediately available.
-            # If there was a GamePacket among the data, processes it, and
-            # then set the socket to non-blocking and wait for more data.
-            # If there was no GamePacket, set the socket to blocking and wait for more data
-            while True:
-                try:
-                    self._game_interface.handle_incoming_messages(True)
-
-                    # A clean exit means that the socket was closed
-                    break
-                except BlockingIOError:
-                    # The socket was still open,
-                    # but we don't know if data was read.
-                    pass
-
-                # Check data was read that needs to be processed
-                if self._latest_packet is None:
-                    # There is no data we need to process.
-                    # Data is coming, but we haven't gotten it yet - wait for it.
-                    # After `handle_incoming_messages` gets it's first message,
-                    # it will set the socket back to non-blocking on its own
-                    # that will ensure that `BlockingIOError` gets raised
-                    # when it's done reading the next batch of messages.
-                    self._game_interface.socket.setblocking(True)
-                    continue
-
-                # Process the packet that we got
-                self._packet_processor(self._latest_packet)
-                self._latest_packet = None
+            running = True
+            while running:
+                # Whenever we receive one or more game packets,
+                # we want to process the latest one.
+                running = self._game_interface.handle_incoming_messages(blocking=self._latest_packet is None)
+                if self._latest_packet is not None and running:
+                    self._packet_processor(self._latest_packet)
+                    self._latest_packet = None
         finally:
             self.retire()
             del self._game_interface

@@ -172,20 +172,14 @@ class Hivemind:
                 rlbot_server_port=rlbot_server_port,
             )
 
-            # See bot.py for an explanation of this loop
-            while True:
-                try:
-                    self._game_interface.handle_incoming_messages(True)
-                    break
-                except BlockingIOError:
-                    pass
-
-                if self._latest_packet is None:
-                    self._game_interface.socket.setblocking(True)
-                    continue
-
-                self._packet_processor(self._latest_packet)
-                self._latest_packet = None
+            running = True
+            while running:
+                # Whenever we receive one or more game packets,
+                # we want to process the latest one.
+                running = self._game_interface.handle_incoming_messages(blocking=self._latest_packet is None)
+                if self._latest_packet is not None and running:
+                    self._packet_processor(self._latest_packet)
+                    self._latest_packet = None
         finally:
             self.retire()
             del self._game_interface

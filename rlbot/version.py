@@ -15,9 +15,12 @@ BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = (
 )
 
 RELEASE_NOTES = {
+    "5.0.0-beta.12": """
+    - Improved documentation of managers, renderer, and more.
+    - Renamed various fields, functions, and methods (minor breaking change).
+    - Refactored SocketRelay.
+    """,
     "5.0.0-beta.11": """
-    - Improved documentation of managers and renderer.
-    - Renamed various functions and methods.
     - Fixed extraction of Script index from MatchSettings.
     - Changed Color to RGBA instead of ARGB.
     """,

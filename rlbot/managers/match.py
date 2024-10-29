@@ -169,10 +169,22 @@ class MatchManager:
             sleep(0.1)
 
     def start_match(
-        self, match_config: Path | flat.MatchSettings, wait_for_start: bool = True
+        self, settings: Path | flat.MatchSettings, wait_for_start: bool = True
     ):
-        self.logger.info("Python interface is attempting to start match...")
-        self.rlbot_interface.start_match(match_config, self.rlbot_server_port)
+        """
+        Starts a match using the given match settings or a path to a match settings toml file.
+        Connection is automatically established if missing.
+        """
+
+        if not self.rlbot_interface.is_connected:
+            self.rlbot_interface.connect(
+                wants_match_communications=False,
+                wants_ball_predictions=False,
+                close_after_match=False,
+            )
+            self.rlbot_interface.run(background_thread=True)
+
+        self.rlbot_interface.start_match(settings, self.rlbot_server_port)
 
         if not self.initialized:
             self.rlbot_interface.send_init_complete()
