@@ -114,6 +114,7 @@ class Script:
 
     def run(
         self,
+        *,
         wants_match_communications: bool = True,
         wants_ball_predictions: bool = True,
     ):
@@ -125,8 +126,8 @@ class Script:
 
         try:
             self._game_interface.connect(
-                wants_match_communications,
-                wants_ball_predictions,
+                wants_match_communications=wants_match_communications,
+                wants_ball_predictions=wants_ball_predictions,
                 rlbot_server_port=rlbot_server_port,
             )
 

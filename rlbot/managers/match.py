@@ -184,7 +184,7 @@ class MatchManager:
             )
             self.rlbot_interface.run(background_thread=True)
 
-        self.rlbot_interface.start_match(settings, self.rlbot_server_port)
+        self.rlbot_interface.start_match(settings)
 
         if not self.initialized:
             self.rlbot_interface.send_init_complete()

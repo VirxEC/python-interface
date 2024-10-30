@@ -108,7 +108,7 @@ class SocketRelay:
         size = len(data)
         if size > MAX_SIZE_2_BYTES:
             self.logger.error(
-                "Couldn't send a %s message because it was too big!", data_type
+                "Couldn't send %s message because it was too big!", data_type.name
             )
             return
 
@@ -153,12 +153,13 @@ class SocketRelay:
                 flatbuffer = settings.pack()
                 flat_type = SocketDataType.MATCH_SETTINGS
             case _:
-                raise ValueError("Expected MatchSettings to path to match settings toml file")
+                raise ValueError("Expected MatchSettings or path to match settings toml file")
 
         self.send_bytes(flatbuffer, flat_type)
 
     def connect(
         self,
+        *,
         wants_match_communications: bool,
         wants_ball_predictions: bool,
         close_after_match: bool = True,
@@ -193,7 +194,7 @@ class SocketRelay:
 
         self.is_connected = True
         self.logger.info(
-            "Socket manager connected to port %s from port %s!",
+            "SocketRelay connected to port %s from port %s!",
             rlbot_server_port,
             self.socket.getsockname()[1],
         )
@@ -209,7 +210,7 @@ class SocketRelay:
         ).pack()
         self.send_bytes(flatbuffer, SocketDataType.CONNECTION_SETTINGS)
 
-    def run(self, background_thread: bool = False):
+    def run(self, *, background_thread: bool = False):
         """
         Handle incoming messages until disconnected.
         If `background_thread` is `True`, a background thread will be started for this.
@@ -226,9 +227,9 @@ class SocketRelay:
 
     def handle_incoming_messages(self, blocking=False) -> bool:
         """
-        Empties queue of incoming messages (should be called regularly).
+        Empties queue of incoming messages (should be called regularly, see `run`).
         Optionally blocking, ensuring that at least one message will be handled.
-        Returns true message handling should continue running, but
+        Returns true message handling should continue running, and
         false if RLBotServer has asked us to shut down.
         """
         assert self.is_connected, "Connection has not been established"
@@ -255,7 +256,7 @@ class SocketRelay:
                         e,
                     )
         except:
-            self.logger.error("Socket manager disconnected unexpectedly!")
+            self.logger.error("SocketRelay disconnected unexpectedly!")
             self._running = False
         return self._running
 
@@ -311,5 +312,7 @@ class SocketRelay:
             timeout -= 0.1
         if timeout <= 0:
             self.logger.critical("RLBot is not responding to our disconnect request!?")
+            self._running = False
 
+        assert not self._running, "Disconnect request or timeout should have set self._running to False"
         self.is_connected = False
