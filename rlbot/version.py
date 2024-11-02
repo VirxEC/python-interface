@@ -1,4 +1,4 @@
-__version__ = "5.0.0-beta.10"
+__version__ = "5.0.0-beta.11"
 
 
 RESET_SEQ = "\033[0m"
@@ -15,6 +15,10 @@ BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = (
 )
 
 RELEASE_NOTES = {
+    "5.0.0-beta.11": """
+    - Fixed extraction of Script index from MatchSettings.
+    - Changed Color to RGBA instead of ARGB.
+    """,
     "5.0.0-beta.10": """
     Fix bug in hivemind & script start
     """,

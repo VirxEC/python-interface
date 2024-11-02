@@ -18,7 +18,6 @@ class Script:
     index: int = 0
     name: str = "Unknown"
     spawn_id: int = 0
-    agent_id: str = None
 
     match_settings = flat.MatchSettings()
     field_info = flat.FieldInfo()
@@ -75,13 +74,16 @@ class Script:
         self.match_settings = match_settings
 
         for i, script in enumerate(match_settings.script_configurations):
-            if script.agent_id == self.agent_id:
+            if script.agent_id == self._game_interface.agent_id:
                 self.index = i
                 self.name = script.name
                 self._has_match_settings = True
                 break
-        else:   # else block runs if break was not hit
-            self.logger.warning("Script with agent id '%s' did not find itself in the match settings", self.agent_id)
+        else:  # else block runs if break was not hit
+            self.logger.warning(
+                "Script with agent id '%s' did not find itself in the match settings",
+                self._game_interface.agent_id,
+            )
 
         self._try_initialize()
 
@@ -97,7 +99,6 @@ class Script:
         self._latest_packet = packet
 
     def _packet_processor(self, packet: flat.GamePacket):
-
         self.ball_prediction = self._latest_prediction
 
         try:
