@@ -1,4 +1,5 @@
 import logging
+import time
 from collections.abc import Callable
 from enum import IntEnum
 from pathlib import Path
@@ -176,23 +177,35 @@ class SocketRelay:
 
         self.socket.settimeout(self.connection_timeout)
         try:
-            for _ in range(int(self.connection_timeout * 10)):
+            begin_time = time.time()
+            next_warning = 10
+            while time.time() < begin_time + self.connection_timeout:
                 try:
                     self.socket.connect(("127.0.0.1", rlbot_server_port))
+                    self.is_connected = True
                     break
                 except ConnectionRefusedError:
                     sleep(0.1)
                 except ConnectionAbortedError:
                     sleep(0.1)
-        except timeout as e:
+                if time.time() > begin_time + next_warning:
+                    next_warning *= 2
+                    self.logger.warning("Connection is being refused/aborted. Trying again ...")
+            if not self.is_connected:
+                raise ConnectionRefusedError(
+                    "Connection was refused/aborted repeatedly! "
+                    "Ensure that Rocket League and the RLBotServer is running. "
+                    "Try calling `ensure_server_started()` before connecting."
+                )
+        except TimeoutError as e:
             raise TimeoutError(
                 "Took too long to connect to the RLBot! "
                 "Ensure that Rocket League and the RLBotServer is running."
+                "Try calling `ensure_server_started()` before connecting."
             ) from e
         finally:
             self.socket.settimeout(None)
 
-        self.is_connected = True
         self.logger.info(
             "SocketRelay connected to port %s from port %s!",
             rlbot_server_port,
@@ -222,7 +235,7 @@ class SocketRelay:
         else:
             self._running = True
             while self._running and self.is_connected:
-                self.handle_incoming_messages(blocking=True)
+                self._running = self.handle_incoming_messages(blocking=True)
             self._running = False
 
     def handle_incoming_messages(self, blocking=False) -> bool:
@@ -230,43 +243,48 @@ class SocketRelay:
         Empties queue of incoming messages (should be called regularly, see `run`).
         Optionally blocking, ensuring that at least one message will be handled.
         Returns true message handling should continue running, and
-        false if RLBotServer has asked us to shut down.
+        false if RLBotServer has asked us to shut down or an error happened.
         """
         assert self.is_connected, "Connection has not been established"
         try:
             self.socket.setblocking(blocking)
-            while True:
-                try:
-                    incoming_message = read_message_from_socket(self.socket)
-                    self.handle_incoming_message(incoming_message)
-                except BlockingIOError:
-                    # No incoming messages
-                    return self._running
-                except flat.InvalidFlatbuffer as e:
-                    self.logger.error(
-                        "Error while unpacking message of type %s (%s bytes): %s",
-                        incoming_message.type.name,
-                        len(incoming_message.data),
-                        e,
-                    )
-                except Exception as e:
-                    self.logger.warning(
-                        "Unexpected error while handling message of type %s: %s",
-                        incoming_message.type.name,
-                        e,
-                    )
+            incoming_message = read_message_from_socket(self.socket)
+            try:
+                return self.handle_incoming_message(incoming_message)
+            except flat.InvalidFlatbuffer as e:
+                self.logger.error(
+                    "Error while unpacking message of type %s (%s bytes): %s",
+                    incoming_message.type.name,
+                    len(incoming_message.data),
+                    e,
+                )
+                return False
+            except Exception as e:
+                self.logger.error(
+                    "Unexpected error while handling message of type %s: %s",
+                    incoming_message.type.name,
+                    e,
+                )
+                return False
+        except BlockingIOError:
+            # No incoming messages and blocking==False
+            return True
         except:
             self.logger.error("SocketRelay disconnected unexpectedly!")
-            self._running = False
-        return self._running
+            return False
 
     def handle_incoming_message(self, incoming_message: SocketMessage):
+        """
+        Handles a messages by passing it to the relevant handlers.
+        Returns True if the message was NOT a shutdown request (i.e. NONE).
+        """
+
         for raw_handler in self.raw_handlers:
             raw_handler(incoming_message)
 
         match incoming_message.type:
             case SocketDataType.NONE:
-                self._running = False
+                return False
             case SocketDataType.GAME_PACKET:
                 if len(self.packet_handlers) > 0:
                     packet = flat.GamePacket.unpack(incoming_message.data)
@@ -299,6 +317,8 @@ class SocketRelay:
                     )
                     for handler in self.controllable_team_info_handlers:
                         handler(player_mappings)
+
+        return True
 
     def disconnect(self):
         if not self.is_connected:

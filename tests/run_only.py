@@ -1,15 +1,12 @@
 from pathlib import Path
 
 from rlbot.managers import MatchManager
-from rlbot.version import print_current_release_notes
 
 CURRENT_FILE = Path(__file__).parent
 
-MATCH_CONFIG_PATH = CURRENT_FILE / "hvn.toml"
+MATCH_CONFIG_PATH = CURRENT_FILE / "human_vs_atba.toml"
 
 if __name__ == "__main__":
-    print(print_current_release_notes())
-
     # start the match
     match_manager = MatchManager()
     match_manager.start_match(MATCH_CONFIG_PATH, False)

@@ -171,6 +171,8 @@ class Bot:
                 if self._latest_packet is not None and running:
                     self._packet_processor(self._latest_packet)
                     self._latest_packet = None
+        except Exception as e:
+            self.logger.error("Unexpected error: %s", e)
         finally:
             self.retire()
             del self._game_interface

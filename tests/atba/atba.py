@@ -61,6 +61,9 @@ class Atba(Bot):
     last_send = 0
     controller = flat.ControllerState()
 
+    def __init__(self):
+        super().__init__("testing/atba")
+
     def initialize(self):
         self.logger.info("Initializing agent!")
 

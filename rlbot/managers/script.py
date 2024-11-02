@@ -32,7 +32,6 @@ class Script:
     _latest_prediction = flat.BallPrediction()
 
     def __init__(self, default_agent_id: Optional[str] = None):
-        self.logger.warning(os.environ.get("RLBOT_AGENT_ID"))
         agent_id = os.environ.get("RLBOT_AGENT_ID") or default_agent_id
 
         if agent_id is None:
