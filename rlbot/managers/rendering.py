@@ -54,7 +54,7 @@ class Renderer:
 
     @staticmethod
     def create_color(red: int, green: int, blue: int, alpha: int = 255):
-        return flat.Color(alpha, red, green, blue)
+        return flat.Color(red, green, blue, alpha)
 
     @staticmethod
     def team_color(team: int, alt_color: bool = False):
