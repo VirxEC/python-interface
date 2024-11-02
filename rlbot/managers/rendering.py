@@ -133,8 +133,16 @@ class Renderer:
         """
         return self._group_id is not None
 
-    def draw(
-        self, render: flat.String2D | flat.String3D | flat.Line3D | flat.PolyLine3D | flat.Rect2D | flat.Rect3D
+    def _draw(
+        self,
+        render: (
+            flat.String2D
+            | flat.String3D
+            | flat.Line3D
+            | flat.PolyLine3D
+            | flat.Rect2D
+            | flat.Rect3D
+        ),
     ):
         self._current_renders.append(flat.RenderMessage(render))
 
@@ -215,13 +223,13 @@ class Renderer:
         )
 
     def draw_rect_2d(
-            self,
-            x: float,
-            y: float,
-            width: float,
-            height: float,
-            color: flat.Color,
-            centered: bool = True
+        self,
+        x: float,
+        y: float,
+        width: float,
+        height: float,
+        color: flat.Color,
+        centered: bool = True,
     ):
         """
         Draws a rectangle anchored in 2d space.
@@ -240,11 +248,11 @@ class Renderer:
         )
 
     def draw_rect_3d(
-            self,
-            anchor: flat.RenderAnchor | flat.BallAnchor | flat.CarAnchor | flat.Vector3,
-            width: float,
-            height: float,
-            color: flat.Color,
+        self,
+        anchor: flat.RenderAnchor | flat.BallAnchor | flat.CarAnchor | flat.Vector3,
+        width: float,
+        height: float,
+        color: flat.Color,
     ):
         """
         Draws a rectangle anchored in 3d space.

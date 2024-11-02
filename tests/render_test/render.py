@@ -57,22 +57,39 @@ class RenderFun(Script):
         for i in range(1, len(points)):
             self.renderer.draw_line_3d(points[i - 1], points[i], self.renderer.red)
 
-        self.renderer.draw_rect_3d(RenderAnchor(Vector3(0, 0, 100), CarAnchor(0, Vector3(200, 0, 0))), 0.02, 0.02, self.renderer.blue)
-        self.renderer.draw_rect_3d(CarAnchor(0, Vector3(200, 0, 0)), 0.02, 0.02, self.renderer.blue)
+        self.renderer.draw_rect_3d(
+            RenderAnchor(Vector3(0, 0, 100), CarAnchor(0, Vector3(200, 0, 0))),
+            0.02,
+            0.02,
+            self.renderer.blue,
+        )
+        self.renderer.draw_rect_3d(
+            CarAnchor(0, Vector3(200, 0, 0)), 0.02, 0.02, self.renderer.blue
+        )
 
-        self.renderer.draw_rect_2d(0.75, 0.75, 0.1, 0.1, Color(255, 150, 30, 100), centered=False)
+        self.renderer.draw_rect_2d(
+            0.75, 0.75, 0.1, 0.1, Color(255, 150, 30, 100), centered=False
+        )
         self.renderer.draw_rect_2d(0.75, 0.75, 0.1, 0.1, self.renderer.black)
         for hkey, h in {
-            'left': flat.TextHAlign.Left,
-            'center': flat.TextHAlign.Center,
-            'right': flat.TextHAlign.Right,
+            "left": flat.TextHAlign.Left,
+            "center": flat.TextHAlign.Center,
+            "right": flat.TextHAlign.Right,
         }.items():
             for vkey, v in {
-                'top': flat.TextVAlign.Top,
-                'center': flat.TextVAlign.Center,
-                'bottom': flat.TextVAlign.Bottom,
+                "top": flat.TextVAlign.Top,
+                "center": flat.TextVAlign.Center,
+                "bottom": flat.TextVAlign.Bottom,
             }.items():
-                self.renderer.draw_string_2d(f'\n\n{vkey:^14}\n{hkey:^14}\n\n', 0.75, 0.75, 0.66, self.renderer.white, h_align=h, v_align=v)
+                self.renderer.draw_string_2d(
+                    f"\n\n{vkey:^14}\n{hkey:^14}\n\n",
+                    0.75,
+                    0.75,
+                    0.66,
+                    self.renderer.white,
+                    h_align=h,
+                    v_align=v,
+                )
 
         self.renderer.end_rendering()
 

@@ -102,7 +102,6 @@ class Script:
         self._latest_packet = packet
 
     def _packet_processor(self, packet: flat.GamePacket):
-
         self.ball_prediction = self._latest_prediction
 
         try:
