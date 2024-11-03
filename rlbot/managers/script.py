@@ -35,9 +35,11 @@ class Script:
         agent_id = os.environ.get("RLBOT_AGENT_ID") or default_agent_id
 
         if agent_id is None:
-            self.logger.critical("Environment variable RLBOT_AGENT_ID is not set and no default agent id is passed to "
-                                 "the constructor of the script. If you are starting your script manually, please set "
-                                 "it manually, e.g. `RLBOT_AGENT_ID=<agent_id> python yourscript.py`")
+            self.logger.critical(
+                "Environment variable RLBOT_AGENT_ID is not set and no default agent id is passed to "
+                "the constructor of the script. If you are starting your script manually, please set "
+                "it manually, e.g. `RLBOT_AGENT_ID=<agent_id> python yourscript.py`"
+            )
             exit(1)
 
         self._game_interface = SocketRelay(agent_id, logger=self.logger)
@@ -82,10 +84,10 @@ class Script:
                 self.name = script.name
                 self._has_match_settings = True
                 break
-        else:   # else block runs if break was not hit
+        else:  # else block runs if break was not hit
             self.logger.warning(
                 "Script with agent id '%s' did not find itself in the match settings",
-                self._game_interface.agent_id
+                self._game_interface.agent_id,
             )
 
         self._try_initialize()
@@ -107,7 +109,9 @@ class Script:
         try:
             self.handle_packet(packet)
         except Exception as e:
-            self.logger.error("Script %s encountered an error to RLBot: %s", self.name, e)
+            self.logger.error(
+                "Script %s encountered an error to RLBot: %s", self.name, e
+            )
             print_exc()
 
     def run(
@@ -133,7 +137,9 @@ class Script:
             while running:
                 # Whenever we receive one or more game packets,
                 # we want to process the latest one.
-                running = self._game_interface.handle_incoming_messages(blocking=self._latest_packet is None)
+                running = self._game_interface.handle_incoming_messages(
+                    blocking=self._latest_packet is None
+                )
                 if self._latest_packet is not None and running:
                     self._packet_processor(self._latest_packet)
                     self._latest_packet = None
@@ -215,7 +221,7 @@ class Script:
         """
 
     def retire(self):
-        """Called after the game ends"""
+        """Called when the script is shut down"""
 
     def handle_packet(self, packet: flat.GamePacket):
         """

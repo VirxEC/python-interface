@@ -52,9 +52,11 @@ class Bot:
         agent_id = os.environ.get("RLBOT_AGENT_ID") or default_agent_id
 
         if agent_id is None:
-            self.logger.critical("Environment variable RLBOT_AGENT_ID is not set and no default agent id is passed to "
-                                 "the constructor of the bot. If you are starting your bot manually, please set it "
-                                 "manually, e.g. `RLBOT_AGENT_ID=<agent_id> python yourbot.py`")
+            self.logger.critical(
+                "Environment variable RLBOT_AGENT_ID is not set and no default agent id is passed to "
+                "the constructor of the bot. If you are starting your bot manually, please set it "
+                "manually, e.g. `RLBOT_AGENT_ID=<agent_id> python yourbot.py`"
+            )
             exit(1)
 
         self._game_interface = SocketRelay(agent_id, logger=self.logger)
@@ -75,9 +77,9 @@ class Bot:
 
     def _try_initialize(self):
         if (
-                self._initialized_bot
-                or not self._has_field_info
-                or not self._has_player_mapping
+            self._initialized_bot
+            or not self._has_field_info
+            or not self._has_player_mapping
         ):
             # Not ready to initialize
             return
@@ -137,7 +139,11 @@ class Bot:
         try:
             controller = self.get_output(packet)
         except Exception as e:
-            self.logger.error("Bot %s encountered an error while processing game packet: %s", self.name, e)
+            self.logger.error(
+                "Bot %s encountered an error while processing game packet: %s",
+                self.name,
+                e,
+            )
             print_exc()
             return
 
@@ -167,7 +173,9 @@ class Bot:
             while running:
                 # Whenever we receive one or more game packets,
                 # we want to process the latest one.
-                running = self._game_interface.handle_incoming_messages(blocking=self._latest_packet is None)
+                running = self._game_interface.handle_incoming_messages(
+                    blocking=self._latest_packet is None
+                )
                 if self._latest_packet is not None and running:
                     self._packet_processor(self._latest_packet)
                     self._latest_packet = None
@@ -252,7 +260,7 @@ class Bot:
         """
 
     def retire(self):
-        """Called after the game ends"""
+        """Called when the bot is shut down"""
 
     def get_output(self, packet: flat.GamePacket) -> flat.ControllerState:
         """

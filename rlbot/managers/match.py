@@ -120,7 +120,7 @@ class MatchManager:
         self,
         main_executable_path: Optional[Path] = None,
         main_executable_name: str = MAIN_EXECUTABLE_NAME,
-        print_version_info: bool = True
+        print_version_info: bool = True,
     ):
         self.main_executable_path = main_executable_path
         self.main_executable_name = main_executable_name
@@ -162,10 +162,10 @@ class MatchManager:
         self.packet = packet
 
     def wait_for_first_packet(self):
-        while self.packet is None or (self.packet is not None and self.packet.game_info.game_status in {
+        while self.packet is None or self.packet.game_info.game_status in {
             flat.GameStatus.Inactive,
             flat.GameStatus.Ended,
-        }):
+        }:
             sleep(0.1)
 
     def start_match(

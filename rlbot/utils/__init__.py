@@ -4,10 +4,10 @@ from rlbot import flat
 
 
 def fill_desired_game_state(
-        balls: dict[int, flat.DesiredBallState] = {},
-        cars: dict[int, flat.DesiredCarState] = {},
-        game_info: Optional[flat.DesiredGameInfoState] = None,
-        commands: list[flat.ConsoleCommand] = [],
+    balls: dict[int, flat.DesiredBallState] = {},
+    cars: dict[int, flat.DesiredCarState] = {},
+    game_info: Optional[flat.DesiredGameInfoState] = None,
+    commands: list[flat.ConsoleCommand] = [],
 ) -> flat.DesiredGameState:
     """
     # Converts the dictionaries to a DesiredGameState by

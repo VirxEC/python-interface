@@ -154,7 +154,9 @@ class SocketRelay:
                 flatbuffer = settings.pack()
                 flat_type = SocketDataType.MATCH_SETTINGS
             case _:
-                raise ValueError("Expected MatchSettings or path to match settings toml file")
+                raise ValueError(
+                    "Expected MatchSettings or path to match settings toml file"
+                )
 
         self.send_bytes(flatbuffer, flat_type)
 
@@ -190,7 +192,9 @@ class SocketRelay:
                     sleep(0.1)
                 if time.time() > begin_time + next_warning:
                     next_warning *= 2
-                    self.logger.warning("Connection is being refused/aborted. Trying again ...")
+                    self.logger.warning(
+                        "Connection is being refused/aborted. Trying again ..."
+                    )
             if not self.is_connected:
                 raise ConnectionRefusedError(
                     "Connection was refused/aborted repeatedly! "
@@ -334,5 +338,7 @@ class SocketRelay:
             self.logger.critical("RLBot is not responding to our disconnect request!?")
             self._running = False
 
-        assert not self._running, "Disconnect request or timeout should have set self._running to False"
+        assert (
+            not self._running
+        ), "Disconnect request or timeout should have set self._running to False"
         self.is_connected = False

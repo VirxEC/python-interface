@@ -54,9 +54,11 @@ class Hivemind:
         agent_id = os.environ.get("RLBOT_AGENT_ID") or default_agent_id
 
         if agent_id is None:
-            self._logger.critical("Environment variable RLBOT_AGENT_ID is not set and no default agent id is passed to "
-                                  "the constructor of the bot. If you are starting your bot manually, please set it "
-                                  "manually, e.g. `RLBOT_AGENT_ID=<agent_id> python yourbot.py`")
+            self._logger.critical(
+                "Environment variable RLBOT_AGENT_ID is not set and no default agent id is passed to "
+                "the constructor of the bot. If you are starting your bot manually, please set it "
+                "manually, e.g. `RLBOT_AGENT_ID=<agent_id> python yourbot.py`"
+            )
             exit(1)
 
         self._game_interface = SocketRelay(agent_id, logger=self._logger)
@@ -95,8 +97,8 @@ class Hivemind:
             self.initialize()
         except Exception as e:
             self._logger.critical(
-                "Hivemind %s failed to initialize due the following error: %s",
-                "Unknown" if len(self.names) == 0 else self.names[0],
+                "Hivemind (of %s) failed to initialize due the following error: %s",
+                "Unknown_Bots" if len(self.names) == 0 else ", ".join(self.names),
                 e,
             )
             print_exc()
@@ -142,15 +144,21 @@ class Hivemind:
             controller = self.get_outputs(packet)
         except Exception as e:
             self._logger.error(
-                "Hivemind (with %s) encountered an error while processing game packet: %s", self.names, e
+                "Hivemind (of %s) encountered an error while processing game packet: %s",
+                ", ".join(self.names),
+                e,
             )
             print_exc()
             return
 
         for index, controller in controller.items():
             if index not in self.indices:
-                self._logger.warning("Hivemind produced controller state for a bot index that is does not"
-                                     "control (index %s). It controls %s", index, self.indices)
+                self._logger.warning(
+                    "Hivemind produced controller state for a bot index that is does not"
+                    "control (index %s). It controls %s",
+                    index,
+                    ", ".join(map(str, self.indices)),
+                )
             player_input = flat.PlayerInput(index, controller)
             self._game_interface.send_player_input(player_input)
 
@@ -177,7 +185,9 @@ class Hivemind:
             while running:
                 # Whenever we receive one or more game packets,
                 # we want to process the latest one.
-                running = self._game_interface.handle_incoming_messages(blocking=self._latest_packet is None)
+                running = self._game_interface.handle_incoming_messages(
+                    blocking=self._latest_packet is None
+                )
                 if self._latest_packet is not None and running:
                     self._packet_processor(self._latest_packet)
                     self._latest_packet = None
@@ -264,7 +274,7 @@ class Hivemind:
         """
 
     def retire(self):
-        """Called after the game ends"""
+        """Called when the bot is shut down"""
 
     def get_outputs(self, packet: flat.GamePacket) -> dict[int, flat.ControllerState]:
         """
