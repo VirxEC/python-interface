@@ -3,9 +3,8 @@ import time
 from collections.abc import Callable
 from enum import IntEnum
 from pathlib import Path
-from socket import IPPROTO_TCP, TCP_NODELAY, socket, timeout
+from socket import IPPROTO_TCP, TCP_NODELAY, socket
 from threading import Thread
-from time import sleep
 from typing import Optional
 
 from rlbot import flat
@@ -191,9 +190,9 @@ class SocketRelay:
                     self.is_connected = True
                     break
                 except ConnectionRefusedError:
-                    sleep(0.1)
+                    time.sleep(0.1)
                 except ConnectionAbortedError:
-                    sleep(0.1)
+                    time.sleep(0.1)
                 if time.time() > begin_time + next_warning:
                     next_warning *= 2
                     self.logger.warning(
@@ -336,7 +335,7 @@ class SocketRelay:
         self.send_bytes(bytes([1]), SocketDataType.NONE)
         timeout = 5.0
         while self._running and timeout > 0:
-            sleep(0.1)
+            time.sleep(0.1)
             timeout -= 0.1
         if timeout <= 0:
             self.logger.critical("RLBot is not responding to our disconnect request!?")

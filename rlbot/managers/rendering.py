@@ -133,7 +133,7 @@ class Renderer:
         """
         return self._group_id is not None
 
-    def _draw(
+    def draw(
         self,
         render: (
             flat.String2D

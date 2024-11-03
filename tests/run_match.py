@@ -17,10 +17,7 @@ if __name__ == "__main__":
 
     try:
         # wait for the match to end
-        while (
-            match_manager.packet is None
-            or match_manager.packet.game_info.game_status != flat.GameStatus.Ended
-        ):
-            sleep(0.1)
+        while match_manager.packet.game_info.game_status != flat.GameStatus.Ended:
+            sleep(1.0)
     finally:
         match_manager.shut_down()

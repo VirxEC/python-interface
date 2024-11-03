@@ -235,6 +235,8 @@ class MatchManager:
         want this process to receive match communication or ball prediction messages.
         """
 
+        self.ensure_server_started()
+
         if not self.rlbot_interface.is_connected:
             self.rlbot_interface.connect(
                 wants_match_communications=False,
