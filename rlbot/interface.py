@@ -220,10 +220,10 @@ class SocketRelay:
             handler()
 
         flatbuffer = flat.ConnectionSettings(
-            self.agent_id,
-            wants_ball_predictions,
-            wants_match_communications,
-            close_after_match,
+            agent_id=self.agent_id,
+            wants_ball_predictions=wants_ball_predictions,
+            wants_comms=wants_match_communications,
+            close_after_match=close_after_match,
         ).pack()
         self.send_bytes(flatbuffer, SocketDataType.CONNECTION_SETTINGS)
 

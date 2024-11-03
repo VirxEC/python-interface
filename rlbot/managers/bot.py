@@ -14,8 +14,8 @@ class Bot:
     A convenience base class for regular bots.
     The base class handles the setup and communication with the rlbot server.
     Inherit from this class and override `get_output` to make a basic bot.
-    Initialization that require `index`, `name`, or `team` must be done in `initialize` as their values
-    are not ready in the constructor.
+    Initialization that require `index`, `name`, `team`, or game data must be done
+    in `initialize` as their values are not ready in the constructor.
     """
 
     logger = DEFAULT_LOGGER
@@ -256,7 +256,7 @@ class Bot:
     def initialize(self):
         """
         Called when the bot is ready for initialization. Field info, match settings, name, index, and team are
-        fully loaded at this point, and will not return garbage data unlike in __init__.
+        fully loaded at this point, and will not return garbage data unlike in `__init__`.
         """
 
     def retire(self):

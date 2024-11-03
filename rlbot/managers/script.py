@@ -12,6 +12,9 @@ from rlbot.utils.logging import DEFAULT_LOGGER, get_logger
 class Script:
     """
     A convenience base class for scripts that handles the setup and communication with the rlbot server.
+    Inherit from this class and override `handle_packet` to make a basic script.
+    Initialization that require `index`, `name`, or game data must be done in `initialize` as their values
+    are not ready in the constructor.
     """
 
     logger = DEFAULT_LOGGER
@@ -216,7 +219,7 @@ class Script:
     def initialize(self):
         """
         Called when the script is ready for initialization. Field info, match settings, name, and index are
-        fully loaded at this point, and will not return garbage data unlike in __init__.
+        fully loaded at this point, and will not return garbage data unlike in `__init__`.
         """
 
     def retire(self):
