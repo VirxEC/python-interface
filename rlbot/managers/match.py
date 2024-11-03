@@ -193,6 +193,32 @@ class MatchManager:
     def _packet_reporter(self, packet: flat.GamePacket):
         self.packet = packet
 
+    def connect(self,
+        *,
+        wants_match_communications: bool,
+        wants_ball_predictions: bool,
+        close_after_match: bool = True,
+        rlbot_server_port: int = RLBOT_SERVER_PORT,
+    ):
+        """
+        Connects to the RLBot server specifying the given settings.
+
+        - wants_match_communications: Whether match communication messages should be sent to this process.
+        - wants_ball_predictions: Whether ball prediction messages should be sent to this process.
+        - close_after_match: Whether RLBot should close this connection between matches, specifically upon
+            `StartMatch` and `StopMatch` messages, since RLBot does not actually detect the ending of matches.
+
+        NOTE: Bad things happen if the message buffer fills up. Ensure `handle_incoming_messages` is called
+        frequently to prevent this. See start a match immediately or cal `rlbot_interface.run()` directly
+        for handling messages continuously.
+        """
+        self.rlbot_interface.connect(
+            wants_match_communications=wants_match_communications,
+            wants_ball_predictions=wants_ball_predictions,
+            close_after_match=close_after_match,
+            rlbot_server_port=rlbot_server_port,
+        )
+
     def wait_for_first_packet(self):
         while self.packet is None or self.packet.game_info.game_status in {
             flat.GameStatus.Inactive,
@@ -205,7 +231,8 @@ class MatchManager:
     ):
         """
         Starts a match using the given match settings or a path to a match settings toml file.
-        Connection is automatically established if missing.
+        Connection is automatically established if missing. Call `connect` if you
+        want this process to receive match communication or ball prediction messages.
         """
 
         if not self.rlbot_interface.is_connected:

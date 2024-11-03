@@ -169,11 +169,15 @@ class SocketRelay:
         rlbot_server_port: int = RLBOT_SERVER_PORT,
     ):
         """
-        Connects to the socket and sends the connection settings.
+        Connects to the RLBot server specifying the given settings.
 
-        NOTE: Bad things happen if the buffer is allowed to fill up. Ensure
-        `handle_incoming_messages` is called frequently enough to prevent this.
-        See `run` for handling messages continuously.
+        - wants_match_communications: Whether match communication messages should be sent to this process.
+        - wants_ball_predictions: Whether ball prediction messages should be sent to this process.
+        - close_after_match: Whether RLBot should close this connection between matches, specifically upon
+            `StartMatch` and `StopMatch` messages, since RLBot does not actually detect the ending of matches.
+
+        NOTE: Bad things happen if the message buffer fills up. Ensure `handle_incoming_messages` is called
+        frequently to prevent this. See `run` for handling messages continuously.
         """
         assert not self.is_connected, "Connection has already been established"
 
