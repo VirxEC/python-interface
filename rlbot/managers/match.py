@@ -193,7 +193,8 @@ class MatchManager:
     def _packet_reporter(self, packet: flat.GamePacket):
         self.packet = packet
 
-    def connect(self,
+    def connect(
+        self,
         *,
         wants_match_communications: bool,
         wants_ball_predictions: bool,
