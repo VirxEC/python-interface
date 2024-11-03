@@ -18,7 +18,6 @@ class Script:
 
     index: int = 0
     name: str = "UnknownScript"
-    spawn_id: int = 0
 
     match_settings = flat.MatchSettings()
     field_info = flat.FieldInfo()
@@ -212,7 +211,7 @@ class Script:
 
         Will be ignored if called when state setting is disabled.
         """
-        self._game_interface.send_set_loadout(flat.SetLoadout(self.spawn_id, loadout))
+        self._game_interface.send_set_loadout(flat.SetLoadout(spawn_id, loadout))
 
     def initialize(self):
         """
