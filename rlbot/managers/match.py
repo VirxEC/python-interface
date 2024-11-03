@@ -105,6 +105,40 @@ def get_player_config(
     )
 
 
+def get_script_config(
+    path: Path | str
+) -> flat.ScriptConfiguration:
+    """
+    Reads the script toml file at the provided path and creates a `ScriptConfiguration` from it.
+    """
+    with open(path, "rb") as f:
+        config = tomllib.load(f)
+
+    match path:
+        case Path():
+            parent = path.parent
+        case _:
+            parent = Path(path).parent
+
+    settings: dict[str, Any] = config["settings"]
+
+    root_dir = parent
+    if "root_dir" in settings:
+        root_dir /= settings["root_dir"]
+
+    run_command = settings.get("run_command", "")
+    if CURRENT_OS == OS.LINUX and "run_command_linux" in settings:
+        run_command = settings["run_command_linux"]
+
+    return flat.ScriptConfiguration(
+        settings["name"],
+        str(root_dir),
+        run_command,
+        0,
+        settings.get("agent_id", ""),
+    )
+
+
 class MatchManager:
     """
     A simple match manager to start and stop matches.
