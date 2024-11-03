@@ -1,4 +1,6 @@
 [settings]
+# A unique string identifying this type of bot, typically on the form "<developer>/<botname>"
+agent_id = "testing/atba"
 # The name that will be displayed in game
 name = "ATBA_v5"
 # Path to loadout config from runner
@@ -12,7 +14,6 @@ run_command = "..\\..\\venv\\Scripts\\python atba.py"
 # The command RLBot will call to start your bot on linux
 # If this isn't set, RLBot may attempt to run the Windows command under Wine
 run_command_linux = "../../venv/bin/python atba.py"
-agent_id = "botmaker/atba"
 
 [details]
 description = "Made possible by RLBot"

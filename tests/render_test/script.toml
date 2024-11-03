@@ -1,4 +1,5 @@
 [settings]
+agent_id = "testing/render_test"
 name = "Render test"
 run_command = "..\\..\\venv\\Scripts\\python render.py"
 run_command_linux = "../../venv/bin/python render.py"

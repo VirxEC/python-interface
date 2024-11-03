@@ -1,10 +1,10 @@
 import logging
+import time
 from collections.abc import Callable
 from enum import IntEnum
 from pathlib import Path
-from socket import IPPROTO_TCP, TCP_NODELAY, socket, timeout
+from socket import IPPROTO_TCP, TCP_NODELAY, socket
 from threading import Thread
-from time import sleep
 from typing import Optional
 
 from rlbot import flat
@@ -16,7 +16,8 @@ RLBOT_SERVER_PORT = 23234
 
 class SocketDataType(IntEnum):
     """
-    https://wiki.rlbot.org/framework/sockets-specification/#data-types
+    See https://github.com/RLBot/core/blob/master/RLBotCS/Types/DataType.cs
+    and https://wiki.rlbot.org/framework/sockets-specification/#data-types
     """
 
     NONE = 0
@@ -54,7 +55,7 @@ class SocketMessage:
         self.data = data
 
 
-def read_from_socket(s: socket) -> SocketMessage:
+def read_message_from_socket(s: socket) -> SocketMessage:
     type_int = int_from_bytes(s.recv(2))
     size = int_from_bytes(s.recv(2))
     data = s.recv(size)
@@ -62,8 +63,17 @@ def read_from_socket(s: socket) -> SocketMessage:
 
 
 class SocketRelay:
+    """
+    The SocketRelay provides an abstraction over the direct communication with
+    the RLBotServer making it easy to send the various types of messages.
+
+    Common use patterns are covered by `bot.py`, `script.py`, `hivemind.py`, and `match.py`
+    from `rlbot.managers`.
+    """
+
     is_connected = False
-    _should_continue = True
+    _running = False
+    """Indicates whether a messages are being handled by the `run` loop (potentially in a background thread)"""
 
     on_connect_handlers: list[Callable[[], None]] = []
     packet_handlers: list[Callable[[flat.GamePacket], None]] = []
@@ -93,10 +103,12 @@ class SocketRelay:
         self.socket.close()
 
     def send_bytes(self, data: bytes, data_type: SocketDataType):
+        assert self.is_connected, "Connection has not been established"
+
         size = len(data)
         if size > MAX_SIZE_2_BYTES:
             self.logger.error(
-                "Couldn't send a %s message because it was too big!", data_type
+                "Couldn't send %s message because it was too big!", data_type.name
             )
             return
 
@@ -129,11 +141,9 @@ class SocketRelay:
         flatbuffer = flat.StopCommand(shutdown_server).pack()
         self.send_bytes(flatbuffer, SocketDataType.STOP_COMMAND)
 
-    def start_match(
-        self,
-        match_config: Path | flat.MatchSettings,
-        rlbot_server_port: int = RLBOT_SERVER_PORT,
-    ):
+    def start_match(self, match_config: Path | flat.MatchSettings):
+        self.logger.info("Python interface is attempting to start match...")
+
         match match_config:
             case Path() as path:
                 string_path = str(path.absolute().resolve())
@@ -142,55 +152,69 @@ class SocketRelay:
             case flat.MatchSettings() as settings:
                 flatbuffer = settings.pack()
                 flat_type = SocketDataType.MATCH_SETTINGS
+            case _:
+                raise ValueError(
+                    "Expected MatchSettings or path to match settings toml file"
+                )
 
-        def connect_handler():
-            self.send_bytes(flatbuffer, flat_type)
-
-        self.run_after_connect(connect_handler, rlbot_server_port)
-
-    def run_after_connect(
-        self,
-        handler: Callable[[], None],
-        rlbot_server_port: int = RLBOT_SERVER_PORT,
-    ):
-        if self.is_connected:
-            handler()
-        else:
-            self.on_connect_handlers.append(handler)
-            try:
-                self.connect_and_run(False, False, False, True, rlbot_server_port)
-            except timeout as e:
-                raise TimeoutError(
-                    "Took too long to connect to the RLBot executable!"
-                ) from e
+        self.send_bytes(flatbuffer, flat_type)
 
     def connect(
         self,
+        *,
         wants_match_communications: bool,
         wants_ball_predictions: bool,
         close_after_match: bool = True,
         rlbot_server_port: int = RLBOT_SERVER_PORT,
     ):
         """
-        Connects to the socket and sends the connection settings.
+        Connects to the RLBot server specifying the given settings.
 
-        NOTE: Bad things happen if the buffer is allowed to fill up. Ensure
-        `handle_incoming_messages` is called frequently enough to prevent this.
+        - wants_match_communications: Whether match communication messages should be sent to this process.
+        - wants_ball_predictions: Whether ball prediction messages should be sent to this process.
+        - close_after_match: Whether RLBot should close this connection between matches, specifically upon
+            `StartMatch` and `StopMatch` messages, since RLBot does not actually detect the ending of matches.
+
+        NOTE: Bad things happen if the message buffer fills up. Ensure `handle_incoming_messages` is called
+        frequently to prevent this. See `run` for handling messages continuously.
         """
-        self.socket.settimeout(self.connection_timeout)
-        for _ in range(int(self.connection_timeout * 10)):
-            try:
-                self.socket.connect(("127.0.0.1", rlbot_server_port))
-                break
-            except ConnectionRefusedError:
-                sleep(0.1)
-            except ConnectionAbortedError:
-                sleep(0.1)
+        assert not self.is_connected, "Connection has already been established"
 
-        self.socket.settimeout(None)
-        self.is_connected = True
+        self.socket.settimeout(self.connection_timeout)
+        try:
+            begin_time = time.time()
+            next_warning = 10
+            while time.time() < begin_time + self.connection_timeout:
+                try:
+                    self.socket.connect(("127.0.0.1", rlbot_server_port))
+                    self.is_connected = True
+                    break
+                except ConnectionRefusedError:
+                    time.sleep(0.1)
+                except ConnectionAbortedError:
+                    time.sleep(0.1)
+                if time.time() > begin_time + next_warning:
+                    next_warning *= 2
+                    self.logger.warning(
+                        "Connection is being refused/aborted. Trying again ..."
+                    )
+            if not self.is_connected:
+                raise ConnectionRefusedError(
+                    "Connection was refused/aborted repeatedly! "
+                    "Ensure that Rocket League and the RLBotServer is running. "
+                    "Try calling `ensure_server_started()` before connecting."
+                )
+        except TimeoutError as e:
+            raise TimeoutError(
+                "Took too long to connect to the RLBot! "
+                "Ensure that Rocket League and the RLBotServer is running."
+                "Try calling `ensure_server_started()` before connecting."
+            ) from e
+        finally:
+            self.socket.settimeout(None)
+
         self.logger.info(
-            "Socket manager connected to port %s from port %s!",
+            "SocketRelay connected to port %s from port %s!",
             rlbot_server_port,
             self.socket.getsockname()[1],
         )
@@ -199,76 +223,75 @@ class SocketRelay:
             handler()
 
         flatbuffer = flat.ConnectionSettings(
-            self.agent_id,
-            wants_ball_predictions,
-            wants_match_communications,
-            close_after_match,
+            agent_id=self.agent_id,
+            wants_ball_predictions=wants_ball_predictions,
+            wants_comms=wants_match_communications,
+            close_after_match=close_after_match,
         ).pack()
         self.send_bytes(flatbuffer, SocketDataType.CONNECTION_SETTINGS)
 
-    def connect_and_run(
-        self,
-        wants_match_communications: bool,
-        wants_ball_predictions: bool,
-        close_after_match: bool = True,
-        only_wait_for_ready: bool = False,
-        rlbot_server_port: int = RLBOT_SERVER_PORT,
-    ):
+    def run(self, *, background_thread: bool = False):
         """
-        Connects to the socket and begins a loop that reads messages and calls any handlers
-        that have been registered. Connect and run are combined into a single method because
-        currently bad things happen if the buffer is allowed to fill up.
+        Handle incoming messages until disconnected.
+        If `background_thread` is `True`, a background thread will be started for this.
         """
-        self.connect(
-            wants_match_communications,
-            wants_ball_predictions,
-            close_after_match,
-            rlbot_server_port,
-        )
-
-        incoming_message = read_from_socket(self.socket)
-        self.handle_incoming_message(incoming_message)
-
-        if only_wait_for_ready:
-            Thread(target=self.handle_incoming_messages).start()
+        assert self.is_connected, "Connection has not been established"
+        assert not self._running, "Message handling is already running"
+        if background_thread:
+            Thread(target=self.run).start()
         else:
-            self.handle_incoming_messages()
+            self._running = True
+            while self._running and self.is_connected:
+                self._running = self.handle_incoming_messages(blocking=True)
+            self._running = False
 
-    def handle_incoming_messages(self, set_nonblocking_after_recv: bool = False):
+    def handle_incoming_messages(self, blocking=False) -> bool:
+        """
+        Empties queue of incoming messages (should be called regularly, see `run`).
+        Optionally blocking, ensuring that at least one message will be handled.
+        Returns true message handling should continue running, and
+        false if RLBotServer has asked us to shut down or an error happened.
+        """
+        assert self.is_connected, "Connection has not been established"
         try:
-            while self._should_continue:
-                incoming_message = read_from_socket(self.socket)
-
-                if set_nonblocking_after_recv:
-                    self.socket.setblocking(False)
-
-                try:
-                    self.handle_incoming_message(incoming_message)
-                except flat.InvalidFlatbuffer as e:
-                    self.logger.error(
-                        "Error while unpacking message of type %s (%s bytes): %s",
-                        incoming_message.type.name,
-                        len(incoming_message.data),
-                        e,
-                    )
-                except Exception as e:
-                    self.logger.warning(
-                        "Unexpected error while handling message of type %s: %s",
-                        incoming_message.type.name,
-                        e,
-                    )
+            self.socket.setblocking(blocking)
+            incoming_message = read_message_from_socket(self.socket)
+            try:
+                return self.handle_incoming_message(incoming_message)
+            except flat.InvalidFlatbuffer as e:
+                self.logger.error(
+                    "Error while unpacking message of type %s (%s bytes): %s",
+                    incoming_message.type.name,
+                    len(incoming_message.data),
+                    e,
+                )
+                return False
+            except Exception as e:
+                self.logger.error(
+                    "Unexpected error while handling message of type %s: %s",
+                    incoming_message.type.name,
+                    e,
+                )
+                return False
         except BlockingIOError:
-            raise BlockingIOError
+            # No incoming messages and blocking==False
+            return True
         except:
-            self.logger.error("Socket manager disconnected unexpectedly!")
+            self.logger.error("SocketRelay disconnected unexpectedly!")
+            return False
 
     def handle_incoming_message(self, incoming_message: SocketMessage):
+        """
+        Handles a messages by passing it to the relevant handlers.
+        Returns True if the message was NOT a shutdown request (i.e. NONE).
+        """
+
         for raw_handler in self.raw_handlers:
             raw_handler(incoming_message)
 
         match incoming_message.type:
             case SocketDataType.NONE:
-                self._should_continue = False
+                return False
             case SocketDataType.GAME_PACKET:
                 if len(self.packet_handlers) > 0:
                     packet = flat.GamePacket.unpack(incoming_message.data)
@@ -302,13 +325,23 @@ class SocketRelay:
                     for handler in self.controllable_team_info_handlers:
                         handler(player_mappings)
 
+        return True
+
     def disconnect(self):
         if not self.is_connected:
             self.logger.warning("Asked to disconnect but was already disconnected.")
             return
 
         self.send_bytes(bytes([1]), SocketDataType.NONE)
-        while self._should_continue:
-            sleep(0.1)
+        timeout = 5.0
+        while self._running and timeout > 0:
+            time.sleep(0.1)
+            timeout -= 0.1
+        if timeout <= 0:
+            self.logger.critical("RLBot is not responding to our disconnect request!?")
+            self._running = False
 
+        assert (
+            not self._running
+        ), "Disconnect request or timeout should have set self._running to False"
         self.is_connected = False

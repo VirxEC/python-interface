@@ -7,7 +7,7 @@ from rlbot.utils.logging import get_logger
 
 CURRENT_FILE = Path(__file__).parent
 
-MATCH_CONFIG_PATH = CURRENT_FILE / "rlbot.toml"
+MATCH_CONFIG_PATH = CURRENT_FILE / "human_vs_atba.toml"
 RLBOT_SERVER_FOLDER = CURRENT_FILE / "../../core/RLBotCS/bin/Release/"
 
 if __name__ == "__main__":

@@ -3,14 +3,19 @@ from traceback import print_exc
 from typing import Optional
 
 from rlbot import flat
-from rlbot.interface import SocketRelay
+from rlbot.interface import SocketRelay, RLBOT_SERVER_PORT
 from rlbot.managers.rendering import Renderer
+from rlbot.utils import fill_desired_game_state
 from rlbot.utils.logging import DEFAULT_LOGGER, get_logger
 
 
 class Bot:
     """
-    A convenience class for building bots on top of.
+    A convenience base class for regular bots.
+    The base class handles the setup and communication with the rlbot server.
+    Inherit from this class and override `get_output` to make a basic bot.
+    Initialization that require `index`, `name`, `team`, or game data must be done
+    in `initialize` as their values are not ready in the constructor.
     """
 
     logger = DEFAULT_LOGGER
@@ -21,8 +26,19 @@ class Bot:
     spawn_id: int = 0
 
     match_settings = flat.MatchSettings()
+    """
+    Contains info about what map you're on, game mode, mutators, etc.
+    """
+
     field_info = flat.FieldInfo()
+    """
+    Contains info about the map, such as the locations of boost pads and goals.
+    """
+
     ball_prediction = flat.BallPrediction()
+    """
+    A simulated prediction of the ball's trajectory including collisions with field geometry (but not cars).
+    """
 
     _initialized_bot = False
     _has_match_settings = False
@@ -36,7 +52,11 @@ class Bot:
         agent_id = os.environ.get("RLBOT_AGENT_ID") or default_agent_id
 
         if agent_id is None:
-            self.logger.critical("RLBOT_AGENT_ID environment variable is not set")
+            self.logger.critical(
+                "Environment variable RLBOT_AGENT_ID is not set and no default agent id is passed to "
+                "the constructor of the bot. If you are starting your bot manually, please set it "
+                "manually, e.g. `RLBOT_AGENT_ID=<agent_id> python yourbot.py`"
+            )
             exit(1)
 
         self._game_interface = SocketRelay(agent_id, logger=self.logger)
@@ -55,8 +75,16 @@ class Bot:
 
         self.renderer = Renderer(self._game_interface)
 
-    def _initialize(self):
-        # search match settings for our name
+    def _try_initialize(self):
+        if (
+            self._initialized_bot
+            or not self._has_field_info
+            or not self._has_player_mapping
+        ):
+            # Not ready to initialize
+            return
+
+        # Search match settings for our name
         for player in self.match_settings.player_configurations:
             if player.spawn_id == self.spawn_id:
                 self.name = player.name
@@ -78,24 +106,12 @@ class Bot:
     def _handle_match_settings(self, match_settings: flat.MatchSettings):
         self.match_settings = match_settings
         self._has_match_settings = True
-
-        if (
-            not self._initialized_bot
-            and self._has_field_info
-            and self._has_player_mapping
-        ):
-            self._initialize()
+        self._try_initialize()
 
     def _handle_field_info(self, field_info: flat.FieldInfo):
         self.field_info = field_info
         self._has_field_info = True
-
-        if (
-            not self._initialized_bot
-            and self._has_match_settings
-            and self._has_player_mapping
-        ):
-            self._initialize()
+        self._try_initialize()
 
     def _handle_controllable_team_info(
         self, player_mappings: flat.ControllableTeamInfo
@@ -106,12 +122,7 @@ class Bot:
         self.index = controllable.index
         self._has_player_mapping = True
 
-        if (
-            not self._initialized_bot
-            and self._has_match_settings
-            and self._has_field_info
-        ):
-            self._initialize()
+        self._try_initialize()
 
     def _handle_ball_prediction(self, ball_prediction: flat.BallPrediction):
         self._latest_prediction = ball_prediction
@@ -128,7 +139,11 @@ class Bot:
         try:
             controller = self.get_output(packet)
         except Exception as e:
-            self.logger.error("Bot %s returned an error to RLBot: %s", self.name, e)
+            self.logger.error(
+                "Bot %s encountered an error while processing game packet: %s",
+                self.name,
+                e,
+            )
             print_exc()
             return
 
@@ -137,54 +152,41 @@ class Bot:
 
     def run(
         self,
+        *,
         wants_match_communications: bool = True,
         wants_ball_predictions: bool = True,
     ):
-        rlbot_server_port = int(os.environ.get("RLBOT_SERVER_PORT", 23234))
+        """
+        Runs the bot. This operation is blocking until the match ends.
+        """
+
+        rlbot_server_port = int(os.environ.get("RLBOT_SERVER_PORT", RLBOT_SERVER_PORT))
 
         try:
             self._game_interface.connect(
-                wants_match_communications,
-                wants_ball_predictions,
+                wants_match_communications=wants_match_communications,
+                wants_ball_predictions=wants_ball_predictions,
                 rlbot_server_port=rlbot_server_port,
             )
 
-            # custom message handling logic
-            # this reads all data in the socket until there's no more immediately available
-            # checks if there was a GamePacket in the data, and if so, processes it
-            # then sets the socket to non-blocking and waits for more data
-            # if there was no GamePacket, it sets to blocking and waits for more data
-            while True:
-                try:
-                    self._game_interface.handle_incoming_messages(True)
-
-                    # a clean exit means that the socket was closed
-                    break
-                except BlockingIOError:
-                    # the socket was still open,
-                    # but we don't know if data was read
-                    pass
-
-                # check data was read that needs to be processed
-                if self._latest_packet is None:
-                    # there's no data we need to process
-                    # data is coming, but we haven't gotten it yet - wait for it
-                    # after `handle_incoming_messages` gets it's first message,
-                    # it will set the socket back to non-blocking on its own
-                    # that will ensure that `BlockingIOError` gets raised
-                    # when it's done reading the next batch of messages
-                    self._game_interface.socket.setblocking(True)
-                    continue
-
-                # process the packet that we got
-                self._packet_processor(self._latest_packet)
-                self._latest_packet = None
+            running = True
+            while running:
+                # Whenever we receive one or more game packets,
+                # we want to process the latest one.
+                running = self._game_interface.handle_incoming_messages(
+                    blocking=self._latest_packet is None
+                )
+                if self._latest_packet is not None and running:
+                    self._packet_processor(self._latest_packet)
+                    self._latest_packet = None
+        except Exception as e:
+            self.logger.error("Unexpected error: %s", e)
         finally:
             self.retire()
             del self._game_interface
 
     def _handle_match_communication(self, match_comm: flat.MatchComm):
-        self.handle_match_communication(
+        self.handle_match_comm(
             match_comm.index,
             match_comm.team,
             match_comm.content,
@@ -192,7 +194,7 @@ class Bot:
             match_comm.team_only,
         )
 
-    def handle_match_communication(
+    def handle_match_comm(
         self,
         index: int,
         team: int,
@@ -201,18 +203,20 @@ class Bot:
         team_only: bool,
     ):
         """
-        Called when a match communication is received.
+        Called when a match communication message is received.
+        See `send_match_comm`.
+        NOTE: Messages from scripts will have `team == 2` and the index will be its index in the match settings.
         """
 
     def send_match_comm(
         self, content: bytes, display: Optional[str] = None, team_only: bool = False
     ):
         """
-        Emits a match communication
+        Emits a match communication message to other bots and scripts.
 
-        - `content`: The other content of the communication containing arbirtrary data.
-        - `display`: The message to be displayed in the game, or None to skip displaying a message.
-        - `team_only`: If True, only your team will receive the communication.
+        - `content`: The content of the message containing arbitrary data.
+        - `display`: The message to be displayed in the game in "quick chat", or `None` to display nothing.
+        - `team_only`: If True, only your team will receive the message.
         """
         self._game_interface.send_match_comm(
             flat.MatchComm(
@@ -233,49 +237,34 @@ class Bot:
     ):
         """
         Sets the game to the desired state.
+        Through this it is possible to manipulate the position, velocity, and rotations of cars and balls, and more.
+        See wiki for a full break down and examples.
         """
 
-        game_state = flat.DesiredGameState(
-            game_info_state=game_info, console_commands=commands
-        )
-
-        # convert the dictionaries to lists by
-        # filling in the blanks with empty states
-
-        if balls:
-            max_entry = max(balls.keys())
-            game_state.ball_states = [
-                balls.get(i, flat.DesiredBallState()) for i in range(max_entry + 1)
-            ]
-
-        if cars:
-            max_entry = max(cars.keys())
-            game_state.car_states = [
-                cars.get(i, flat.DesiredCarState()) for i in range(max_entry + 1)
-            ]
-
+        game_state = fill_desired_game_state(balls, cars, game_info, commands)
         self._game_interface.send_game_state(game_state)
 
-    def set_loadout(self, loadout: flat.PlayerLoadout, spawn_id: int):
+    def set_loadout(self, loadout: flat.PlayerLoadout):
         """
         Sets the loadout of a bot.
-
-        For use as a loadout generator, call inside of `initialize`.
-        Will be ignored if called outside of `initialize` when state setting is disabled.
+        Can be used to select or generate a loadout for the match when called inside `initialize`.
+        Does nothing if called outside `initialize` unless state setting is enabled in which case it
+        respawns the car with the new loadout.
         """
-        self._game_interface.send_set_loadout(flat.SetLoadout(spawn_id, loadout))
+        self._game_interface.send_set_loadout(flat.SetLoadout(self.spawn_id, loadout))
 
     def initialize(self):
         """
-        Called for all heaver initialization that needs to happen.
-        Field info, match settings, name, index, and team are fully loaded at this point, and won't return garbage data.
+        Called when the bot is ready for initialization. Field info, match settings, name, index, and team are
+        fully loaded at this point, and will not return garbage data unlike in `__init__`.
         """
 
     def retire(self):
-        """Called after the game ends"""
+        """Called when the bot is shut down"""
 
     def get_output(self, packet: flat.GamePacket) -> flat.ControllerState:
         """
-        Where all the logic of your bot gets its input and returns its output.
+        This method is where the main logic of the bot goes.
+        The input is the latest game packet and the controller state for the next tick must be returned.
         """
         raise NotImplementedError

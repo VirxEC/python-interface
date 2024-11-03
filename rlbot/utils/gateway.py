@@ -57,7 +57,8 @@ def launch(
 
     if path is None or not os.access(path, os.F_OK):
         raise FileNotFoundError(
-            f"Unable to find RLBotServer at {path}! Is your antivirus messing you up? Check "
+            f"Unable to find RLBotServer at '{main_executable_path}'. "
+            "Is your antivirus messing you up? Check "
             "https://github.com/RLBot/RLBot/wiki/Antivirus-Notes."
         )
 

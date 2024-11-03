@@ -5,10 +5,10 @@ from rlbot import flat
 from rlbot.managers import MatchManager, get_player_config
 from rlbot.utils.maps import GAME_MAP_TO_UPK, STANDARD_MAPS
 
-CURRENT_FILE = Path(__file__).parent
+THIS_DIR = Path(__file__).parent
 
-BOT_PATH = CURRENT_FILE / "necto/bot.toml"
-RLBOT_SERVER_FOLDER = CURRENT_FILE / "../../core/RLBotCS/bin/Release/"
+BOT_PATH = THIS_DIR / "atba/atba.bot.toml"
+RLBOT_SERVER_FOLDER = THIS_DIR / "../../core/RLBotCS/bin/Release/"
 
 if __name__ == "__main__":
     match_manager = MatchManager(RLBOT_SERVER_FOLDER)
@@ -16,8 +16,8 @@ if __name__ == "__main__":
 
     current_map = -1
 
-    BLUE_NECTO = get_player_config(flat.RLBot(), 0, BOT_PATH)
-    ORANGE_NECTO = get_player_config(flat.RLBot(), 1, BOT_PATH)
+    blue_bot = get_player_config(flat.RLBot(), 0, BOT_PATH)
+    orange_bot = get_player_config(flat.RLBot(), 1, BOT_PATH)
 
     match_settings = flat.MatchSettings(
         launcher=flat.Launcher.Steam,
@@ -27,15 +27,15 @@ if __name__ == "__main__":
         existing_match_behavior=flat.ExistingMatchBehavior.Restart,
         skip_replays=True,
         mutator_settings=flat.MutatorSettings(
-            match_length=flat.MatchLength.Unlimited,
+            match_length=flat.MatchLength.Five_Minutes,
         ),
         player_configurations=[
-            BLUE_NECTO,
-            BLUE_NECTO,
-            BLUE_NECTO,
-            ORANGE_NECTO,
-            ORANGE_NECTO,
-            ORANGE_NECTO,
+            blue_bot,
+            blue_bot,
+            blue_bot,
+            orange_bot,
+            orange_bot,
+            orange_bot,
         ],
     )
 
@@ -48,15 +48,8 @@ if __name__ == "__main__":
 
         match_manager.start_match(match_settings)
 
-        while (
-            match_manager.packet is None
-            or match_manager.packet.game_info.game_status != flat.GameStatus.Ended
-        ):
-            if (
-                match_manager.packet is not None
-                and match_manager.packet.game_info.game_status
-                == flat.GameStatus.Countdown
-            ):
+        while match_manager.packet.game_info.game_status != flat.GameStatus.Ended:
+            if match_manager.packet.game_info.game_status == flat.GameStatus.Countdown:
                 match_manager.set_game_state(
                     game_info=flat.DesiredGameInfoState(game_speed=2)
                 )

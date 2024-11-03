@@ -61,6 +61,9 @@ class Atba(Bot):
     last_send = 0
     controller = flat.ControllerState()
 
+    def __init__(self):
+        super().__init__("testing/atba")
+
     def initialize(self):
         self.logger.info("Initializing agent!")
 
@@ -78,7 +81,7 @@ class Atba(Bot):
         )
         self.renderer.end_rendering()
 
-    def handle_match_communication(
+    def handle_match_comm(
         self,
         index: int,
         team: int,

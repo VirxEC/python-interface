@@ -1,4 +1,4 @@
-# python-interface
+# RLBot Python Interface
 
 A high performance Python interface for communicating with RLBot v5.
 
@@ -19,11 +19,18 @@ The following is how to setup a development environment for this project, NOT ho
 - Install the package
   - `pip install --editable .`
   - This will install the package in editable mode,
-  meaning you can make changes to the code and they
+  meaning you can make changes to the code, and they
   will be reflected in the installed package without
   having to run the command again
+- If you are making changes involving the flatbuffer schema and
+  [rlbot_flatbuffers_py](https://github.com/VirxEC/rlbot_flatbuffers_py), 
+  also install your local copy of that package in editable mode:
+  - `pip uninstall rlbot_flatbuffers`
+  - `pip install --editable <path/to/rlbot_flatbuffers>`
 
-This project is formatted using Black.
+This project is formatted using [Black](https://github.com/psf/black).
+- Install: `pip install black`.
+- Use: `black .`
 
 ## Testing
 
