@@ -105,9 +105,7 @@ def get_player_config(
     )
 
 
-def get_script_config(
-    path: Path | str
-) -> flat.ScriptConfiguration:
+def get_script_config(path: Path | str) -> flat.ScriptConfiguration:
     """
     Reads the script toml file at the provided path and creates a `ScriptConfiguration` from it.
     """
