@@ -28,7 +28,7 @@ def find_main_executable_path(
     return main_executable_path, None
 
 
-def is_port_accessible(port):
+def is_port_accessible(port: int):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         try:
             sock.bind(("127.0.0.1", port))

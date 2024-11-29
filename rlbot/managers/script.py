@@ -225,7 +225,7 @@ class Script:
     def retire(self):
         """Called when the script is shut down"""
 
-    def handle_packet(self, packet: flat.GamePacket):
+    def handle_packet(self, packet: flat.GamePacket) -> None:
         """
         This method is where the main logic of the bot goes.
         The input is the latest game packet.

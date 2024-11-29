@@ -245,7 +245,7 @@ class SocketRelay:
                 self._running = self.handle_incoming_messages(blocking=True)
             self._running = False
 
-    def handle_incoming_messages(self, blocking=False) -> bool:
+    def handle_incoming_messages(self, blocking: bool = False) -> bool:
         """
         Empties queue of incoming messages (should be called regularly, see `run`).
         Optionally blocking, ensuring that at least one message will be handled.
@@ -324,6 +324,8 @@ class SocketRelay:
                     )
                     for handler in self.controllable_team_info_handlers:
                         handler(player_mappings)
+            case _:
+                pass
 
         return True
 

@@ -282,7 +282,7 @@ class MatchManager:
         game_state = fill_desired_game_state(balls, cars, game_info, commands)
         self.rlbot_interface.send_game_state(game_state)
 
-    def shut_down(self, use_force_if_necessary=True):
+    def shut_down(self, use_force_if_necessary: bool = True):
         """
         Shutdown the RLBotServer process.
         """
