@@ -70,16 +70,17 @@ class Atba(Bot):
         num_boost_pads = len(self.field_info.boost_pads)
         self.logger.info(f"There are {num_boost_pads} boost pads on the field.")
 
-        self.renderer.begin_rendering("custom one-time rendering group")
-        self.renderer.draw_polyline_3d(
-            [
-                flat.Vector3(1000, 1000, 100),
-                flat.Vector3(1000, -1000, 500),
-                flat.Vector3(-1000, -1000, 1000),
-            ],
-            self.renderer.yellow,
-        )
-        self.renderer.end_rendering()
+        if self.rendering:
+            self.renderer.begin_rendering("custom one-time rendering group")
+            self.renderer.draw_polyline_3d(
+                [
+                    flat.Vector3(1000, 1000, 100),
+                    flat.Vector3(1000, -1000, 500),
+                    flat.Vector3(-1000, -1000, 1000),
+                ],
+                self.renderer.yellow,
+            )
+            self.renderer.end_rendering()
 
     def handle_match_comm(
         self,

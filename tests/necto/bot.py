@@ -220,4 +220,4 @@ class Necto(Bot):
 
 
 if __name__ == "__main__":
-    Necto().run(False, False)
+    Necto().run(wants_match_communications=False, wants_ball_predictions=False)
