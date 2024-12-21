@@ -81,6 +81,7 @@ class Hivemind:
         if (
             self._initialized_bot
             or not self._has_match_settings
+            or not self._has_field_info
             or not self._has_player_mapping
         ):
             return

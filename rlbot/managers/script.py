@@ -58,7 +58,11 @@ class Script:
         self.renderer = Renderer(self._game_interface)
 
     def _try_initialize(self):
-        if self._initialized_script or not self._has_match_settings:
+        if (
+            self._initialized_script
+            or not self._has_match_settings
+            or not self._has_field_info
+        ):
             return
 
         self.logger = get_logger(self.name)
