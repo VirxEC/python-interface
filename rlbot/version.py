@@ -1,4 +1,4 @@
-__version__ = "5.0.0-beta.12"
+__version__ = "5.0.0-beta.13"
 
 
 RESET_SEQ = "\033[0m"
