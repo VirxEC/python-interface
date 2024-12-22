@@ -3,14 +3,15 @@ import time
 from collections.abc import Callable
 from enum import IntEnum
 from pathlib import Path
-from socket import IPPROTO_TCP, TCP_NODELAY, socket
+from socket import IPPROTO_TCP, TCP_NODELAY, SO_RCVBUF, SOL_SOCKET, socket
 from threading import Thread
 from typing import Optional
 
 from rlbot import flat
 from rlbot.utils.logging import get_logger
 
-# We can connect to RLBotServer on this port.
+MAX_SIZE_2_BYTES = 2**16 - 1
+# The default port we can expect RLBotServer to be listening on.
 RLBOT_SERVER_PORT = 23234
 
 
@@ -38,28 +39,10 @@ class SocketDataType(IntEnum):
     CONTROLLABLE_TEAM_INFO = 15
 
 
-MAX_SIZE_2_BYTES = 2**16 - 1
-
-
-def int_to_bytes(val: int) -> bytes:
-    return val.to_bytes(2, byteorder="big")
-
-
-def int_from_bytes(bytes: bytes) -> int:
-    return int.from_bytes(bytes, "big")
-
-
 class SocketMessage:
     def __init__(self, type: int, data: bytes):
         self.type = SocketDataType(type)
         self.data = data
-
-
-def read_message_from_socket(s: socket) -> SocketMessage:
-    type_int = int_from_bytes(s.recv(2))
-    size = int_from_bytes(s.recv(2))
-    data = s.recv(size)
-    return SocketMessage(type_int, data)
 
 
 class SocketRelay:
@@ -97,10 +80,37 @@ class SocketRelay:
         self.logger = get_logger("interface") if logger is None else logger
 
         self.socket = socket()
+
+        # Allow sending packets before getting a response from core
         self.socket.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
+        # Increase the underlying OS buffer size to at least 512KB (8 * 64KB)
+        # self.socket.setsockopt(SOL_SOCKET, SO_RCVBUF, 1024 * 512)
 
     def __del__(self):
         self.socket.close()
+
+    @staticmethod
+    def _int_to_bytes(val: int) -> bytes:
+        return val.to_bytes(2, byteorder="big")
+
+    def _read_int(self) -> int:
+        return int.from_bytes(self._read_exact(2), "big")
+
+    def _read_exact(self, n: int) -> bytes:
+        buff = bytearray(n)
+        pos = 0
+        while pos < n:
+            cr = self.socket.recv_into(memoryview(buff)[pos:])
+            if cr == 0:
+                raise EOFError
+            pos += cr
+        return bytes(buff)
+
+    def read_message(self) -> SocketMessage:
+        type_int = self._read_int()
+        size = self._read_int()
+        data = self._read_exact(size)
+        return SocketMessage(type_int, data)
 
     def send_bytes(self, data: bytes, data_type: SocketDataType):
         assert self.is_connected, "Connection has not been established"
@@ -112,7 +122,7 @@ class SocketRelay:
             )
             return
 
-        message = int_to_bytes(data_type) + int_to_bytes(size) + data
+        message = self._int_to_bytes(data_type) + self._int_to_bytes(size) + data
         self.socket.sendall(message)
 
     def send_init_complete(self):
@@ -255,7 +265,7 @@ class SocketRelay:
         assert self.is_connected, "Connection has not been established"
         try:
             self.socket.setblocking(blocking)
-            incoming_message = read_message_from_socket(self.socket)
+            incoming_message = self.read_message()
             try:
                 return self.handle_incoming_message(incoming_message)
             except flat.InvalidFlatbuffer as e:
