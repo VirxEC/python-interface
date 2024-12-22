@@ -3,7 +3,7 @@ import time
 from collections.abc import Callable
 from enum import IntEnum
 from pathlib import Path
-from socket import IPPROTO_TCP, TCP_NODELAY, SO_RCVBUF, SOL_SOCKET, socket
+from socket import IPPROTO_TCP, TCP_NODELAY, socket
 from threading import Thread
 from typing import Optional
 
@@ -83,8 +83,6 @@ class SocketRelay:
 
         # Allow sending packets before getting a response from core
         self.socket.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
-        # Increase the underlying OS buffer size to at least 512KB (8 * 64KB)
-        # self.socket.setsockopt(SOL_SOCKET, SO_RCVBUF, 1024 * 512)
 
     def __del__(self):
         self.socket.close()
