@@ -15,6 +15,10 @@ BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = (
 )
 
 RELEASE_NOTES = {
+    "5.0.0-beta.13": """
+    - Account for partial reads in `SocketRelay`
+    - Fix managers not ensuring they have received all prerequisite data before initializing 
+    """,
     "5.0.0-beta.12": """
     - Improved documentation of managers, renderer, and more.
     - Renamed various fields, functions, and methods (minor breaking change).
