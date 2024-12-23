@@ -13,7 +13,7 @@ if __name__ == "__main__":
     match_manager.start_match(MATCH_CONFIG_PATH, False)
 
     # wait
-    input("\nPress any enter to end the match: ")
+    input("\nPress enter to end the match: ")
 
     # end the match and disconnect
     match_manager.stop_match()
