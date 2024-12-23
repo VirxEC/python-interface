@@ -182,9 +182,6 @@ class SocketRelay:
         - wants_ball_predictions: Whether ball prediction messages should be sent to this process.
         - close_after_match: Whether RLBot should close this connection between matches, specifically upon
             `StartMatch` and `StopMatch` messages, since RLBot does not actually detect the ending of matches.
-
-        NOTE: Bad things happen if the message buffer fills up. Ensure `handle_incoming_messages` is called
-        frequently to prevent this. See `run` for handling messages continuously.
         """
         assert not self.is_connected, "Connection has already been established"
 

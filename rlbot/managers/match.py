@@ -208,10 +208,6 @@ class MatchManager:
         - wants_ball_predictions: Whether ball prediction messages should be sent to this process.
         - close_after_match: Whether RLBot should close this connection between matches, specifically upon
             `StartMatch` and `StopMatch` messages, since RLBot does not actually detect the ending of matches.
-
-        NOTE: Bad things happen if the message buffer fills up. Ensure `handle_incoming_messages` is called
-        frequently to prevent this. See start a match immediately or cal `rlbot_interface.run()` directly
-        for handling messages continuously.
         """
         self.rlbot_interface.connect(
             wants_match_communications=wants_match_communications,
