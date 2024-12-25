@@ -1,4 +1,4 @@
-__version__ = "5.0.0-beta.13"
+__version__ = "5.0.0-beta.14"
 
 
 RESET_SEQ = "\033[0m"
@@ -15,6 +15,9 @@ BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = (
 )
 
 RELEASE_NOTES = {
+    "5.0.0-beta.14": """
+    - Add warning to Renderer when trying to render without calling `begin_rendering` first
+    """,
     "5.0.0-beta.13": """
     - Account for partial reads in `SocketRelay`
     - Fix managers not ensuring they have received all prerequisite data before initializing 

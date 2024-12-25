@@ -84,7 +84,7 @@ class Renderer:
         """
         Begins a new render group. All render messages added after this call will be part of this group.
         """
-        if self._group_id is not None:
+        if self.is_rendering():
             self._logger.error(
                 "begin_rendering was called twice without end_rendering."
             )
@@ -144,6 +144,13 @@ class Renderer:
             | flat.Rect3D
         ),
     ):
+        if not self.is_rendering():
+            self._logger.warning(
+                "Attempted to draw without a render group."
+                "Please call `begin_rendering` first, and then `end_rendering` after."
+            )
+            return
+
         self._current_renders.append(flat.RenderMessage(render))
 
     def draw_line_3d(
