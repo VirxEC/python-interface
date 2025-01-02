@@ -5,7 +5,7 @@ from rlbot.managers import MatchManager
 CURRENT_FILE = Path(__file__).parent
 
 MATCH_CONFIG_PATH = CURRENT_FILE / "human_vs_necto.toml"
-RLBOT_SERVER_FOLDER = CURRENT_FILE / "../../core/RLBotCS/bin/Release/"
+RLBOT_SERVER_FOLDER = CURRENT_FILE / "../"
 
 if __name__ == "__main__":
     # start the match

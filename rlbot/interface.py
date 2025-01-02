@@ -172,7 +172,7 @@ class SocketRelay:
         *,
         wants_match_communications: bool,
         wants_ball_predictions: bool,
-        close_after_match: bool = True,
+        close_between_matches: bool = True,
         rlbot_server_port: int = RLBOT_SERVER_PORT,
     ):
         """
@@ -180,7 +180,7 @@ class SocketRelay:
 
         - wants_match_communications: Whether match communication messages should be sent to this process.
         - wants_ball_predictions: Whether ball prediction messages should be sent to this process.
-        - close_after_match: Whether RLBot should close this connection between matches, specifically upon
+        - close_between_matches: Whether RLBot should close this connection between matches, specifically upon
             `StartMatch` and `StopMatch` messages, since RLBot does not actually detect the ending of matches.
         """
         assert not self.is_connected, "Connection has already been established"
@@ -231,7 +231,7 @@ class SocketRelay:
             agent_id=self.agent_id,
             wants_ball_predictions=wants_ball_predictions,
             wants_comms=wants_match_communications,
-            close_after_match=close_after_match,
+            close_between_matches=close_between_matches,
         ).pack()
         self.send_bytes(flatbuffer, SocketDataType.CONNECTION_SETTINGS)
 

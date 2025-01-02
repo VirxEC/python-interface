@@ -57,7 +57,7 @@ def get_player_loadout(path: str, team: int) -> flat.PlayerLoadout:
 
 
 def get_player_config(
-    type: flat.RLBot | flat.Psyonix, team: int, path: Path | str
+    type: flat.CustomBot | flat.Psyonix, team: int, path: Path | str
 ) -> flat.PlayerConfiguration:
     """
     Reads the bot toml file at the provided path and
@@ -198,7 +198,7 @@ class MatchManager:
         *,
         wants_match_communications: bool,
         wants_ball_predictions: bool,
-        close_after_match: bool = True,
+        close_between_matches: bool = True,
         rlbot_server_port: int = RLBOT_SERVER_PORT,
     ):
         """
@@ -206,13 +206,13 @@ class MatchManager:
 
         - wants_match_communications: Whether match communication messages should be sent to this process.
         - wants_ball_predictions: Whether ball prediction messages should be sent to this process.
-        - close_after_match: Whether RLBot should close this connection between matches, specifically upon
+        - close_between_matches: Whether RLBot should close this connection between matches, specifically upon
             `StartMatch` and `StopMatch` messages, since RLBot does not actually detect the ending of matches.
         """
         self.rlbot_interface.connect(
             wants_match_communications=wants_match_communications,
             wants_ball_predictions=wants_ball_predictions,
-            close_after_match=close_after_match,
+            close_between_matches=close_between_matches,
             rlbot_server_port=rlbot_server_port,
         )
 
@@ -238,7 +238,7 @@ class MatchManager:
             self.rlbot_interface.connect(
                 wants_match_communications=False,
                 wants_ball_predictions=False,
-                close_after_match=False,
+                close_between_matches=False,
             )
             self.rlbot_interface.run(background_thread=True)
 
