@@ -6,8 +6,8 @@ from typing import Any, Optional
 import psutil
 
 from rlbot import flat, version
-from rlbot.interface import RLBOT_SERVER_PORT, SocketRelay
-from rlbot.utils import gateway, fill_desired_game_state
+from rlbot.interface import RLBOT_SERVER_IP, RLBOT_SERVER_PORT, SocketRelay
+from rlbot.utils import fill_desired_game_state, gateway
 from rlbot.utils.logging import DEFAULT_LOGGER
 from rlbot.utils.os_detector import CURRENT_OS, MAIN_EXECUTABLE_NAME, OS
 
@@ -199,6 +199,7 @@ class MatchManager:
         wants_match_communications: bool,
         wants_ball_predictions: bool,
         close_between_matches: bool = True,
+        rlbot_server_ip: str = RLBOT_SERVER_IP,
         rlbot_server_port: int = RLBOT_SERVER_PORT,
     ):
         """
@@ -213,6 +214,7 @@ class MatchManager:
             wants_match_communications=wants_match_communications,
             wants_ball_predictions=wants_ball_predictions,
             close_between_matches=close_between_matches,
+            rlbot_server_ip=rlbot_server_ip,
             rlbot_server_port=rlbot_server_port,
         )
 

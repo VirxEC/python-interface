@@ -3,7 +3,7 @@ from traceback import print_exc
 from typing import Optional
 
 from rlbot import flat
-from rlbot.interface import SocketRelay, RLBOT_SERVER_PORT
+from rlbot.interface import RLBOT_SERVER_IP, RLBOT_SERVER_PORT, SocketRelay
 from rlbot.managers.rendering import Renderer
 from rlbot.utils import fill_desired_game_state
 from rlbot.utils.logging import DEFAULT_LOGGER, get_logger
@@ -161,12 +161,14 @@ class Bot:
         Runs the bot. This operation is blocking until the match ends.
         """
 
+        rlbot_server_ip = os.environ.get("RLBOT_SERVER_IP", RLBOT_SERVER_IP)
         rlbot_server_port = int(os.environ.get("RLBOT_SERVER_PORT", RLBOT_SERVER_PORT))
 
         try:
             self._game_interface.connect(
                 wants_match_communications=wants_match_communications,
                 wants_ball_predictions=wants_ball_predictions,
+                rlbot_server_ip=rlbot_server_ip,
                 rlbot_server_port=rlbot_server_port,
             )
 

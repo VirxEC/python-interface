@@ -11,7 +11,9 @@ from rlbot import flat
 from rlbot.utils.logging import get_logger
 
 MAX_SIZE_2_BYTES = 2**16 - 1
-# The default port we can expect RLBotServer to be listening on.
+# The default IP to connect to RLBotServer on
+RLBOT_SERVER_IP = "127.0.0.1"
+# The default port we can expect RLBotServer to be listening on
 RLBOT_SERVER_PORT = 23234
 
 
@@ -173,6 +175,7 @@ class SocketRelay:
         wants_match_communications: bool,
         wants_ball_predictions: bool,
         close_between_matches: bool = True,
+        rlbot_server_ip: str = RLBOT_SERVER_IP,
         rlbot_server_port: int = RLBOT_SERVER_PORT,
     ):
         """
@@ -191,7 +194,7 @@ class SocketRelay:
             next_warning = 10
             while time.time() < begin_time + self.connection_timeout:
                 try:
-                    self.socket.connect(("127.0.0.1", rlbot_server_port))
+                    self.socket.connect((rlbot_server_ip, rlbot_server_port))
                     self.is_connected = True
                     break
                 except ConnectionRefusedError:
