@@ -219,14 +219,14 @@ class MatchManager:
         )
 
     def wait_for_first_packet(self):
-        while self.packet is None or self.packet.game_info.game_status in {
-            flat.GameStatus.Inactive,
-            flat.GameStatus.Ended,
+        while self.packet is None or self.packet.match_info.match_phase in {
+            flat.MatchPhase.Inactive,
+            flat.MatchPhase.Ended,
         }:
             sleep(0.1)
 
     def start_match(
-        self, settings: Path | flat.MatchSettings, wait_for_start: bool = True
+        self, config: Path | flat.MatchConfiguration, wait_for_start: bool = True
     ):
         """
         Starts a match using the given match settings or a path to a match settings toml file.
@@ -244,7 +244,7 @@ class MatchManager:
             )
             self.rlbot_interface.run(background_thread=True)
 
-        self.rlbot_interface.start_match(settings)
+        self.rlbot_interface.start_match(config)
 
         if not self.initialized:
             self.rlbot_interface.send_init_complete()

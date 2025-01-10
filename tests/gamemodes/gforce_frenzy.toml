@@ -3,7 +3,7 @@
 game_mode = "Soccer"
 
 [mutators]
-boost_amount = "Unlimited_Boost"
+boost_amount = "UnlimitedBoost"
 boost_strength = "Five"
 gravity = "Low"
 

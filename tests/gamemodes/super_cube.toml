@@ -2,11 +2,11 @@
 game_mode = "Soccer"
 
 [mutators]
-ball_max_speed = "Super_Fast"
+ball_max_speed = "SuperFast"
 ball_type = "Cube"
 ball_weight = "Light"
 ball_bounciness = "High"
-boost_amount = "Unlimited_Boost"
+boost_amount = "UnlimitedBoost"
 
 [[cars]]
 type = "human"

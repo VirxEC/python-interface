@@ -54,10 +54,10 @@ class Hives(Hivemind):
 
     def get_outputs(self, packet: flat.GamePacket) -> dict[int, flat.ControllerState]:
         if (
-            packet.game_info.game_status
+            packet.match_info.match_phase
             not in {
-                flat.GameStatus.Active,
-                flat.GameStatus.Kickoff,
+                flat.MatchPhase.Active,
+                flat.MatchPhase.Kickoff,
             }
             or len(packet.balls) == 0
         ):

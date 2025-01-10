@@ -16,18 +16,18 @@ if __name__ == "__main__":
 
     current_map = -1
 
-    blue_bot = get_player_config(flat.RLBot(), 0, BOT_PATH)
-    orange_bot = get_player_config(flat.RLBot(), 1, BOT_PATH)
+    blue_bot = get_player_config(flat.CustomBot(), 0, BOT_PATH)
+    orange_bot = get_player_config(flat.CustomBot(), 1, BOT_PATH)
 
-    match_settings = flat.MatchSettings(
+    match_settings = flat.MatchConfiguration(
         launcher=flat.Launcher.Steam,
         auto_start_bots=True,
         game_mode=flat.GameMode.Soccer,
         enable_state_setting=True,
         existing_match_behavior=flat.ExistingMatchBehavior.Restart,
         skip_replays=True,
-        mutator_settings=flat.MutatorSettings(
-            match_length=flat.MatchLength.Five_Minutes,
+        mutators=flat.MutatorSettings(
+            match_length=flat.MatchLengthMutator.FiveMinutes,
         ),
         player_configurations=[
             blue_bot,
@@ -47,9 +47,11 @@ if __name__ == "__main__":
         print(f"Starting match on {match_settings.game_map_upk}")
 
         match_manager.start_match(match_settings)
+        # when calling start_match, by default it will wait for the first packet
+        assert match_manager.packet is not None
 
-        while match_manager.packet.game_info.game_status != flat.GameStatus.Ended:
-            if match_manager.packet.game_info.game_status == flat.GameStatus.Countdown:
+        while match_manager.packet.match_info.match_phase != flat.MatchPhase.Ended:
+            if match_manager.packet.match_info.match_phase == flat.MatchPhase.Countdown:
                 match_manager.set_game_state(
                     game_info=flat.DesiredGameInfoState(game_speed=2)
                 )

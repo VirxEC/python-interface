@@ -1,7 +1,7 @@
 [match]
 
 [mutators]
-rumble = "Spring_Loaded"
+rumble = "SpringLoaded"
 
 [[cars]]
 type = "human"

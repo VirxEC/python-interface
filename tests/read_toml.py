@@ -6,4 +6,4 @@ from rlbot.managers.match import get_player_config
 CURRENT_FILE = Path(__file__).parent
 
 if __name__ == "__main__":
-    print(get_player_config(flat.RLBot(), 0, CURRENT_FILE / "necto/bot.toml"))
+    print(get_player_config(flat.CustomBot(), 0, CURRENT_FILE / "necto/bot.toml"))

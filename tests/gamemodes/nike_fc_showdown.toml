@@ -5,7 +5,7 @@ game_map_upk = "swoosh_p"
 
 [mutators]
 ball_max_speed = "Fast"
-ball_weight = "Magnus_FutBall"
+ball_weight = "MagnusFutBall"
 ball_bounciness = "LowishBounciness"
 ball_type = "Ekin"
 

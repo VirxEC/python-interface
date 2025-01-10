@@ -2,13 +2,13 @@
 game_mode = "Soccer"
 
 [mutators]
-boost_amount = "Unlimited_Boost"
+boost_amount = "UnlimitedBoost"
 boost_strength = "Two"
-ball_max_speed = "Super_Fast"
+ball_max_speed = "SuperFast"
 ball_bounciness = "Low"
 ball_size = "Large"
-respawn_time = "One_Second"
-demolish = "On_Contact"
+respawn_time = "OneSecond"
+demolish = "OnContact"
 
 [[cars]]
 type = "human"
