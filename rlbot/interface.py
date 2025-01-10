@@ -250,22 +250,25 @@ class SocketRelay:
         else:
             self._running = True
             while self._running and self.is_connected:
-                self._running = self.handle_incoming_messages(blocking=True)
+                self._running, _ = self.handle_incoming_messages(blocking=True)
             self._running = False
 
-    def handle_incoming_messages(self, blocking: bool = False) -> bool:
+    def handle_incoming_messages(self, blocking: bool = False) -> tuple[bool, bool]:
         """
         Empties queue of incoming messages (should be called regularly, see `run`).
         Optionally blocking, ensuring that at least one message will be handled.
-        Returns true message handling should continue running, and
+
+        First boolean returns true message handling should continue running, and
         false if RLBotServer has asked us to shut down or an error happened.
+
+        Second boolean returns true if there might be more messages to handle without a delay.
         """
         assert self.is_connected, "Connection has not been established"
         try:
             self.socket.setblocking(blocking)
             incoming_message = self.read_message()
             try:
-                return self.handle_incoming_message(incoming_message)
+                return self.handle_incoming_message(incoming_message), True
             except flat.InvalidFlatbuffer as e:
                 self.logger.error(
                     "Error while unpacking message of type %s (%s bytes): %s",
@@ -273,20 +276,20 @@ class SocketRelay:
                     len(incoming_message.data),
                     e,
                 )
-                return False
+                return False, False
             except Exception as e:
                 self.logger.error(
                     "Unexpected error while handling message of type %s: %s",
                     incoming_message.type.name,
                     e,
                 )
-                return False
+                return False, False
         except BlockingIOError:
             # No incoming messages and blocking==False
-            return True
+            return True, False
         except:
             self.logger.error("SocketRelay disconnected unexpectedly!")
-            return False
+            return False, False
 
     def handle_incoming_message(self, incoming_message: SocketMessage):
         """
