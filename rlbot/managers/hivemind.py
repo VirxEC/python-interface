@@ -163,6 +163,26 @@ class Hivemind:
             player_input = flat.PlayerInput(index, controller)
             self._game_interface.send_player_input(player_input)
 
+    def _run(self):
+        running = True
+        has_more_messages = True
+
+        while running:
+            # If there might be more messages,
+            # check for another one with blocking=False
+            # if there are no more messages, this immediately returns with has_more_messages=False
+            # after there are no more messages and we've processed the latest packet,
+            # wait for the next one with blocking=True
+            running, has_more_messages = self._game_interface.handle_incoming_messages(
+                blocking=not has_more_messages
+            )
+
+            # if there might be more messages, handle them first
+            # this ensures that only the latest packet is processed
+            if self._latest_packet is not None and running and not has_more_messages:
+                self._packet_processor(self._latest_packet)
+                self._latest_packet = None
+
     def run(
         self,
         *,
@@ -184,16 +204,7 @@ class Hivemind:
                 rlbot_server_port=rlbot_server_port,
             )
 
-            running = True
-            while running:
-                # Whenever we receive one or more game packets,
-                # we want to process the latest one.
-                running = self._game_interface.handle_incoming_messages(
-                    blocking=self._latest_packet is None
-                )
-                if self._latest_packet is not None and running:
-                    self._packet_processor(self._latest_packet)
-                    self._latest_packet = None
+            self._run()
         finally:
             self.retire()
             del self._game_interface
