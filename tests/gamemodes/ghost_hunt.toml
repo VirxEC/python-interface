@@ -4,7 +4,7 @@ game_map_upk = "Haunted_TrainStation_P"
 
 [mutators]
 ball_type = "Haunted"
-rumble = "Haunted_Ball_Beam"
+rumble = "HauntedBallBeam"
 game_event = "Haunted"
 audio = "Haunted"
 

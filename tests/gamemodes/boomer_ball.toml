@@ -4,9 +4,9 @@ game_mode = "Soccer"
 [mutators]
 boost_amount = "Unlimited_Boost"
 boost_strength = "OneAndAHalf"
-ball_max_speed = "Super_Fast"
+ball_max_speed = "SuperFast"
 ball_bounciness = "High"
-ball_weight = "Super_Light"
+ball_weight = "SuperLight"
 
 [[cars]]
 type = "human"

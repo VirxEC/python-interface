@@ -14,10 +14,11 @@ if __name__ == "__main__":
 
     match_manager.ensure_server_started()
     match_manager.start_match(MATCH_CONFIG_PATH)
+    assert match_manager.packet is not None
 
     try:
         # wait for the match to end
-        while match_manager.packet.game_info.game_status != flat.GameStatus.Ended:
+        while match_manager.packet.match_info.match_phase != flat.MatchPhase.Ended:
             sleep(1.0)
     finally:
         match_manager.shut_down()

@@ -1,4 +1,4 @@
-__version__ = "5.0.0-beta.16"
+__version__ = "5.0.0-beta.17"
 
 
 RESET_SEQ = "\033[0m"
@@ -15,6 +15,9 @@ BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = (
 )
 
 RELEASE_NOTES = {
+    "5.0.0-beta.17": """
+    - Update to the newest flatbuffers spec
+    """,
     "5.0.0-beta.16": """
     - Read `RLBOT_SERVER_IP` environment variable and default to "127.0.0.1"
     """,

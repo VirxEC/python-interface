@@ -13,14 +13,14 @@ enable_state_setting = true
 auto_save_replay = false
 
 [mutators]
-match_length = "Twenty_Minutes"
+match_length = "TwentyMinutes"
 ball_max_speed = "Fast"
 ball_type = "Puck"
-ball_weight = "Super_Light"
+ball_weight = "SuperLight"
 ball_size = "Large"
-ball_bounciness = "Super_High"
-boost_amount = "Unlimited_Boost"
-rumble = "Spikes_Only"
+ball_bounciness = "SuperHigh"
+boost_amount = "UnlimitedBoost"
+rumble = "SpikesOnly"
 boost_strength = "OneAndAHalf"
 respawn_time = "One_Second"
 

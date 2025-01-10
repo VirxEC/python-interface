@@ -6,7 +6,7 @@ auto_start_bots = true
 game_mode = "Soccer"
 game_map_upk = "Stadium_P"
 enable_state_setting = true
-existing_match_behavior = "Continue_And_Spawn"
+existing_match_behavior = "ContinueAndSpawn"
 skip_replays = true
 
 [[cars]]

@@ -97,10 +97,10 @@ class Atba(Bot):
             self.test_rendering(packet)
 
         if (
-            packet.game_info.game_status
+            packet.match_info.match_phase
             not in {
-                flat.GameStatus.Active,
-                flat.GameStatus.Kickoff,
+                flat.MatchPhase.Active,
+                flat.MatchPhase.Kickoff,
             }
             or len(packet.balls) == 0
         ):
@@ -111,9 +111,9 @@ class Atba(Bot):
 
         if self.match_comms:
             # Limit packet spam
-            if packet.game_info.frame_num - self.last_send >= 360:
+            if packet.match_info.frame_num - self.last_send >= 360:
                 self.send_match_comm(b"", "Hello world!", True)
-                self.last_send = packet.game_info.frame_num
+                self.last_send = packet.match_info.frame_num
 
         ball_location = Vector2(packet.balls[0].physics.location)
 

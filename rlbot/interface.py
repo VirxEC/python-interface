@@ -27,7 +27,7 @@ class SocketDataType(IntEnum):
     GAME_PACKET = 1
     FIELD_INFO = 2
     START_COMMAND = 3
-    MATCH_SETTINGS = 4
+    MATCH_CONFIGURATION = 4
     PLAYER_INPUT = 5
     DESIRED_GAME_STATE = 6
     RENDER_GROUP = 7
@@ -63,8 +63,8 @@ class SocketRelay:
     on_connect_handlers: list[Callable[[], None]] = []
     packet_handlers: list[Callable[[flat.GamePacket], None]] = []
     field_info_handlers: list[Callable[[flat.FieldInfo], None]] = []
-    match_settings_handlers: list[Callable[[flat.MatchSettings], None]] = []
-    match_communication_handlers: list[Callable[[flat.MatchComm], None]] = []
+    match_config_handlers: list[Callable[[flat.MatchConfiguration], None]] = []
+    match_comm_handlers: list[Callable[[flat.MatchComm], None]] = []
     ball_prediction_handlers: list[Callable[[flat.BallPrediction], None]] = []
     controllable_team_info_handlers: list[
         Callable[[flat.ControllableTeamInfo], None]
@@ -151,7 +151,7 @@ class SocketRelay:
         flatbuffer = flat.StopCommand(shutdown_server).pack()
         self.send_bytes(flatbuffer, SocketDataType.STOP_COMMAND)
 
-    def start_match(self, match_config: Path | flat.MatchSettings):
+    def start_match(self, match_config: Path | flat.MatchConfiguration):
         self.logger.info("Python interface is attempting to start match...")
 
         match match_config:
@@ -159,9 +159,9 @@ class SocketRelay:
                 string_path = str(path.absolute().resolve())
                 flatbuffer = flat.StartCommand(string_path).pack()
                 flat_type = SocketDataType.START_COMMAND
-            case flat.MatchSettings() as settings:
+            case flat.MatchConfiguration() as settings:
                 flatbuffer = settings.pack()
-                flat_type = SocketDataType.MATCH_SETTINGS
+                flat_type = SocketDataType.MATCH_CONFIGURATION
             case _:
                 raise ValueError(
                     "Expected MatchSettings or path to match settings toml file"
@@ -310,15 +310,17 @@ class SocketRelay:
                     field_info = flat.FieldInfo.unpack(incoming_message.data)
                     for handler in self.field_info_handlers:
                         handler(field_info)
-            case SocketDataType.MATCH_SETTINGS:
-                if len(self.match_settings_handlers) > 0:
-                    match_settings = flat.MatchSettings.unpack(incoming_message.data)
-                    for handler in self.match_settings_handlers:
+            case SocketDataType.MATCH_CONFIGURATION:
+                if len(self.match_config_handlers) > 0:
+                    match_settings = flat.MatchConfiguration.unpack(
+                        incoming_message.data
+                    )
+                    for handler in self.match_config_handlers:
                         handler(match_settings)
             case SocketDataType.MATCH_COMMUNICATION:
-                if len(self.match_communication_handlers) > 0:
+                if len(self.match_comm_handlers) > 0:
                     match_comm = flat.MatchComm.unpack(incoming_message.data)
-                    for handler in self.match_communication_handlers:
+                    for handler in self.match_comm_handlers:
                         handler(match_comm)
             case SocketDataType.BALL_PREDICTION:
                 if len(self.ball_prediction_handlers) > 0:

@@ -3,7 +3,7 @@ game_mode = "Soccer"
 game_map_upk = "Farm_HW_P"
 
 [mutators]
-ball_max_speed = "Super_Fast"
+ball_max_speed = "SuperFast"
 ball_type = "SpookyCube"
 ball_weight = "Light"
 ball_bounciness = "High"

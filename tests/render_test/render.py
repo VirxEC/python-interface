@@ -5,16 +5,16 @@ from rlbot.managers import Script
 
 class RenderFun(Script):
     needs_render = True
-    last_state = flat.GameStatus.Inactive
+    last_state = flat.MatchPhase.Inactive
     player_count = 0
 
     def handle_packet(self, packet: flat.GamePacket):
         if (
-            packet.game_info.game_status != flat.GameStatus.Replay
-            and self.last_state == flat.GameStatus.Replay
+            packet.match_info.match_phase != flat.MatchPhase.Replay
+            and self.last_state == flat.MatchPhase.Replay
         ) or len(packet.players) != self.player_count:
             self.needs_render = True
-        self.last_state = packet.game_info.game_status
+        self.last_state = packet.match_info.match_phase
 
         if self.needs_render:
             self.needs_render = False

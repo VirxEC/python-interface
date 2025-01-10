@@ -3,8 +3,8 @@ game_mode = "Soccer"
 game_map_upk = "ThrowbackStadium_P"
 
 [mutators]
-rumble = "Spike_Rush"
-respawn_time = "One_Second"
+rumble = "SpikeRush"
+respawn_time = "OneSecond"
 game_event = "Rugby"
 
 [[cars]]

@@ -22,7 +22,7 @@ class Script:
     index: int = 0
     name: str = "UnknownScript"
 
-    match_settings = flat.MatchSettings()
+    match_config = flat.MatchConfiguration()
     field_info = flat.FieldInfo()
     ball_prediction = flat.BallPrediction()
 
@@ -45,9 +45,9 @@ class Script:
             exit(1)
 
         self._game_interface = SocketRelay(agent_id, logger=self.logger)
-        self._game_interface.match_settings_handlers.append(self._handle_match_settings)
+        self._game_interface.match_config_handlers.append(self._handle_match_config)
         self._game_interface.field_info_handlers.append(self._handle_field_info)
-        self._game_interface.match_communication_handlers.append(
+        self._game_interface.match_comm_handlers.append(
             self._handle_match_communication
         )
         self._game_interface.ball_prediction_handlers.append(
@@ -81,10 +81,10 @@ class Script:
         self._initialized_script = True
         self._game_interface.send_init_complete()
 
-    def _handle_match_settings(self, match_settings: flat.MatchSettings):
-        self.match_settings = match_settings
+    def _handle_match_config(self, match_config: flat.MatchConfiguration):
+        self.match_config = match_config
 
-        for i, script in enumerate(match_settings.script_configurations):
+        for i, script in enumerate(match_config.script_configurations):
             if script.agent_id == self._game_interface.agent_id:
                 self.index = i
                 self.name = script.name

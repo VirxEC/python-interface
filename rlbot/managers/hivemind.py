@@ -27,7 +27,7 @@ class Hivemind:
     names: list[str] = []
     spawn_ids: list[int] = []
 
-    match_settings = flat.MatchSettings()
+    match_config = flat.MatchConfiguration()
     """
     Contains info about what map you're on, game mode, mutators, etc.
     """
@@ -62,9 +62,9 @@ class Hivemind:
             exit(1)
 
         self._game_interface = SocketRelay(agent_id, logger=self._logger)
-        self._game_interface.match_settings_handlers.append(self._handle_match_settings)
+        self._game_interface.match_config_handlers.append(self._handle_match_config)
         self._game_interface.field_info_handlers.append(self._handle_field_info)
-        self._game_interface.match_communication_handlers.append(
+        self._game_interface.match_comm_handlers.append(
             self._handle_match_communication
         )
         self._game_interface.ball_prediction_handlers.append(
@@ -88,7 +88,7 @@ class Hivemind:
 
         # Search match settings for our spawn ids
         for spawn_id in self.spawn_ids:
-            for player in self.match_settings.player_configurations:
+            for player in self.match_config.player_configurations:
                 if player.spawn_id == spawn_id:
                     self.names.append(player.name)
                     self.loggers.append(get_logger(player.name))
@@ -108,8 +108,8 @@ class Hivemind:
         self._initialized_bot = True
         self._game_interface.send_init_complete()
 
-    def _handle_match_settings(self, match_settings: flat.MatchSettings):
-        self.match_settings = match_settings
+    def _handle_match_config(self, match_config: flat.MatchConfiguration):
+        self.match_config = match_config
         self._has_match_settings = True
         self._try_initialize()
 
