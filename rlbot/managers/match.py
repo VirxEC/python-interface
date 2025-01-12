@@ -268,7 +268,7 @@ class MatchManager:
         self,
         balls: dict[int, flat.DesiredBallState] = {},
         cars: dict[int, flat.DesiredCarState] = {},
-        game_info: Optional[flat.DesiredGameInfoState] = None,
+        match_info: Optional[flat.DesiredMatchInfo] = None,
         commands: list[flat.ConsoleCommand] = [],
     ):
         """
@@ -277,7 +277,7 @@ class MatchManager:
         See wiki for a full break down and examples.
         """
 
-        game_state = fill_desired_game_state(balls, cars, game_info, commands)
+        game_state = fill_desired_game_state(balls, cars, match_info, commands)
         self.rlbot_interface.send_game_state(game_state)
 
     def shut_down(self, use_force_if_necessary: bool = True):
