@@ -246,7 +246,7 @@ class Bot:
         self,
         balls: dict[int, flat.DesiredBallState] = {},
         cars: dict[int, flat.DesiredCarState] = {},
-        game_info: Optional[flat.DesiredGameInfoState] = None,
+        match_info: Optional[flat.DesiredMatchInfo] = None,
         commands: list[flat.ConsoleCommand] = [],
     ):
         """
@@ -255,7 +255,7 @@ class Bot:
         See wiki for a full break down and examples.
         """
 
-        game_state = fill_desired_game_state(balls, cars, game_info, commands)
+        game_state = fill_desired_game_state(balls, cars, match_info, commands)
         self._game_interface.send_game_state(game_state)
 
     def set_loadout(self, loadout: flat.PlayerLoadout):

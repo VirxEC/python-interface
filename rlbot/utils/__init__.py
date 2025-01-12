@@ -6,7 +6,7 @@ from rlbot import flat
 def fill_desired_game_state(
     balls: dict[int, flat.DesiredBallState] = {},
     cars: dict[int, flat.DesiredCarState] = {},
-    game_info: Optional[flat.DesiredGameInfoState] = None,
+    match_info: Optional[flat.DesiredMatchInfo] = None,
     commands: list[flat.ConsoleCommand] = [],
 ) -> flat.DesiredGameState:
     """
@@ -15,19 +15,21 @@ def fill_desired_game_state(
     """
 
     game_state = flat.DesiredGameState(
-        game_info_state=game_info, console_commands=commands
+        match_info=match_info, console_commands=commands
     )
 
     if balls:
         max_entry = max(balls.keys())
+        default_ball = flat.DesiredBallState()
         game_state.ball_states = [
-            balls.get(i, flat.DesiredBallState()) for i in range(max_entry + 1)
+            balls.get(i, default_ball) for i in range(max_entry + 1)
         ]
 
     if cars:
         max_entry = max(cars.keys())
+        default_car = flat.DesiredCarState()
         game_state.car_states = [
-            cars.get(i, flat.DesiredCarState()) for i in range(max_entry + 1)
+            cars.get(i, default_car) for i in range(max_entry + 1)
         ]
 
     return game_state
