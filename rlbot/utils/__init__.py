@@ -14,9 +14,7 @@ def fill_desired_game_state(
     # filling in the blanks with empty states that do nothing.
     """
 
-    game_state = flat.DesiredGameState(
-        match_info=match_info, console_commands=commands
-    )
+    game_state = flat.DesiredGameState(match_info=match_info, console_commands=commands)
 
     if balls:
         max_entry = max(balls.keys())
@@ -28,8 +26,6 @@ def fill_desired_game_state(
     if cars:
         max_entry = max(cars.keys())
         default_car = flat.DesiredCarState()
-        game_state.car_states = [
-            cars.get(i, default_car) for i in range(max_entry + 1)
-        ]
+        game_state.car_states = [cars.get(i, default_car) for i in range(max_entry + 1)]
 
     return game_state
