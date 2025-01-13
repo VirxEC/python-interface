@@ -47,6 +47,12 @@ class SocketMessage:
         self.data = data
 
 
+class MsgHandlingResult(IntEnum):
+    TERMINATED = 0
+    NO_INCOMING_MSGS = 1
+    MORE_MSGS_QUEUED = 2
+
+
 class SocketRelay:
     """
     The SocketRelay provides an abstraction over the direct communication with
@@ -250,10 +256,13 @@ class SocketRelay:
         else:
             self._running = True
             while self._running and self.is_connected:
-                self._running, _ = self.handle_incoming_messages(blocking=True)
+                self._running = (
+                    self.handle_incoming_messages(blocking=True)
+                    != MsgHandlingResult.TERMINATED
+                )
             self._running = False
 
-    def handle_incoming_messages(self, blocking: bool = False) -> tuple[bool, bool]:
+    def handle_incoming_messages(self, blocking: bool = False) -> MsgHandlingResult:
         """
         Empties queue of incoming messages (should be called regularly, see `run`).
         Optionally blocking, ensuring that at least one message will be handled.
@@ -268,7 +277,7 @@ class SocketRelay:
             self.socket.setblocking(blocking)
             incoming_message = self.read_message()
             try:
-                return self.handle_incoming_message(incoming_message), True
+                return self.handle_incoming_message(incoming_message)
             except flat.InvalidFlatbuffer as e:
                 self.logger.error(
                     "Error while unpacking message of type %s (%s bytes): %s",
@@ -276,22 +285,24 @@ class SocketRelay:
                     len(incoming_message.data),
                     e,
                 )
-                return False, False
+                return MsgHandlingResult.TERMINATED
             except Exception as e:
                 self.logger.error(
                     "Unexpected error while handling message of type %s: %s",
                     incoming_message.type.name,
                     e,
                 )
-                return False, False
+                return MsgHandlingResult.TERMINATED
         except BlockingIOError:
             # No incoming messages and blocking==False
-            return True, False
+            return MsgHandlingResult.NO_INCOMING_MSGS
         except:
             self.logger.error("SocketRelay disconnected unexpectedly!")
-            return False, False
+            return MsgHandlingResult.TERMINATED
 
-    def handle_incoming_message(self, incoming_message: SocketMessage):
+    def handle_incoming_message(
+        self, incoming_message: SocketMessage
+    ) -> MsgHandlingResult:
         """
         Handles a messages by passing it to the relevant handlers.
         Returns True if the message was NOT a shutdown request (i.e. NONE).
@@ -302,7 +313,7 @@ class SocketRelay:
 
         match incoming_message.type:
             case SocketDataType.NONE:
-                return False
+                return MsgHandlingResult.TERMINATED
             case SocketDataType.GAME_PACKET:
                 if len(self.packet_handlers) > 0:
                     packet = flat.GamePacket.unpack(incoming_message.data)
@@ -340,7 +351,7 @@ class SocketRelay:
             case _:
                 pass
 
-        return True
+        return MsgHandlingResult.MORE_MSGS_QUEUED
 
     def disconnect(self):
         if not self.is_connected:

@@ -1,10 +1,15 @@
-from logging import Logger
 import os
+from logging import Logger
 from traceback import print_exc
 from typing import Optional
 
 from rlbot import flat
-from rlbot.interface import RLBOT_SERVER_IP, SocketRelay, RLBOT_SERVER_PORT
+from rlbot.interface import (
+    RLBOT_SERVER_IP,
+    RLBOT_SERVER_PORT,
+    MsgHandlingResult,
+    SocketRelay,
+)
 from rlbot.managers import Renderer
 from rlbot.utils import fill_desired_game_state
 from rlbot.utils.logging import DEFAULT_LOGGER, get_logger
@@ -170,18 +175,19 @@ class Hivemind:
         while running:
             # If there might be more messages,
             # check for another one with blocking=False
-            # if there are no more messages, this immediately returns with has_more_messages=False
-            # after there are no more messages and we've processed the latest packet,
-            # wait for the next one with blocking=True
-            running, has_more_messages = self._game_interface.handle_incoming_messages(
+            # if there are no more messages, process the latest packet
+            # then wait for the next message with blocking=True
+            match self._game_interface.handle_incoming_messages(
                 blocking=not has_more_messages
-            )
+            ):
+                case MsgHandlingResult.TERMINATED:
+                    running = False
+                case MsgHandlingResult.NO_INCOMING_MSGS:
+                    has_more_messages = False
 
-            # if there might be more messages, handle them first
-            # this ensures that only the latest packet is processed
-            if self._latest_packet is not None and running and not has_more_messages:
-                self._packet_processor(self._latest_packet)
-                self._latest_packet = None
+                    if self._latest_packet is not None:
+                        self._packet_processor(self._latest_packet)
+                        self._latest_packet = None
 
     def run(
         self,
