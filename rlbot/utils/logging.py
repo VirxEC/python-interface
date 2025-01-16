@@ -1,9 +1,23 @@
 import logging
+import os
 import sys
 
 DEFAULT_LOGGER_NAME = "rlbot"
 DEFAULT_LOGGER = None
-LOGGING_LEVEL = logging.INFO
+
+match os.environ.get("RLBOT_LOG_LEVEL"):
+    case "debug":
+        LOGGING_LEVEL = logging.DEBUG
+    case "info":
+        LOGGING_LEVEL = logging.INFO
+    case "warn":
+        LOGGING_LEVEL = logging.WARNING
+    case "error":
+        LOGGING_LEVEL = logging.ERROR
+    case "critical":
+        LOGGING_LEVEL = logging.CRITICAL
+    case _:
+        LOGGING_LEVEL = logging.INFO
 
 logging.getLogger().setLevel(logging.NOTSET)
 
