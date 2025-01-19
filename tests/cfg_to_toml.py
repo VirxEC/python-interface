@@ -115,7 +115,7 @@ class Bot:
         toml_dict["details"] = self._convert_details()
         toml_dict["settings"][
             "agent_id"
-        ] = f"{toml_dict["details"]["author"]}/{toml_dict["settings"]["name"]}"
+        ] = f"{toml_dict["details"]["developer"]}/{toml_dict["settings"]["name"]}"
 
         return toml_dict
 
