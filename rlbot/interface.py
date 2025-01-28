@@ -105,9 +105,11 @@ class SocketRelay:
 
     def _read_exact(self, n: int) -> bytes:
         buff = bytearray(n)
+        view = memoryview(buff)
+
         pos = 0
         while pos < n:
-            cr = self.socket.recv_into(memoryview(buff)[pos:])
+            cr = self.socket.recv_into(view[pos:])
             if cr == 0:
                 raise EOFError
             pos += cr
