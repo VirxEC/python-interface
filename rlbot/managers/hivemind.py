@@ -264,7 +264,7 @@ class Hivemind:
         balls: dict[int, flat.DesiredBallState] = {},
         cars: dict[int, flat.DesiredCarState] = {},
         match_info: Optional[flat.DesiredMatchInfo] = None,
-        commands: list[flat.ConsoleCommand] = [],
+        commands: list[str] = [],
     ):
         """
         Sets the game to the desired state.
