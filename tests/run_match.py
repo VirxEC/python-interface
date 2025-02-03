@@ -4,10 +4,10 @@ from time import sleep
 from rlbot import flat
 from rlbot.managers import MatchManager
 
-CURRENT_FILE = Path(__file__).parent
+DIR = Path(__file__).parent
 
-MATCH_CONFIG_PATH = CURRENT_FILE / "render_test.toml"
-RLBOT_SERVER_FOLDER = CURRENT_FILE / "../../core/RLBotCS/bin/Release/"
+MATCH_CONFIG_PATH = DIR / "render_test.toml"
+RLBOT_SERVER_FOLDER = DIR / "../../core/RLBotCS/bin/Release/"
 
 if __name__ == "__main__":
     match_manager = MatchManager(RLBOT_SERVER_FOLDER)

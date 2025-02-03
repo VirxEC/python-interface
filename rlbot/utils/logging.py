@@ -2,7 +2,7 @@ import logging
 import sys
 
 DEFAULT_LOGGER_NAME = "rlbot"
-DEFAULT_LOGGER = None
+DEFAULT_LOGGER = None  # Set later
 LOGGING_LEVEL = logging.INFO
 
 logging.getLogger().setLevel(logging.NOTSET)

@@ -2,10 +2,10 @@ from pathlib import Path
 
 from rlbot.managers import MatchManager
 
-CURRENT_FILE = Path(__file__).parent
+DIR = Path(__file__).parent
 
-MATCH_CONFIG_PATH = CURRENT_FILE / "human_vs_necto.toml"
-RLBOT_SERVER_FOLDER = CURRENT_FILE / "../"
+MATCH_CONFIG_PATH = DIR / "human_vs_necto.toml"
+RLBOT_SERVER_FOLDER = DIR / "../"
 
 if __name__ == "__main__":
     # start the match
