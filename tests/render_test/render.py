@@ -1,5 +1,5 @@
 from rlbot import flat
-from rlbot.flat import BallAnchor, Vector3, CarAnchor, RenderAnchor, Color
+from rlbot.flat import BallAnchor, CarAnchor, Color, RenderAnchor, Vector3
 from rlbot.managers import Script
 
 

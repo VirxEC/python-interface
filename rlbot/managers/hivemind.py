@@ -170,7 +170,6 @@ class Hivemind:
 
     def _run(self):
         running = True
-        has_more_messages = True
 
         while running:
             # If there might be more messages,
@@ -178,13 +177,11 @@ class Hivemind:
             # if there are no more messages, process the latest packet
             # then wait for the next message with blocking=True
             match self._game_interface.handle_incoming_messages(
-                blocking=not has_more_messages
+                blocking=self._latest_packet is None
             ):
                 case MsgHandlingResult.TERMINATED:
                     running = False
                 case MsgHandlingResult.NO_INCOMING_MSGS:
-                    has_more_messages = False
-
                     if self._latest_packet is not None:
                         self._packet_processor(self._latest_packet)
                         self._latest_packet = None
@@ -267,7 +264,7 @@ class Hivemind:
         balls: dict[int, flat.DesiredBallState] = {},
         cars: dict[int, flat.DesiredCarState] = {},
         match_info: Optional[flat.DesiredMatchInfo] = None,
-        commands: list[flat.ConsoleCommand] = [],
+        commands: list[str] = [],
     ):
         """
         Sets the game to the desired state.

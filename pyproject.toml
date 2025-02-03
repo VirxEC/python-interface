@@ -12,6 +12,11 @@ dependencies = [
     "psutil==6.*",
 ]
 readme = "README.md"
+license = {text = "Unlicense"}
+authors = [
+    {name = "RLBot Community", email = "rlbotofficial@gmail.com" }
+]
+keywords = ["rocket-league"]
 
 [project.urls]
 Repository = "https://github.com/VirxEC/python-interface"

@@ -1,4 +1,4 @@
-rlbot==5.*
+rlbot==2.*
 numpy==1.*
 rocketsim==2.1.*
 rlgym_compat @ git+https://github.com/JPK314/rlgym-compat@rlgymv2-rlbot-v5

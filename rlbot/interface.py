@@ -1,6 +1,7 @@
 import logging
 import time
 from collections.abc import Callable
+from dataclasses import dataclass
 from enum import IntEnum
 from pathlib import Path
 from socket import IPPROTO_TCP, TCP_NODELAY, socket
@@ -41,10 +42,10 @@ class SocketDataType(IntEnum):
     CONTROLLABLE_TEAM_INFO = 15
 
 
+@dataclass(repr=False, eq=False, frozen=True, match_args=False, slots=True)
 class SocketMessage:
-    def __init__(self, type: int, data: bytes):
-        self.type = SocketDataType(type)
-        self.data = data
+    type: SocketDataType
+    data: bytes
 
 
 class MsgHandlingResult(IntEnum):
@@ -104,9 +105,11 @@ class SocketRelay:
 
     def _read_exact(self, n: int) -> bytes:
         buff = bytearray(n)
+        view = memoryview(buff)
+
         pos = 0
         while pos < n:
-            cr = self.socket.recv_into(memoryview(buff)[pos:])
+            cr = self.socket.recv_into(view[pos:])
             if cr == 0:
                 raise EOFError
             pos += cr
@@ -116,7 +119,7 @@ class SocketRelay:
         type_int = self._read_int()
         size = self._read_int()
         data = self._read_exact(size)
-        return SocketMessage(type_int, data)
+        return SocketMessage(SocketDataType(type_int), data)
 
     def send_bytes(self, data: bytes, data_type: SocketDataType):
         assert self.is_connected, "Connection has not been established"

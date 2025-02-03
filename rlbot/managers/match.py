@@ -4,7 +4,7 @@ from typing import Optional
 
 import psutil
 
-from rlbot import flat, version
+from rlbot import flat
 from rlbot.interface import RLBOT_SERVER_IP, RLBOT_SERVER_PORT, SocketRelay
 from rlbot.utils import fill_desired_game_state, gateway
 from rlbot.utils.logging import DEFAULT_LOGGER
@@ -26,16 +26,12 @@ class MatchManager:
         self,
         main_executable_path: Optional[Path] = None,
         main_executable_name: str = MAIN_EXECUTABLE_NAME,
-        print_version_info: bool = True,
     ):
         self.main_executable_path = main_executable_path
         self.main_executable_name = main_executable_name
 
         self.rlbot_interface: SocketRelay = SocketRelay("")
         self.rlbot_interface.packet_handlers.append(self._packet_reporter)
-
-        if print_version_info:
-            version.print_current_release_notes()
 
     def ensure_server_started(self):
         """
@@ -143,7 +139,7 @@ class MatchManager:
         balls: dict[int, flat.DesiredBallState] = {},
         cars: dict[int, flat.DesiredCarState] = {},
         match_info: Optional[flat.DesiredMatchInfo] = None,
-        commands: list[flat.ConsoleCommand] = [],
+        commands: list[str] = [],
     ):
         """
         Sets the game to the desired state.
