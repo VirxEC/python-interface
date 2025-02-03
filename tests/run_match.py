@@ -12,7 +12,6 @@ RLBOT_SERVER_FOLDER = DIR / "../../core/RLBotCS/bin/Release/"
 if __name__ == "__main__":
     match_manager = MatchManager(RLBOT_SERVER_FOLDER)
 
-    match_manager.ensure_server_started()
     match_manager.start_match(MATCH_CONFIG_PATH)
     assert match_manager.packet is not None
 
