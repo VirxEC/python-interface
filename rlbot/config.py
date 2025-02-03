@@ -45,7 +45,7 @@ def load_match_config(config_path: Path | str) -> flat.MatchConfiguration:
 
         loadout_file = car_table.get("loadout_file")
         variant = car_table.get("type", "rlbot")
-        skill = __parse_enum(car_table, "skill", flat.PsyonixSkill)
+        skill = __parse_enum(car_table, "skill", flat.PsyonixSkill, int(flat.PsyonixSkill.AllStar))
         match variant:
             case "rlbot":
                 if car_config is None:
