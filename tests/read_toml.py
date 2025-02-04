@@ -1,9 +1,10 @@
 from pathlib import Path
 
-from rlbot import flat
-from rlbot.managers.match import get_player_config
+from rlbot.config import load_match_config
 
-CURRENT_FILE = Path(__file__).parent
+DIR = Path(__file__).parent
+
+MATCH_CONFIG_PATH = DIR / "rlbot.toml"
 
 if __name__ == "__main__":
-    print(get_player_config(flat.CustomBot(), 0, CURRENT_FILE / "necto/bot.toml"))
+    print(load_match_config(MATCH_CONFIG_PATH))

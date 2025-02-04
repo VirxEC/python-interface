@@ -3,7 +3,7 @@ import os
 import sys
 
 DEFAULT_LOGGER_NAME = "rlbot"
-DEFAULT_LOGGER = None
+DEFAULT_LOGGER = None  # Set later
 
 match os.environ.get("RLBOT_LOG_LEVEL"):
     case "debug":

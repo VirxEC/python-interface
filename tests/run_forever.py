@@ -2,13 +2,14 @@ from pathlib import Path
 from time import sleep
 
 from rlbot import flat
-from rlbot.managers import MatchManager, get_player_config
+from rlbot.config import load_player_config
+from rlbot.managers import MatchManager
 from rlbot.utils.maps import GAME_MAP_TO_UPK, STANDARD_MAPS
 
-THIS_DIR = Path(__file__).parent
+DIR = Path(__file__).parent
 
-BOT_PATH = THIS_DIR / "atba/atba.bot.toml"
-RLBOT_SERVER_FOLDER = THIS_DIR / "../../core/RLBotCS/bin/Release/"
+BOT_PATH = DIR / "atba/atba.bot.toml"
+RLBOT_SERVER_FOLDER = DIR / "../../core/RLBotCS/bin/Release/"
 
 if __name__ == "__main__":
     match_manager = MatchManager(RLBOT_SERVER_FOLDER)
@@ -16,8 +17,8 @@ if __name__ == "__main__":
 
     current_map = -1
 
-    blue_bot = get_player_config(flat.CustomBot(), 0, BOT_PATH)
-    orange_bot = get_player_config(flat.CustomBot(), 1, BOT_PATH)
+    blue_bot = load_player_config(BOT_PATH, flat.CustomBot(), 0)
+    orange_bot = load_player_config(BOT_PATH, flat.CustomBot(), 1)
 
     match_settings = flat.MatchConfiguration(
         launcher=flat.Launcher.Steam,

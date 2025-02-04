@@ -12,18 +12,6 @@ enable_rendering = true
 enable_state_setting = true
 auto_save_replay = false
 
-[mutators]
-match_length = "TwentyMinutes"
-ball_max_speed = "Fast"
-ball_type = "Puck"
-ball_weight = "SuperLight"
-ball_size = "Large"
-ball_bounciness = "SuperHigh"
-boost_amount = "UnlimitedBoost"
-rumble = "SpikesOnly"
-boost_strength = "OneAndAHalf"
-respawn_time = "One_Second"
-
 [[cars]]
 # The location of the configuration file for your agent here
 # The path is always relative to the folder that this file is in
@@ -59,3 +47,15 @@ skill = "pro"
 [[cars]]
 type = "human"
 team = 1
+
+[mutators]
+match_length = "TwentyMinutes"
+ball_max_speed = "Fast"
+ball_type = "Puck"
+ball_weight = "SuperLight"
+ball_size = "Large"
+ball_bounciness = "SuperHigh"
+boost_amount = "UnlimitedBoost"
+rumble = "SpikesOnly"
+boost_strength = "OneAndAHalf"
+respawn_time = "OneSecond"

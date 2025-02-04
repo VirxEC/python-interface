@@ -22,7 +22,7 @@ existing_match_behavior = "Restart"
 enable_rendering = false
 enable_state_setting = true
 auto_save_replay = false
-# Whether or not to use freeplay instead of an exhibition match
+# Whether to use freeplay instead of an exhibition match
 freeplay = false
 
 [mutators]

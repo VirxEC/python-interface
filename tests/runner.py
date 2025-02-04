@@ -5,10 +5,10 @@ from traceback import print_exc
 from rlbot.managers.match import MatchManager
 from rlbot.utils.logging import get_logger
 
-CURRENT_FILE = Path(__file__).parent
+DIR = Path(__file__).parent
 
-MATCH_CONFIG_PATH = CURRENT_FILE / "human_vs_atba.toml"
-RLBOT_SERVER_FOLDER = CURRENT_FILE / "../../core/RLBotCS/bin/Release/"
+MATCH_CONFIG_PATH = DIR / "human_vs_atba.toml"
+RLBOT_SERVER_FOLDER = DIR / "../../core/RLBotCS/bin/Release/"
 
 if __name__ == "__main__":
     logger = get_logger("runner")
