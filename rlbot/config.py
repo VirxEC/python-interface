@@ -178,17 +178,18 @@ def load_player_config(
 
     run_command = settings.get("run_command", "")
     if CURRENT_OS == OS.LINUX and "run_command_linux" in settings:
-        run_command = settings["run_command_linux"]
+        run_command = settings.get("run_command_linux", "")
 
-    loadout_path = path.parent / Path(settings["loadout_file"]) if "loadout_file" in settings else loadout_override
+    loadout_path = path.parent / Path(settings["loadout_file"]) if "loadout_file" in settings else None
+    loadout_path = loadout_override or loadout_path
     loadout = load_player_loadout(loadout_path, team) if loadout_path is not None else None
 
     return flat.PlayerConfiguration(
         type,
-        settings.get("name", name_override or "Unnamed"),
+        name_override or settings.get("name"),
         team,
         str(root_dir),
-        str(run_command),
+        run_command,
         loadout,
         0,
         settings.get("agent_id", ""),
