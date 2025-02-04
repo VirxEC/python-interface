@@ -9,7 +9,7 @@ from rlbot.utils.os_detector import CURRENT_OS, OS
 
 def __parse_enum(table: dict, key: str, enum: Any, default: int = 0) -> Any:
     if key not in table:
-        return enum(0)
+        return enum(default)
     try:
         for i in range(100000):
             if str(enum(i)).split('.')[-1].lower() == table[key].lower():
