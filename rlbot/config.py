@@ -186,7 +186,7 @@ def load_player_config(
 
     return flat.PlayerConfiguration(
         type,
-        name_override or settings.get("name"),
+        name_override or settings.get("name", ""),
         team,
         str(root_dir),
         run_command,
@@ -216,7 +216,7 @@ def load_script_config(path: Path | str) -> flat.ScriptConfiguration:
         run_command = settings["run_command_linux"]
 
     return flat.ScriptConfiguration(
-        settings.get("name", "Unnamed"),
+        settings.get("name", ""),
         str(root_dir),
         run_command,
         0,
