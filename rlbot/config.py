@@ -15,7 +15,8 @@ def __parse_enum(table: dict, key: str, enum: Any, default: int = 0) -> Any:
             if str(enum(i)).split('.')[-1].lower() == table[key].lower():
                 return enum(i)
     except ValueError:
-        logger.warning(f"Unknown value '{table[key]}' for key '{key}' using default ({enum(default)})")
+        logger.error(f"Invalid value '{table[key]}' for key '{key}'. "
+                       f"Using default '{str(enum(default)).split('.')[-1]}' instead.")
         return enum(default)
 
 
@@ -41,29 +42,33 @@ def load_match_config(config_path: Path | str) -> flat.MatchConfiguration:
         except ValueError:
             team = {"blue": 0, "orange": 1}.get(team.lower())
         if team is None or team not in [0, 1]:
-            logger.warning(f"Unknown team '{car_table.get("team")}' for player {len(players)}, using default team 0")
+            logger.error(f"Invalid team '{car_table.get("team")}' for player {len(players)}. "
+                           "Using default team 0 instead.")
 
         loadout_file = car_table.get("loadout_file")
-        variant = car_table.get("type", "rlbot")
         skill = __parse_enum(car_table, "skill", flat.PsyonixSkill, int(flat.PsyonixSkill.AllStar))
+        variant = car_table.get("type", "rlbot").lower()
+
         match variant:
             case "rlbot":
-                if car_config is None:
-                    loadout = load_player_loadout(loadout_file, team) if loadout_file else None
-                    players.append(flat.PlayerConfiguration(flat.CustomBot(), name, team, loadout=loadout))
-                else:
-                    abs_config_path = (config_path.parent / car_config).resolve()
-                    players.append(load_player_config(abs_config_path, flat.CustomBot(), team, name, loadout_file))
+                variety, use_config = flat.CustomBot(), True
             case "psyonix":
-                if car_config is None:
-                    loadout = load_player_loadout(loadout_file, team) if loadout_file else None
-                    players.append(flat.PlayerConfiguration(flat.Psyonix(skill), name, team, loadout=loadout))
-                else:
-                    abs_config_path = (config_path.parent / car_config).resolve()
-                    players.append(load_player_config(abs_config_path, flat.Psyonix(skill), team, name, loadout_file))
+                variety, use_config = flat.Psyonix(skill), True
             case "human":
-                loadout = load_player_loadout(loadout_file, team) if loadout_file else None
-                players.append(flat.PlayerConfiguration(flat.Human(), name, team, loadout=loadout))
+                variety, use_config = flat.Human(), False
+            case "partymember":
+                logger.warning("PartyMember player type is not supported yet.")
+                variety, use_config = flat.PartyMember, False
+            case t:
+                logger.error(f"Invalid player type '{t}' for player {len(players)}. Using default 'rlbot' instead.")
+                variety, use_config = flat.CustomBot(), True
+
+        if use_config and car_config is not None:
+            abs_config_path = (config_path.parent / car_config).resolve()
+            players.append(load_player_config(abs_config_path, variety, team, name, loadout_file))
+        else:
+            loadout = load_player_loadout(loadout_file, team) if loadout_file else None
+            players.append(flat.PlayerConfiguration(variety, name, team, loadout=loadout))
 
     scripts = []
     for script_table in config.get("scripts", []):
