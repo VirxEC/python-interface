@@ -6,7 +6,7 @@ from rlbot.managers import MatchManager
 
 DIR = Path(__file__).parent
 
-MATCH_CONFIG_PATH = DIR / "render_test.toml"
+MATCH_CONFIG_PATH = DIR / "human_vs_atba.toml"
 RLBOT_SERVER_FOLDER = DIR / "../../core/RLBotCS/bin/Release/"
 
 if __name__ == "__main__":
