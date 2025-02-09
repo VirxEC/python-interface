@@ -122,7 +122,7 @@ class MatchManager:
 
         if wait_for_start:
             self.wait_for_first_packet()
-            self.logger.info("Match has started.")
+            self.logger.debug("First packet received")
 
     def disconnect(self):
         """

@@ -95,4 +95,4 @@ class RenderFun(Script):
 
 
 if __name__ == "__main__":
-    RenderFun().run(wants_match_communications=False, wants_ball_predictions=False)
+    RenderFun("testing/render_test").run(wants_match_communications=False, wants_ball_predictions=False)

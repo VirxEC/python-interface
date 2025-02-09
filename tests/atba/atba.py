@@ -57,6 +57,7 @@ class Atba(Bot):
 
     last_demoed = False
     needs_render = True
+    next_teleport = 10
 
     last_send = 0
     controller = flat.ControllerState()
@@ -125,30 +126,30 @@ class Atba(Bot):
         steer_correction_radians = car_direction.correction_to(car_to_ball)
 
         self.controller.steer = -steer_correction_radians
-        self.controller.throttle = 1
+        self.controller.throttle = 1.0
 
         return self.controller
 
     def test_state_setting(self, packet: flat.GamePacket):
-        self.set_game_state(
-            {
-                0: flat.DesiredBallState(
-                    flat.DesiredPhysics(
-                        velocity=flat.Vector3Partial(
-                            z=packet.balls[0].physics.velocity.z + 10
+        if packet.match_info.seconds_elapsed > self.next_teleport:
+            self.next_teleport = packet.match_info.seconds_elapsed + 10
+            self.set_game_state(
+                {
+                    0: flat.DesiredBallState(
+                        flat.DesiredPhysics(
+                            location=flat.Vector3Partial(0, 0, 100),
                         )
                     )
-                )
-            },
-            {
-                i: flat.DesiredCarState(
-                    flat.DesiredPhysics(
-                        velocity=flat.Vector3Partial(z=car.physics.velocity.z + 1)
+                },
+                {
+                    i: flat.DesiredCarState(
+                        flat.DesiredPhysics(
+                            rotation=flat.RotatorPartial(yaw=0)
+                        )
                     )
-                )
-                for i, car in enumerate(packet.players)
-            },
-        )
+                    for i, car in enumerate(packet.players)
+                },
+            )
 
     def test_rendering(self, packet: flat.GamePacket):
         if not self.needs_render:
@@ -163,6 +164,11 @@ class Atba(Bot):
             self.renderer.begin_rendering()
 
             text = ["Hello world!", "I hope I'm centered!"]
+            self.renderer.draw_line_3d(
+                flat.CarAnchor(self.index),
+                flat.RenderAnchor(flat.Vector3(0, 0, 150), flat.CarAnchor(self.index)),
+                self.renderer.lime,
+            )
             self.renderer.draw_string_3d(
                 "\n".join(text),
                 flat.CarAnchor(self.index),
