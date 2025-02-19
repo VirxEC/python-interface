@@ -7,6 +7,10 @@ from rlbot.utils.logging import DEFAULT_LOGGER as logger
 from rlbot.utils.os_detector import CURRENT_OS, OS
 
 
+class ConfigParsingException(Exception):
+    pass
+
+
 def __parse_enum(table: dict, key: str, enum: Any, default: int = 0) -> Any:
     if key not in table:
         return enum(default)
@@ -15,9 +19,7 @@ def __parse_enum(table: dict, key: str, enum: Any, default: int = 0) -> Any:
             if str(enum(i)).split('.')[-1].lower() == table[key].lower():
                 return enum(i)
     except ValueError:
-        logger.error(f"Invalid value '{table[key]}' for key '{key}'. "
-                       f"Using default '{str(enum(default)).split('.')[-1]}' instead.")
-        return enum(default)
+        raise ConfigParsingException(f"Invalid value \"{table[key]}\" for key \"{key}\".")
 
 
 def load_match_config(config_path: Path | str) -> flat.MatchConfiguration:
@@ -42,8 +44,7 @@ def load_match_config(config_path: Path | str) -> flat.MatchConfiguration:
         except ValueError:
             team = {"blue": 0, "orange": 1}.get(team.lower())
         if team is None or team not in [0, 1]:
-            logger.error(f"Invalid team '{car_table.get("team")}' for player {len(players)}. "
-                           "Using default team 0 instead.")
+            raise ConfigParsingException(f"Invalid team \"{car_table.get("team")}\" for player {len(players)}.")
 
         loadout_file = car_table.get("loadout_file")
         skill = __parse_enum(car_table, "skill", flat.PsyonixSkill, int(flat.PsyonixSkill.AllStar))
@@ -60,8 +61,7 @@ def load_match_config(config_path: Path | str) -> flat.MatchConfiguration:
                 logger.warning("PartyMember player type is not supported yet.")
                 variety, use_config = flat.PartyMember, False
             case t:
-                logger.error(f"Invalid player type '{t}' for player {len(players)}. Using default 'rlbot' instead.")
-                variety, use_config = flat.CustomBot(), True
+                raise ConfigParsingException(f"Invalid player type \"{t}\" for player {len(players)}.")
 
         if use_config and car_config is not None:
             abs_config_path = (config_path.parent / car_config).resolve()
