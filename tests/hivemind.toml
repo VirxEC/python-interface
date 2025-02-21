@@ -13,21 +13,21 @@ type = "human"
 team = 0
 
 [[cars]]
-config = "hivemind/bot.toml"
+config_file = "hivemind/bot.toml"
 team = 0
 
 [[cars]]
-config = "hivemind/bot.toml"
+config_file = "hivemind/bot.toml"
 team = 0
 
 [[cars]]
-config = "hivemind/bot.toml"
+config_file = "hivemind/bot.toml"
 team = 1
 
 [[cars]]
-config = "hivemind/bot.toml"
+config_file = "hivemind/bot.toml"
 team = 1
 
 [[cars]]
-config = "hivemind/bot.toml"
+config_file = "hivemind/bot.toml"
 team = 1

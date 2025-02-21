@@ -15,7 +15,7 @@ auto_save_replay = false
 [[cars]]
 # The location of the configuration file for your agent here
 # The path is always relative to the folder that this file is in
-config = "atba/atba.bot.toml"
+config_file = "atba/atba.bot.toml"
 # Which team the player should be on:
 # team 0 (blue) shoots on positive goal, team 1 (orange) shoots on negative goal
 team = 0
@@ -27,12 +27,12 @@ team = 0
 type = "rlbot"
 
 [[cars]]
-config = "atba/atba.bot.toml"
+config_file = "atba/atba.bot.toml"
 team = 1
 # you don't have to specify type/skill for rlbots
 
 [[cars]]
-config = "necto/bot.toml"
+config_file = "necto/bot.toml"
 team = 0
 
 [[cars]]
