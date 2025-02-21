@@ -11,4 +11,4 @@ type = "human"
 team = 0
 
 [[scripts]]
-config = "render_test/script.toml"
+config_file = "render_test/script.toml"

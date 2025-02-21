@@ -10,9 +10,9 @@ existing_match_behavior = "ContinueAndSpawn"
 skip_replays = true
 
 [[cars]]
-config = "necto/bot.toml"
+config_file = "necto/bot.toml"
 team = 1
 
 [[cars]]
-config = "necto/bot.toml"
+config_file = "necto/bot.toml"
 team = 0
