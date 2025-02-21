@@ -72,7 +72,7 @@ class ColoredWireframe:
                     ColoredPolygonGroup(
                         name=group_name[0],
                         polygons=list(),
-                        color=flat.Color(255, r, g, b),
+                        color=flat.Color(r, g, b),
                     )
                 )
 

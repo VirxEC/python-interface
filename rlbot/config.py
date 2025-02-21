@@ -16,10 +16,12 @@ def __enum(table: dict, key: str, enum: Any, default: int = 0) -> Any:
         return enum(default)
     try:
         for i in range(100000):
-            if str(enum(i)).split('.')[-1].lower() == table[key].lower():
+            if str(enum(i)).split(".")[-1].lower() == table[key].lower():
                 return enum(i)
     except ValueError:
-        raise ConfigParsingException(f"Invalid value {repr(table[key])} for key '{key}'.")
+        raise ConfigParsingException(
+            f"Invalid value {repr(table[key])} for key '{key}'."
+        )
 
 
 def __str(table: dict, key: str, default: str = "") -> str:
@@ -51,9 +53,9 @@ def __table(table: dict, key: str) -> dict:
 
 
 def __team(table: dict) -> int:
-    if 'team' not in table:
+    if "team" not in table:
         return 0
-    v = table['team']
+    v = table["team"]
     if isinstance(v, str):
         if v.lower() == "blue":
             return 0
@@ -62,7 +64,9 @@ def __team(table: dict) -> int:
     if isinstance(v, int):
         if 0 <= v <= 1:
             return v
-    raise ConfigParsingException(f"'team' has value {repr(v)}. Expected a 0, 1, \"blue\", or \"orange\".")
+    raise ConfigParsingException(
+        f'\'team\' has value {repr(v)}. Expected a 0, 1, "blue", or "orange".'
+    )
 
 
 def load_match_config(config_path: Path | str) -> flat.MatchConfiguration:
@@ -83,7 +87,9 @@ def load_match_config(config_path: Path | str) -> flat.MatchConfiguration:
         name = __str(car_table, "name")
         team = __team(car_table)
         loadout_file = __str(car_table, "loadout_file") or None
-        skill = __enum(car_table, "skill", flat.PsyonixSkill, int(flat.PsyonixSkill.AllStar))
+        skill = __enum(
+            car_table, "skill", flat.PsyonixSkill, int(flat.PsyonixSkill.AllStar)
+        )
         variant = __str(car_table, "type", "rlbot").lower()
 
         match variant:
@@ -97,14 +103,16 @@ def load_match_config(config_path: Path | str) -> flat.MatchConfiguration:
                 logger.warning("PartyMember player type is not supported yet.")
                 variety, use_config = flat.PartyMember, False
             case t:
-                raise ConfigParsingException(f"Invalid player type {repr(t)} for player {len(players)}.")
+                raise ConfigParsingException(
+                    f"Invalid player type {repr(t)} for player {len(players)}."
+                )
 
         if use_config and car_config:
             abs_config_path = (config_path.parent / car_config).resolve()
-            players.append(load_player_config(abs_config_path, variety, team, name, loadout_file))
+            players.append(load_player_config(abs_config_path, variety, team, name, loadout_file))  # type: ignore
         else:
             loadout = load_player_loadout(loadout_file, team) if loadout_file else None
-            players.append(flat.PlayerConfiguration(variety, name, team, loadout=loadout))
+            players.append(flat.PlayerConfiguration(variety, name, team, loadout=loadout))  # type: ignore
 
     scripts = []
     for script_table in config.get("scripts", []):
@@ -121,14 +129,20 @@ def load_match_config(config_path: Path | str) -> flat.MatchConfiguration:
         overtime=__enum(mutator_table, "overtime", flat.OvertimeMutator),
         series_length=__enum(mutator_table, "series_length", flat.SeriesLengthMutator),
         game_speed=__enum(mutator_table, "game_speed", flat.GameSpeedMutator),
-        ball_max_speed=__enum(mutator_table, "ball_max_speed", flat.BallMaxSpeedMutator),
+        ball_max_speed=__enum(
+            mutator_table, "ball_max_speed", flat.BallMaxSpeedMutator
+        ),
         ball_type=__enum(mutator_table, "ball_type", flat.BallTypeMutator),
         ball_weight=__enum(mutator_table, "ball_weight", flat.BallWeightMutator),
         ball_size=__enum(mutator_table, "ball_size", flat.BallSizeMutator),
-        ball_bounciness=__enum(mutator_table, "ball_bounciness", flat.BallBouncinessMutator),
+        ball_bounciness=__enum(
+            mutator_table, "ball_bounciness", flat.BallBouncinessMutator
+        ),
         boost_amount=__enum(mutator_table, "boost_amount", flat.BoostAmountMutator),
         rumble=__enum(mutator_table, "rumble", flat.RumbleMutator),
-        boost_strength=__enum(mutator_table, "boost_strength", flat.BoostStrengthMutator),
+        boost_strength=__enum(
+            mutator_table, "boost_strength", flat.BoostStrengthMutator
+        ),
         gravity=__enum(mutator_table, "gravity", flat.GravityMutator),
         demolish=__enum(mutator_table, "demolish", flat.DemolishMutator),
         respawn_time=__enum(mutator_table, "respawn_time", flat.RespawnTimeMutator),
@@ -148,7 +162,9 @@ def load_match_config(config_path: Path | str) -> flat.MatchConfiguration:
         skip_replays=__bool(match_table, "skip_replays"),
         instant_start=__bool(match_table, "instant_start"),
         mutators=mutators,
-        existing_match_behavior=__enum(match_table, "existing_match_behavior", flat.ExistingMatchBehavior),
+        existing_match_behavior=__enum(
+            match_table, "existing_match_behavior", flat.ExistingMatchBehavior
+        ),
         enable_rendering=__bool(match_table, "enable_rendering"),
         enable_state_setting=__bool(match_table, "enable_state_setting"),
         freeplay=__bool(match_table, "freeplay"),
@@ -196,8 +212,11 @@ def load_player_loadout(path: Path | str, team: int) -> flat.PlayerLoadout:
 
 
 def load_player_config(
-    path: Path | str, type: flat.CustomBot | flat.Psyonix, team: int,
-    name_override: str | None = None, loadout_override: Path | str | None = None,
+    path: Path | str,
+    type: flat.CustomBot | flat.Psyonix,
+    team: int,
+    name_override: str | None = None,
+    loadout_override: Path | str | None = None,
 ) -> flat.PlayerConfiguration:
     """
     Reads the bot toml file at the provided path and
@@ -217,9 +236,15 @@ def load_player_config(
     if CURRENT_OS == OS.LINUX and "run_command_linux" in settings:
         run_command = __str(settings, "run_command_linux")
 
-    loadout_path = path.parent / Path(__str(settings, "loadout_file")) if "loadout_file" in settings else None
+    loadout_path = (
+        path.parent / Path(__str(settings, "loadout_file"))
+        if "loadout_file" in settings
+        else None
+    )
     loadout_path = loadout_override or loadout_path
-    loadout = load_player_loadout(loadout_path, team) if loadout_path is not None else None
+    loadout = (
+        load_player_loadout(loadout_path, team) if loadout_path is not None else None
+    )
 
     return flat.PlayerConfiguration(
         type,

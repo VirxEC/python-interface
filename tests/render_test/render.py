@@ -68,7 +68,7 @@ class RenderFun(Script):
         )
 
         self.renderer.draw_rect_2d(
-            0.75, 0.75, 0.1, 0.1, Color(255, 150, 30, 100), centered=False
+            0.75, 0.75, 0.1, 0.1, Color(150, 30, 100), centered=False
         )
         self.renderer.draw_rect_2d(0.75, 0.75, 0.1, 0.1, self.renderer.black)
         for hkey, h in {
@@ -95,4 +95,6 @@ class RenderFun(Script):
 
 
 if __name__ == "__main__":
-    RenderFun("testing/render_test").run(wants_match_communications=False, wants_ball_predictions=False)
+    RenderFun("testing/render_test").run(
+        wants_match_communications=False, wants_ball_predictions=False
+    )

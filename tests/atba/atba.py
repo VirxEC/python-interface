@@ -143,9 +143,7 @@ class Atba(Bot):
                 },
                 {
                     i: flat.DesiredCarState(
-                        flat.DesiredPhysics(
-                            rotation=flat.RotatorPartial(yaw=0)
-                        )
+                        flat.DesiredPhysics(rotation=flat.RotatorPartial(yaw=0))
                     )
                     for i, car in enumerate(packet.players)
                 },
