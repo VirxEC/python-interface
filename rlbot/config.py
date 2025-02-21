@@ -33,7 +33,7 @@ def load_match_config(config_path: Path | str) -> flat.MatchConfiguration:
 
     players = []
     for car_table in config.get("cars", []):
-        car_config = car_table.get("config")
+        car_config = car_table.get("config_file")
         name = car_table.get("name", "")
         team = car_table.get("team", 0)
         try:
@@ -67,7 +67,7 @@ def load_match_config(config_path: Path | str) -> flat.MatchConfiguration:
 
     scripts = []
     for script_table in config.get("scripts", []):
-        if script_config := script_table.get("config"):
+        if script_config := script_table.get("config_file"):
             abs_config_path = (config_path.parent / script_config).resolve()
             scripts.append(load_script_config(abs_config_path))
         else:
@@ -85,7 +85,7 @@ def load_match_config(config_path: Path | str) -> flat.MatchConfiguration:
         ball_weight=__parse_enum(mutator_table, "ball_weight", flat.BallWeightMutator),
         ball_size=__parse_enum(mutator_table, "ball_size", flat.BallSizeMutator),
         ball_bounciness=__parse_enum(mutator_table, "ball_bounciness", flat.BallBouncinessMutator),
-        boost=__parse_enum(mutator_table, "boost_amount", flat.BoostMutator),
+        boost_amount=__parse_enum(mutator_table, "boost_amount", flat.BoostMutator),
         rumble=__parse_enum(mutator_table, "rumble", flat.RumbleMutator),
         boost_strength=__parse_enum(mutator_table, "boost_strength", flat.BoostStrengthMutator),
         gravity=__parse_enum(mutator_table, "gravity", flat.GravityMutator),

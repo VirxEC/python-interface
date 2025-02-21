@@ -14,5 +14,5 @@ type = "human"
 team = 0
 
 [[cars]]
-config = "atba/atba.bot.toml"
+config_file = "atba/atba.bot.toml"
 team = 1
