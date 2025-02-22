@@ -66,6 +66,7 @@ class SocketRelay:
     is_connected = False
     _running = False
     """Indicates whether a messages are being handled by the `run` loop (potentially in a background thread)"""
+    _ball_pred = flat.BallPrediction()
 
     on_connect_handlers: list[Callable[[], None]] = []
     packet_handlers: list[Callable[[flat.GamePacket], None]] = []
@@ -341,7 +342,7 @@ class SocketRelay:
                         handler(match_comm)
             case SocketDataType.BALL_PREDICTION:
                 if len(self.ball_prediction_handlers) > 0:
-                    ball_prediction = flat.BallPrediction.unpack(incoming_message.data)
+                    ball_prediction = self._ball_pred.unpack_with(incoming_message.data)
                     for handler in self.ball_prediction_handlers:
                         handler(ball_prediction)
             case SocketDataType.CONTROLLABLE_TEAM_INFO:
