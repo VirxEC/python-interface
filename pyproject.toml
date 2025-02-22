@@ -12,7 +12,7 @@ dependencies = [
     "psutil==7.*",
 ]
 readme = "README.md"
-license = {text = "Unlicense"}
+license = {text = "MIT"}
 authors = [
     {name = "RLBot Community", email = "rlbotofficial@gmail.com" }
 ]
