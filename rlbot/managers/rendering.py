@@ -180,7 +180,7 @@ class Renderer:
         anchor: flat.RenderAnchor | flat.BallAnchor | flat.CarAnchor | flat.Vector3,
         scale: float,
         foreground: flat.Color,
-        background: flat.Color = flat.Color(),
+        background: flat.Color = flat.Color(a=0),
         h_align: flat.TextHAlign = flat.TextHAlign.Left,
         v_align: flat.TextVAlign = flat.TextVAlign.Top,
     ):
@@ -207,7 +207,7 @@ class Renderer:
         y: float,
         scale: float,
         foreground: flat.Color,
-        background: flat.Color = flat.Color(),
+        background: flat.Color = flat.Color(a=0),
         h_align: flat.TextHAlign = flat.TextHAlign.Left,
         v_align: flat.TextVAlign = flat.TextVAlign.Top,
     ):
