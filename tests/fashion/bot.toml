@@ -1,0 +1,13 @@
+[settings]
+agent_id = "testing/fashion"
+name = "Fashion"
+run_command = "..\\..\\venv\\Scripts\\python bot.py"
+run_command_linux = "../../venv/bin/python bot.py"
+
+[details]
+description = "Made possible by RLBot"
+fun_fact = "This is a test bot"
+source_link = "https://github.com/RLBot/RLBot"
+developer = "BotMaker"
+language = "Python 3"
+tags = ["memebot"]

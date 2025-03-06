@@ -268,7 +268,7 @@ class Bot:
         Does nothing if called outside `initialize` unless state setting is enabled in which case it
         respawns the car with the new loadout.
         """
-        self._game_interface.send_set_loadout(flat.SetLoadout(self.spawn_id, loadout))
+        self._game_interface.send_set_loadout(flat.SetLoadout(self.index, loadout))
 
     def initialize(self):
         """

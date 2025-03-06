@@ -228,13 +228,13 @@ class Script:
         game_state = fill_desired_game_state(balls, cars, match_info, commands)
         self._game_interface.send_game_state(game_state)
 
-    def set_loadout(self, loadout: flat.PlayerLoadout, spawn_id: int):
+    def set_loadout(self, loadout: flat.PlayerLoadout, index: int):
         """
         Sets the loadout of a bot.
 
         Will be ignored if called when state setting is disabled.
         """
-        self._game_interface.send_set_loadout(flat.SetLoadout(spawn_id, loadout))
+        self._game_interface.send_set_loadout(flat.SetLoadout(index, loadout))
 
     def initialize(self):
         """
