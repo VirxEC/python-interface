@@ -342,9 +342,9 @@ class SocketRelay:
                         handler(match_comm)
             case SocketDataType.BALL_PREDICTION:
                 if len(self.ball_prediction_handlers) > 0:
-                    ball_prediction = self._ball_pred.unpack_with(incoming_message.data)
+                    self._ball_pred.unpack_with(incoming_message.data)
                     for handler in self.ball_prediction_handlers:
-                        handler(ball_prediction)
+                        handler(self._ball_pred)
             case SocketDataType.CONTROLLABLE_TEAM_INFO:
                 if len(self.controllable_team_info_handlers) > 0:
                     player_mappings = flat.ControllableTeamInfo.unpack(
