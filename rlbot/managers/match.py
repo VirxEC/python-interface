@@ -70,7 +70,7 @@ class MatchManager:
         wants_ball_predictions: bool,
         close_between_matches: bool = True,
         rlbot_server_ip: str = RLBOT_SERVER_IP,
-        rlbot_server_port: int = RLBOT_SERVER_PORT,
+        rlbot_server_port: Optional[int] = None,
     ):
         """
         Connects to the RLBot server specifying the given settings.
@@ -85,7 +85,7 @@ class MatchManager:
             wants_ball_predictions=wants_ball_predictions,
             close_between_matches=close_between_matches,
             rlbot_server_ip=rlbot_server_ip,
-            rlbot_server_port=rlbot_server_port,
+            rlbot_server_port=rlbot_server_port or self.rlbot_server_port,
         )
 
     def wait_for_first_packet(self):
@@ -107,7 +107,7 @@ class MatchManager:
         self.ensure_server_started()
 
         if not self.rlbot_interface.is_connected:
-            self.rlbot_interface.connect(
+            self.connect(
                 wants_match_communications=False,
                 wants_ball_predictions=False,
                 close_between_matches=False,

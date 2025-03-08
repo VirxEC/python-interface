@@ -214,7 +214,9 @@ class SocketRelay:
                 if time.time() > begin_time + next_warning:
                     next_warning *= 2
                     self.logger.warning(
-                        "Connection is being refused/aborted. Trying again ..."
+                        "Connection is being refused/aborted on %s:%s. Trying again ...",
+                        rlbot_server_ip,
+                        rlbot_server_port,
                     )
             if not self.is_connected:
                 raise ConnectionRefusedError(
