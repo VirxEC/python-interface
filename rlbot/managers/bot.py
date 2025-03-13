@@ -261,14 +261,16 @@ class Bot:
         game_state = fill_desired_game_state(balls, cars, match_info, commands)
         self._game_interface.send_game_state(game_state)
 
-    def set_loadout(self, loadout: flat.PlayerLoadout):
+    def set_loadout(self, loadout: flat.PlayerLoadout, index: Optional[int] = None):
         """
         Sets the loadout of a bot.
         Can be used to select or generate a loadout for the match when called inside `initialize`.
         Does nothing if called outside `initialize` unless state setting is enabled in which case it
         respawns the car with the new loadout.
         """
-        self._game_interface.send_set_loadout(flat.SetLoadout(self.index, loadout))
+        self._game_interface.send_set_loadout(
+            flat.SetLoadout(index or self.index, loadout)
+        )
 
     def initialize(self):
         """
