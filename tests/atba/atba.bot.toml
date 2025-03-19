@@ -4,7 +4,7 @@ agent_id = "testing/atba"
 # The name that will be displayed in game
 name = "ATBA_v5"
 # Path to loadout config from runner
-loadout_file = "../necto/loadout.toml"
+loadout_file = "loadout.toml"
 # (OPTIONAL) - what you want the working directory set to
 # This is relative to the location of this file
 root_dir = ""
