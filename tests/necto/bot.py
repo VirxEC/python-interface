@@ -96,7 +96,9 @@ class Necto(Bot):
             weight = mean_weights[i] / mx
             dest = loc + obs[1][0, i, 5:8] * 2300 * invert
             color = self.renderer.create_color(
-                round(255 * (1 - weight)), round(255), round(255 * (1 - weight))
+                round(255 * (1 - weight)),
+                255,
+                round(255 * (1 - weight)),
             )
 
             self.renderer.draw_string_3d(
