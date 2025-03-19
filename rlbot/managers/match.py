@@ -96,7 +96,10 @@ class MatchManager:
             sleep(0.1)
 
     def start_match(
-        self, config: Path | flat.MatchConfiguration, wait_for_start: bool = True
+        self,
+        config: Path | flat.MatchConfiguration,
+        wait_for_start: bool = True,
+        ensure_server_started: bool = True,
     ):
         """
         Starts a match using the given match settings or a path to a match settings toml file.
@@ -104,7 +107,8 @@ class MatchManager:
         want this process to receive match communication or ball prediction messages.
         """
 
-        self.ensure_server_started()
+        if ensure_server_started:
+            self.ensure_server_started()
 
         if not self.rlbot_interface.is_connected:
             self.connect(
