@@ -1,6 +1,6 @@
 import tomllib
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import rlbot.flat as flat
 from rlbot.utils.logging import DEFAULT_LOGGER as logger
@@ -11,7 +11,7 @@ class ConfigParsingException(Exception):
     pass
 
 
-def __enum(table: dict, key: str, enum: Any, default: int = 0) -> Any:
+def __enum(table: dict[str, str | Any], key: str, enum: Any, default: int = 0) -> Any:
     if key not in table:
         return enum(default)
     try:
@@ -24,35 +24,35 @@ def __enum(table: dict, key: str, enum: Any, default: int = 0) -> Any:
         )
 
 
-def __str(table: dict, key: str, default: str = "") -> str:
+def __str(table: dict[str, str | Any], key: str, default: str = "") -> str:
     v = table.get(key, default)
     if isinstance(v, str):
         return v
     raise ConfigParsingException(f"'{key}' has value {repr(v)}. Expected a string.")
 
 
-def __bool(table: dict, key: str, default: bool = False) -> bool:
+def __bool(table: dict[str, bool | Any], key: str, default: bool = False) -> bool:
     v = table.get(key, default)
     if isinstance(v, bool):
         return v
     raise ConfigParsingException(f"'{key}' has value {repr(v)}. Expected a bool.")
 
 
-def __int(table: dict, key: str, default: int = 0) -> int:
+def __int(table: dict[str, int | Any], key: str, default: int = 0) -> int:
     v = table.get(key, default)
     if isinstance(v, int):
         return v
     raise ConfigParsingException(f"'{key}' has value {repr(v)}. Expected an int.")
 
 
-def __table(table: dict, key: str) -> dict:
+def __table(table: dict[str, dict[str, Any] | Any], key: str) -> dict[str, Any]:
     v = table.get(key, dict())
     if isinstance(v, dict):
-        return v
+        return v  # type: ignore
     raise ConfigParsingException(f"'{key}' has value {repr(v)}. Expected a table.")
 
 
-def __team(table: dict) -> int:
+def __team(table: dict[str, Literal["blue", "orange", 0, 1] | Any]) -> int:
     if "team" not in table:
         return 0
     v = table["team"]
@@ -81,7 +81,7 @@ def load_match_config(config_path: Path | str) -> flat.MatchConfiguration:
     match_table = __table(config, "match")
     mutator_table = __table(config, "mutators")
 
-    players = []
+    players: list[flat.PlayerConfiguration] = []
     for car_table in config.get("cars", []):
         car_config = __str(car_table, "config_file")
         name = __str(car_table, "name")
@@ -101,7 +101,7 @@ def load_match_config(config_path: Path | str) -> flat.MatchConfiguration:
                 variety, use_config = flat.Human(), False
             case "partymember":
                 logger.warning("PartyMember player type is not supported yet.")
-                variety, use_config = flat.PartyMember, False
+                variety, use_config = flat.PartyMember(), False
             case t:
                 raise ConfigParsingException(
                     f"Invalid player type {repr(t)} for player {len(players)}."
@@ -109,12 +109,16 @@ def load_match_config(config_path: Path | str) -> flat.MatchConfiguration:
 
         if use_config and car_config:
             abs_config_path = (config_path.parent / car_config).resolve()
-            players.append(load_player_config(abs_config_path, variety, team, name, loadout_file))  # type: ignore
+            players.append(
+                load_player_config(abs_config_path, variety, team, name, loadout_file)  # type: ignore
+            )
         else:
             loadout = load_player_loadout(loadout_file, team) if loadout_file else None
-            players.append(flat.PlayerConfiguration(variety, name, team, loadout=loadout))  # type: ignore
+            players.append(
+                flat.PlayerConfiguration(variety, name, team, loadout=loadout)
+            )
 
-    scripts = []
+    scripts: list[flat.ScriptConfiguration] = []
     for script_table in config.get("scripts", []):
         if script_config := __str(script_table, "config_file"):
             abs_config_path = (config_path.parent / script_config).resolve()

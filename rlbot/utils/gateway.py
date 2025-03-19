@@ -50,7 +50,7 @@ def find_open_server_port() -> int:
 
 def launch(
     main_executable_path: Path, main_executable_name: str
-) -> tuple[subprocess.Popen, int]:
+) -> tuple[subprocess.Popen[bytes], int]:
     directory, path = find_main_executable_path(
         main_executable_path, main_executable_name
     )

@@ -185,6 +185,8 @@ class Hivemind:
                     if self._latest_packet is not None:
                         self._packet_processor(self._latest_packet)
                         self._latest_packet = None
+                case _:
+                    pass
 
     def run(
         self,
