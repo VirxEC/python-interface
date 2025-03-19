@@ -1,0 +1,15 @@
+[settings]
+name = "Nexto (Toxic!)"
+loadout_file = "loadout.toml"
+run_command = "..\\..\\venv\\Scripts\\python toxic.py"
+run_command_linux = "../../venv/bin/python toxic.py"
+logo_file = "nexto_logo.png"
+agent_id = "rlgym/nexto-toxic"
+
+[details]
+description = "Nexto, but angry"
+fun_fact = "No Fun Allowed"
+source_link = "https://github.com/Rolv-Arild/Necto"
+developer = "The Collective Hatred of the Rocket League Community"
+language = "rlgym"
+tags = ["1v1", "teamplay", "rumble", "heatseeker", "memebot"]

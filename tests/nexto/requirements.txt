@@ -1,0 +1,5 @@
+rlbot==2.*
+numpy==1.*
+rlgym_compat @ git+https://github.com/JPK314/rlgym-compat@rlgymv2-rlbot-v5
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.4.1+cpu
