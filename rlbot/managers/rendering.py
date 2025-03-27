@@ -84,7 +84,7 @@ class Renderer:
         """
         Begins a new render group. All render messages added after this call will be part of this group.
         """
-        if self.is_rendering():
+        if self.is_rendering() and len(self._current_renders) > 0:
             self._logger.error(
                 "begin_rendering was called twice without end_rendering."
             )
@@ -100,9 +100,10 @@ class Renderer:
         all render messages queued between these two calls.
         """
         if self._group_id is None:
-            self._logger.error(
-                "`end_rendering` was called without a call to `begin_rendering` first."
-            )
+            if len(self._current_renders) > 0:
+                self._logger.error(
+                    "`end_rendering` was called without a call to `begin_rendering` first."
+                )
             return
 
         self._render_group(flat.RenderGroup(self._current_renders, self._group_id))
