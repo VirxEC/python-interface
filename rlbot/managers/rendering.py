@@ -146,7 +146,7 @@ class Renderer:
         ),
     ):
         if not self.is_rendering():
-            self._logger.warning(
+            self._logger.error(
                 "Attempted to draw without a render group."
                 "Please call `begin_rendering` first, and then `end_rendering` after."
             )
@@ -237,7 +237,8 @@ class Renderer:
         width: float,
         height: float,
         color: flat.Color,
-        centered: bool = True,
+        h_align: flat.TextHAlign = flat.TextHAlign.Left,
+        v_align: flat.TextVAlign = flat.TextVAlign.Top,
     ):
         """
         Draws a rectangle anchored in 2d space.
@@ -251,7 +252,8 @@ class Renderer:
                 width,
                 height,
                 color,
-                centered,
+                h_align,
+                v_align,
             )
         )
 
@@ -261,6 +263,8 @@ class Renderer:
         width: float,
         height: float,
         color: flat.Color,
+        h_align: flat.TextHAlign = flat.TextHAlign.Left,
+        v_align: flat.TextVAlign = flat.TextVAlign.Top,
     ):
         """
         Draws a rectangle anchored in 3d space.
@@ -273,5 +277,7 @@ class Renderer:
                 width,
                 height,
                 color,
+                h_align,
+                v_align,
             )
         )
