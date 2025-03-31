@@ -19,8 +19,11 @@ start_without_countdown = false
 # What should we do if you click run while a match is already in progress?
 # "RestartIfDifferent", "Restart", "ContinueAndSpawn"
 existing_match_behavior = "Restart"
+# Whether debug rendering is enabled
 enable_rendering = false
+# Whether game state manipulation is enabled
 enable_state_setting = true
+# Whether replays should be automatically saved
 auto_save_replay = false
 # Whether to use freeplay instead of an exhibition match
 freeplay = false
@@ -70,8 +73,8 @@ audio = "Default"
 ball_gravity = "Default"
 # "Off", "Territory"
 territory = "Off"
-# "Default", "ThirtySeconds"
-stale_ball = "Default"
+# "Unlimited", "ThirtySeconds"
+stale_ball = "Unlimited"
 # "Default", "Grounded", "Two", "Three", "Four", "Unlimited", "NoJumps"
 jump = "Default"
 # "OnePointTwentyFiveSeconds", "TwoSeconds", "ThreeSeconds", "Unlimited"
