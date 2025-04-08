@@ -158,7 +158,8 @@ def load_match_config(config_path: Path | str) -> flat.MatchConfiguration:
     return flat.MatchConfiguration(
         launcher=__enum(rlbot_table, "launcher", flat.Launcher),
         launcher_arg=__str(rlbot_table, "launcher_arg"),
-        auto_start_bots=__bool(rlbot_table, "auto_start_bots", True),
+        auto_start_agents=__bool(rlbot_table, "auto_start_agents", True),
+        wait_for_agents=__bool(rlbot_table, "wait_for_agents", True),
         game_map_upk=__str(match_table, "game_map_upk"),
         player_configurations=players,
         script_configurations=scripts,

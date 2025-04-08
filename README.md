@@ -6,7 +6,7 @@ A high performance Python interface for communicating with RLBot v5.
 
 See this video tutorial on YouTube for a quick start guide: <https://www.youtube.com/watch?v=GLqvodQ942A>
 
-Also see the [main RLBot wiki](https://wiki.rlbot.org/) (make sure to avoid info on v4) and also see [this project's wiki](https://github.com/VirxEC/python-interface/wiki)
+Also see the [main RLBot wiki](https://wiki.rlbot.org/) (make sure to avoid info on v4) and also see [this project's wiki](https://github.com/RLBot/python-interface/wiki)
 
 ## Dev setup
 
@@ -25,7 +25,7 @@ The following is how to setup a development environment for this project, NOT ho
   will be reflected in the installed package without
   having to run the command again
 - If you are making changes involving the flatbuffer schema and
-  [rlbot_flatbuffers_py](https://github.com/VirxEC/rlbot_flatbuffers_py),
+  [flatbuffers_python](https://github.com/RLBot/flatbuffers-python),
   also install your local copy of that package in editable mode:
   - `pip uninstall rlbot_flatbuffers`
   - `pip install --editable <path/to/rlbot_flatbuffers>`

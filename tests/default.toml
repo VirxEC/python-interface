@@ -4,7 +4,9 @@
 # "Steam", "Epic", "Custom", "NoLaunch"
 launcher = "steam"
 # Should RLBot start the bot processes automatically, or will a separate script start them
-auto_start_bots = true
+auto_start_agents = true
+# Should RLBot wait for the bot processes to start before starting the match
+wait_for_agents = true
 
 [match]
 # What game mode the game should load.

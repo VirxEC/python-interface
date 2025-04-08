@@ -22,7 +22,7 @@ if __name__ == "__main__":
 
     match_settings = flat.MatchConfiguration(
         launcher=flat.Launcher.Steam,
-        auto_start_bots=True,
+        auto_start_agents=True,
         game_mode=flat.GameMode.Soccer,
         enable_state_setting=True,
         existing_match_behavior=flat.ExistingMatchBehavior.Restart,

@@ -8,7 +8,7 @@ description = "A high performance Python interface for communicating with RLBot 
 dynamic = ["version"]
 requires-python = ">= 3.11"
 dependencies = [
-    "rlbot_flatbuffers~=0.15.0",
+    "rlbot_flatbuffers~=0.16.0",
     "psutil==7.*",
 ]
 readme = "README.md"
@@ -19,7 +19,7 @@ authors = [
 keywords = ["rocket-league"]
 
 [project.urls]
-Repository = "https://github.com/VirxEC/python-interface"
+Repository = "https://github.com/RLBot/python-interface"
 
 [tool.setuptools.dynamic]
 version = {attr = "rlbot.version.__version__"}
