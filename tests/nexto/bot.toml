@@ -1,3 +1,4 @@
+#:schema https://rlbot.org/schemas/agent.json
 [settings]
 name = "Nexto"
 loadout_file = "loadout.toml"
@@ -12,7 +13,7 @@ fun_fact = "Nexto uses an attention mechanism, commonly used for text understand
 source_link = "https://github.com/Rolv-Arild/Necto"
 developer = "Rolv, Soren, and several contributors"
 language = "rlgym"
-# ALL POSSIBLE TAGS: 1v1, teamplay, goalie, hoops, dropshot, snow-day, spike-rush, heatseeker, memebot
+# ALL POSSIBLE TAGS: 1v1, teamplay, goalie, hoops, dropshot, snow-day, rumble, spike-rush, heatseeker, memebot
 # NOTE: Only add the goalie tag if your bot only plays as a goalie; this directly contrasts with the teamplay tag!
 # NOTE: Only add a tag for a special game mode if you bot properly supports it
 tags = ["1v1", "teamplay", "rumble", "heatseeker"]

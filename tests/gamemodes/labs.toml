@@ -14,7 +14,3 @@
 # Barricade - "Labs_PillarHeat_P"
 # Colossus - "Labs_PillarWings_P"
 game_map_upk = "Labs_DoubleGoal_V2_P"
-
-[[cars]]
-type = "human"
-team = 0

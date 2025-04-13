@@ -6,7 +6,3 @@ game_map_upk = "ThrowbackStadium_P"
 rumble = "SpikeRush"
 respawn_time = "OneSecond"
 game_event = "Rugby"
-
-[[cars]]
-type = "human"
-team = 0

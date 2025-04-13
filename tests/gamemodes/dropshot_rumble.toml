@@ -4,7 +4,3 @@ game_map_upk = "ShatterShot_P"
 
 [mutators]
 rumble = "Default"
-
-[[cars]]
-type = "human"
-team = 0

@@ -1,3 +1,7 @@
+#:schema https://rlbot.org/schemas/match.json
+[rlbot]
+launcher = "Steam"
+
 [match]
 game_mode = "Soccer"
 # Map set currently unknown
@@ -9,7 +13,3 @@ ball_type = "Beachball"
 ball_weight = "BeachBallCurve"
 ball_size = "Medium"
 ball_bounciness = "High"
-
-[[cars]]
-type = "human"
-team = 0

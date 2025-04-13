@@ -1,10 +1,9 @@
+[rlbot]
+launcher = "Steam"
+
 [match]
 game_mode = "Soccer"
 game_map_upk = "Park_Bman_P"
 
 [mutators]
 rumble = "BatmanRumble"
-
-[[cars]]
-type = "human"
-team = 0

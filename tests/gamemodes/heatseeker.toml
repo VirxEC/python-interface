@@ -1,6 +1,2 @@
 [match]
 game_mode = "Heatseeker"
-
-[[cars]]
-type = "human"
-team = 0

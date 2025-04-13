@@ -1,3 +1,4 @@
+#:schema https://rlbot.org/schemas/agent.json
 [settings]
 agent_id = "testing/render_test"
 name = "Render test"

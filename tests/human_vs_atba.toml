@@ -1,5 +1,6 @@
+#:schema https://rlbot.org/schemas/match.json
 [rlbot]
-launcher = "steam"
+launcher = "Steam"
 auto_start_agents = true
 
 [match]
@@ -11,7 +12,7 @@ enable_rendering = true
 match_length = "Unlimited"
 
 [[cars]]
-type = "human"
+type = "Human"
 team = 0
 
 [[cars]]

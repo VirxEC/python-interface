@@ -3,7 +3,3 @@ game_mode = "Rumble"
 
 [mutators]
 rumble = "Tactical"
-
-[[cars]]
-type = "human"
-team = 0

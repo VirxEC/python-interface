@@ -1,5 +1,6 @@
+#:schema ./match.json
 [rlbot]
-launcher = "steam"
+launcher = "Steam"
 
 [match]
 game_mode = "Soccer"

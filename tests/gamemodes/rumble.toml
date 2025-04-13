@@ -1,6 +1,2 @@
 [match]
 game_mode = "Rumble"
-
-[[cars]]
-type = "human"
-team = 0

@@ -1,5 +1,6 @@
+#:schema ./match.json
 [rlbot]
-launcher = "steam"
+launcher = "Steam"
 auto_start_agents = true
 
 [match]
@@ -24,7 +25,7 @@ team = 0
 # human - not controlled by the framework
 # rlbot - controlled by the framework
 # psyonix - default bots
-type = "rlbot"
+type = "RLBot"
 
 [[cars]]
 config_file = "atba/atba.bot.toml"
@@ -38,14 +39,14 @@ team = 0
 [[cars]]
 # you don't need to specify a config for psyonix bots and humans
 team = 0
-type = "psyonix"
+type = "Psyonix"
 # If participant is a bot and not RLBot controlled, this value will be used to set bot skill.
 # possible values are "beginner", "rookie", "pro", and "allstar"
 # default is "allstar"
-skill = "pro"
+skill = "Pro"
 
 [[cars]]
-type = "human"
+type = "Human"
 team = 1
 
 [mutators]

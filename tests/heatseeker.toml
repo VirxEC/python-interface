@@ -1,5 +1,6 @@
+#:schema https://rlbot.org/schemas/match.json
 [rlbot]
-launcher = "steam"
+launcher = "Steam"
 
 [match]
 game_mode = "Heatseeker"
@@ -11,5 +12,5 @@ match_length = "Unlimited"
 max_score = "Unlimited"
 
 [[cars]]
-type = "human"
+type = "Human"
 team = 0

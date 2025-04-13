@@ -1,3 +1,6 @@
+[rlbot]
+launcher = "Steam"
+
 [match]
 game_mode = "Soccer"
 game_map_upk = "Haunted_TrainStation_P"
@@ -7,7 +10,3 @@ ball_type = "Haunted"
 rumble = "HauntedBallBeam"
 game_event = "Haunted"
 audio = "Haunted"
-
-[[cars]]
-type = "human"
-team = 0

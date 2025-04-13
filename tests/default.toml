@@ -1,8 +1,9 @@
+#:schema ./match.json
 [rlbot]
 # use this along with launcher = "custom"
 # launcher_arg = "legendary"
 # "Steam", "Epic", "Custom", "NoLaunch"
-launcher = "steam"
+launcher = "Steam"
 # Should RLBot start the bot processes automatically, or will a separate script start them
 auto_start_agents = true
 # Should RLBot wait for the bot processes to start before starting the match
@@ -12,7 +13,7 @@ wait_for_agents = true
 # What game mode the game should load.
 # Accepted values are "Soccer", "Hoops", "Dropshot", "Hockey", "Rumble", "Heatseeker", "Gridiron", "Knockout"
 game_mode = "Soccer"
-# Which map the game should load into
+# Which map the game should load into. Ensure the map doesn't end in '.upk'.
 game_map_upk = "Stadium_P"
 # Automatically skip replays after a goal. Also stops match replays from being saved.
 skip_replays = false
@@ -61,9 +62,9 @@ rumble = "Off"
 boost_strength = "One"
 # "Default", "Low", "High", "SuperHigh", "Reverse"
 gravity = "Default"
-# "Default", "Disabled", "FriendlyFire", "OnContact", "OnContactFF", "OnContactFF", "OnBallContact", or "OnBallContactFF"
+# "Default", "Disabled", "FriendlyFire", "OnContact", "OnContactFF", "OnBallContact", "OnBallContactFF"
 demolish = "Default"
-# "Three_Seconds", "TwoSeconds", "OneSecond", "DisableGoalReset"
+# "ThreeSeconds", "TwoSeconds", "OneSecond", "DisableGoalReset"
 respawn_time = "ThreeSeconds"
 # "Unlimited", "ElevenMinutes"
 max_time = "Unlimited"

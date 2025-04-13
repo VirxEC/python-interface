@@ -1,5 +1,6 @@
+#:schema ./match.json
 [rlbot]
-launcher = "steam"
+launcher = "Steam"
 auto_start_agents = true
 
 [match]
@@ -10,8 +11,8 @@ game_map_upk = "Stadium_P"
 match_length = "Unlimited"
 
 [[cars]]
-type = "human"
-team = 0
+type = "Human"
+team = "Blue"
 
 [[cars]]
 config_file = "necto/bot.toml"

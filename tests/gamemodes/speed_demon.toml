@@ -9,7 +9,3 @@ ball_bounciness = "Low"
 ball_size = "Large"
 respawn_time = "OneSecond"
 demolish = "OnContact"
-
-[[cars]]
-type = "human"
-team = 0
