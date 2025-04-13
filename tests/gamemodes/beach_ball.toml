@@ -1,7 +1,3 @@
-#:schema https://rlbot.org/schemas/match.json
-[rlbot]
-launcher = "Steam"
-
 [match]
 game_mode = "Soccer"
 # Map set currently unknown
