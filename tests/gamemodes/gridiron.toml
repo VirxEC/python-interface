@@ -1,6 +1,3 @@
-[rlbot]
-launcher = "Steam"
-
 [match]
 game_mode = "Gridiron"
 game_map_upk = "BB_P"
