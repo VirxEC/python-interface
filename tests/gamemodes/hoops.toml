@@ -3,7 +3,3 @@ game_mode = "Hoops"
 # DunkHouse - "HoopsStadium_P"
 # TheBlock - "HoopsStreet_P"
 game_map_upk = "HoopsStadium_P"
-
-[[cars]]
-type = "human"
-team = 0

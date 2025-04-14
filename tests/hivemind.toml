@@ -1,5 +1,6 @@
+#:schema https://rlbot.org/schemas/match.json
 [rlbot]
-launcher = "steam"
+launcher = "Steam"
 
 [match]
 game_mode = "Soccer"
@@ -9,7 +10,7 @@ game_map_upk = "Stadium_P"
 match_length = "Unlimited"
 
 [[cars]]
-type = "human"
+type = "Human"
 team = 0
 
 [[cars]]

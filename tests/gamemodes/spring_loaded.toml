@@ -1,8 +1,2 @@
-[match]
-
 [mutators]
 rumble = "SpringLoaded"
-
-[[cars]]
-type = "human"
-team = 0

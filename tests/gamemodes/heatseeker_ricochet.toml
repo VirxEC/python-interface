@@ -4,7 +4,3 @@ game_mode = "Heatseeker"
 # Barricade - "Labs_PillarHeat_P"
 # Colossus - "Labs_PillarWings_P"
 game_map_upk = "Labs_PillarGlass_P"
-
-[[cars]]
-type = "human"
-team = 0

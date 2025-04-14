@@ -9,7 +9,3 @@ ball_type = "Beachball"
 ball_weight = "BeachBallCurve"
 ball_size = "Medium"
 ball_bounciness = "High"
-
-[[cars]]
-type = "human"
-team = 0

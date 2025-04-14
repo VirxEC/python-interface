@@ -7,8 +7,4 @@ ball_max_speed = "SuperFast"
 ball_type = "SpookyCube"
 ball_weight = "Light"
 ball_bounciness = "High"
-boost_amount = "Unlimited_Boost"
-
-[[cars]]
-type = "human"
-team = 0
+boost_amount = "UnlimitedBoost"

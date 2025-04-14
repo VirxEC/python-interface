@@ -7,7 +7,3 @@ ball_type = "Cube"
 ball_weight = "Light"
 ball_bounciness = "High"
 boost_amount = "UnlimitedBoost"
-
-[[cars]]
-type = "human"
-team = 0

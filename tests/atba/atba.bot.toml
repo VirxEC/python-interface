@@ -1,3 +1,4 @@
+#:schema https://rlbot.org/schemas/agent.json
 [settings]
 # A unique string identifying this type of bot, typically on the form "<developer>/<botname>"
 agent_id = "testing/atba"
@@ -21,7 +22,7 @@ fun_fact = "This is a test bot"
 source_link = "https://github.com/RLBot/RLBot"
 developer = "BotMaker"
 language = "Python 3"
-# ALL POSSIBLE TAGS: 1v1, teamplay, goalie, hoops, dropshot, snow-day, spike-rush, heatseeker, memebot
+# ALL POSSIBLE TAGS: 1v1, teamplay, goalie, hoops, dropshot, snow-day, rumble, spike-rush, heatseeker, memebot
 # NOTE: Only add the goalie tag if your bot only plays as a goalie; this directly contrasts with the teamplay tag!
 # NOTE: Only add a tag for a special game mode if you bot properly supports it
 tags = []

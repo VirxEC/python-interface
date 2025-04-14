@@ -1,7 +1,3 @@
 [match]
 game_mode = "Gridiron"
 game_map_upk = "BB_P"
-
-[[cars]]
-type = "human"
-team = 0

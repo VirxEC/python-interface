@@ -1,5 +1,6 @@
+#:schema https://rlbot.org/schemas/match.json
 [rlbot]
-launcher = "steam"
+launcher = "Steam"
 auto_start_agents = true
 
 [match]
@@ -9,10 +10,10 @@ game_map_upk = "Stadium_P"
 [[cars]]
 team = 0
 config_file = "psy/bot.toml"
-type = "psyonix"
-skill = "beginner"
+type = "Psyonix"
+skill = "Beginner"
 
 [[cars]]
 team = 1
-type = "psyonix"
-skill = "rookie"
+type = "Psyonix"
+skill = "Rookie"

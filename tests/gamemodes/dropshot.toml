@@ -1,7 +1,3 @@
 [match]
 game_mode = "Dropshot"
 game_map_upk = "ShatterShot_P"
-
-[[cars]]
-type = "human"
-team = 0
