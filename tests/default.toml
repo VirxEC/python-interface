@@ -1,4 +1,4 @@
-#:schema ./match.json
+#:schema https://rlbot.org/schemas/match.json
 [rlbot]
 # use this along with launcher = "custom"
 # launcher_arg = "legendary"
